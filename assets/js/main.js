@@ -1,18 +1,20 @@
 import {createCanvas} from './utils/utils.js';
 import {App} from './components/App.js';
 
-let app = new App(createCanvas());
+window.app = new App(createCanvas());
 
 const animate = (time) => {
-    // ctx save and canvas update to reload it on every frame
-    app.canvas.height = window.innerHeight;
-    app.ctx.save();
+    // update the entities
+    app.updateEntities();
+
+    // ctx save
+    app.saveCtx();
 
     // draw
+    app.drawEntities();
 
     // restore and request
-    app.ctx.restore();
-    window.request = requestAnimationFrame(animate);
+    app.restore(animate);
 }
 
-window.request = requestAnimationFrame(animate);
+app.request = requestAnimationFrame(animate);
