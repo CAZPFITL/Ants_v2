@@ -1,11 +1,17 @@
-export class Controls {
-    constructor() {
+export default class Controls {
+    constructor(app) {
+        this.app = app;
+        this.entity = app.anthill.population[0];
         this.forward = false;
         this.reverse = false;
         this.right = false;
         this.left = false;
         this.#addKeyboardListeners();
-        console.log('Controls initialized.');
+    }
+
+    // update controls entity
+    updateEntity(entity) {
+        this.entity = entity;
     }
 
     // Private method to add keyboard listeners

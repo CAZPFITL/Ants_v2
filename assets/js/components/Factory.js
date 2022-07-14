@@ -1,4 +1,4 @@
-export class Factory {
+export default class Factory {
     constructor() {
         this.binnacle = {};
         this.verbose = true;
