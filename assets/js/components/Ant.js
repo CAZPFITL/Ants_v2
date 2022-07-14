@@ -23,7 +23,7 @@ export default class Ant {
 
     // update ant
     update() {
-        this.app.physics.walk(this);
+        this.app.controls.entity === this && this.app.physics.walk(this);
         this.app.gui.createPolygon(this);
     }
 

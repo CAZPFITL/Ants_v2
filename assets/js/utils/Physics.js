@@ -4,6 +4,7 @@ export default class Physics {
     }
 
     walk(entity) {
+        const stopRange = 0.1;
         // add frontal and backward speed to the entity
         (this.app.controls.forward) && (entity.speed += entity.acceleration);
         (this.app.controls.reverse) && (entity.speed -= entity.acceleration);
@@ -17,12 +18,11 @@ export default class Physics {
         (entity.speed < -entity.maxSpeed / 2) && (entity.speed = -entity.maxSpeed / 2);
 
         // absolute stop the entity
-        (Math.abs(entity.speed) < entity.friction) && (entity.speed = 0);
+        (entity.speed < stopRange) || (entity.speed < stopRange) && (entity.speed = 0);
 
         // add friction and absolute repose in lower ranges
-        (entity.speed > 0) ?
-            (entity.speed -= entity.friction) :
-            (entity.speed += entity.friction);
+        (entity.speed > 0) && (entity.speed -= entity.friction);
+        (entity.speed < 0) && (entity.speed += entity.friction);
 
         // this works under the unit circle logic using sin or cos multiplied by speed to get the translation
         entity.x -= Math.sin(entity.angle) * entity.speed;

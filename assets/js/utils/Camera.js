@@ -102,6 +102,6 @@ export default class Camera {
     // End camera cycle
     end(animate) {
         this.app.ctx.restore();
-        app.request = requestAnimationFrame(animate);
+        this.app.request = requestAnimationFrame(animate);
     }
 };

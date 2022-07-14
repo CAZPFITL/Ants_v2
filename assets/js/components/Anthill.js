@@ -20,5 +20,12 @@ export default class Anthill {
                 app: this.app
             }
         ));
+        this.population.push(this.app.factory.create(
+            Ant,
+            {
+                id: this.#id(),
+                app: this.app
+            }
+        ));
     }
 }

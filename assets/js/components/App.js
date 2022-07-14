@@ -1,19 +1,19 @@
-import Factory from './Factory.js';
+import Factory from '../utils/Factory.js';
 import Anthill from './Anthill.js';
-import Camera from './Camera.js';
-import Controls from "./Controls.js";
-import Gui from "./Gui.js";
-import Physics from "./Physics.js";
+import Camera from '../utils/Camera.js';
+import Controls from "../utils/Controls.js";
+import Gui from "../utils/Gui.js";
+import Physics from "../utils/Physics.js";
 
 export default class App {
     constructor(onWindow) {
         this.factory = new Factory();
         this.anthill = this.factory.create(Anthill, {app: this});
-        this.#init(onWindow);
+        this.init(onWindow);
     }
 
     // App initialization
-    #init(onWindow) {
+    init(onWindow) {
         this.canvas = document.getElementById('gameCanvas');
         // set the canvas with to the width of the window
         this.canvas.width = window.innerWidth;
@@ -32,11 +32,11 @@ export default class App {
         // create the cheat mode
         (onWindow) && (window.app = this);
         // create the request animation frame
-        this.request = requestAnimationFrame(this.#animate);
+        this.request = requestAnimationFrame(this.animate);
     }
 
     // draw the entities
-    #animate = () => {
+    animate = () => {
         // begin camera
         this.camera.begin();
 
@@ -47,7 +47,7 @@ export default class App {
         this.drawEntities();
 
         // end camera: restore and request
-        this.camera.end(this.#animate);
+        this.camera.end(this.animate);
     }
 
     // update entities

@@ -1,7 +1,7 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.entity = app.anthill.population[0];
+        this.entity = app.anthill.population[1];
         this.forward = false;
         this.reverse = false;
         this.right = false;
