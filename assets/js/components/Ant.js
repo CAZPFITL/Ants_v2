@@ -6,10 +6,11 @@ export class Ant {
         this.#getModelData(props)
     }
 
-    #getModelData({id, x, y, color}) {
+    // calculate model data
+    #getModelData({id, x = 0, y = 0, color}) {
         this.name = 'Ant #' + id;
-        this.x = window.innerHeight * 0.2;
-        this.y = window.innerWidth * 0.2;
+        this.x = x;
+        this.y = y;
         this.width = 4;
         this.height = 8;
         this.color = color ?? '#ff0000';
@@ -50,6 +51,7 @@ export class Ant {
         this.#createPolygon();
     }
 
+    // ant movement
     #move() {
         // add acceleration to speed
         (this.controls.forward) && (this.speed += this.acceleration);
@@ -73,16 +75,18 @@ export class Ant {
         this.y -= Math.cos(this.angle) * this.speed;
     }
 
+    // ant draw
     draw(ctx) {
-        ctx.translate(this.x,this.y);
+        ctx.translate(this.x, this.y);
 
         ctx.beginPath();
         ctx.moveTo(this.polygons[0].x, this.polygons[0].y);
+
         for (let i = 1; i < this.polygons.length; i++) {
             ctx.lineTo(this.polygons[i].x, this.polygons[i].y);
         }
+
         ctx.fillStyle = this.color;
         ctx.fill();
     }
-
 }

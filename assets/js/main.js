@@ -1,20 +1,19 @@
-import {createCanvas} from './utils/utils.js';
 import {App} from './components/App.js';
 
-window.app = new App(createCanvas());
+window.app = new App();
 
 const animate = (time) => {
+    // begin camera
+    app.camera.begin();
+
     // update the entities
     app.updateEntities();
-
-    // ctx save
-    app.saveCtx();
 
     // draw
     app.drawEntities();
 
-    // restore and request
-    app.restore(animate);
+    // end camera: restore and request
+    app.camera.end(app, animate);
 }
 
 app.request = requestAnimationFrame(animate);

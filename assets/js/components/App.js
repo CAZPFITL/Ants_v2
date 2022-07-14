@@ -1,12 +1,25 @@
-import {Factory} from './../utils/factory.js';
+import {Factory} from './Factory.js';
 import {Anthill} from './Anthill.js';
+import {Camera} from './Camera.js';
 
 export class App {
-    constructor({canvas, ctx}) {
-        this.canvas = canvas;
-        this.ctx = ctx;
+    constructor() {
         this.factory = new Factory();
         this.anthill = this.factory.create(Anthill, {app: this});
+        this.#init();
+    }
+
+    // App initialization
+    #init() {
+        this.canvas = document.getElementById('gameCanvas');
+        // set the canvas with to the width of the window
+        this.canvas.width = window.innerWidth;
+        // add canvas id to the canvas
+        this.canvas.id = 'gameCanvas';
+        // add the canvas to the body
+        this.ctx = this.canvas.getContext('2d');
+        // create camera
+        this.camera = new Camera(this.ctx)
     }
 
     // update entities
@@ -20,12 +33,6 @@ export class App {
         }
     }
 
-    // save game ctx
-    saveCtx() {
-        this.canvas.height = window.innerHeight;
-        this.ctx.save();
-    }
-
     // draw all entities
     drawEntities() {
         for (let key in this.factory.binnacle) {
@@ -34,11 +41,5 @@ export class App {
                     this.factory.binnacle[key][i].draw(this.ctx);
             }
         }
-    }
-
-    // restore gameCTX
-    restore(animate) {
-        this.ctx.restore();
-        this.request = requestAnimationFrame(animate);
     }
 }
