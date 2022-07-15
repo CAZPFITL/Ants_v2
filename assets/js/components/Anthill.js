@@ -1,5 +1,5 @@
-import Ant from './Ant.js';
 
+import Ant from './Ant.js';
 export default class Anthill {
     constructor(props) {
         this.name = 'Anthill';
@@ -13,14 +13,18 @@ export default class Anthill {
     }
 
     #createAnt() {
-        [0,1,2].forEach((a) => {
+        // create a x length array of zeros
+        const x = Array(100).fill(0);
+        console.log(x.length);
+        x.forEach((a) => {
             this.population.push(this.app.factory.create(
                 Ant,
                 {
                     id: this.#id(),
                     app: this.app,
-                    x: 0,
-                    y: 0
+                    x: this.app.tools.random(-window.innerWidth * 0.25,window.innerWidth * 0.25, true),
+                    y: this.app.tools.random(-window.innerHeight * 0.25,window.innerHeight * 0.25, true),
+                    angle: this.app.tools.random(-3.6,3.6, false),
                 }
             ))
         });
