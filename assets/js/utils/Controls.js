@@ -1,12 +1,21 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.entity = app.anthill.population[1];
+        this.entity = null;
         this.forward = false;
         this.reverse = false;
         this.right = false;
         this.left = false;
-        this.#addKeyboardListeners();
+        this.app.inits.push(this.init.bind(this));
+
+
+    }
+
+    init() {
+        this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
+        this.#addKeyboardListeners(() => {
+            this.app.camera.addListeners();
+        });
     }
 
     // update controls entity
@@ -14,8 +23,16 @@ export default class Controls {
         this.entity = entity;
     }
 
+    changeControlledEntity(event) {
+        const coords = this.app.tools.getClickCoords(event);
+        const entity = this.app.tools.getEntityAt(coords);
+        if (entity) {
+            this.updateEntity(entity);
+        }
+    }
+
     // Private method to add keyboard listeners
-    #addKeyboardListeners() {
+    #addKeyboardListeners(externalEventListeners) {
         document.addEventListener('keydown', (e) => {
             switch (e.key) {
                 case 'ArrowUp':
@@ -48,5 +65,9 @@ export default class Controls {
                     break;
             }
         });
+        document.addEventListener('click', (e) => {
+            this.changeControlledEntity(e);
+        });
+        externalEventListeners();
     }
 }

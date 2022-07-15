@@ -4,55 +4,59 @@ import Camera from '../utils/Camera.js';
 import Controls from "../utils/Controls.js";
 import Gui from "../utils/Gui.js";
 import Physics from "../utils/Physics.js";
+import Tools from "../utils/Tools.js";
 
 export default class App {
     constructor(onWindow) {
-        this.factory = new Factory();
-        this.anthill = this.factory.create(Anthill, {app: this});
-        this.init(onWindow);
+        this.loadGame(onWindow);
     }
 
-    // App initialization
-    init(onWindow) {
-        this.canvas = document.getElementById('gameCanvas');
-        // set the canvas with to the width of the window
-        this.canvas.width = window.innerWidth;
-        // add canvas id to the canvas
-        this.canvas.id = 'gameCanvas';
-        // add the canvas to the body
-        this.ctx = this.canvas.getContext('2d');
-        // create camera
+    loadGame(onWindow) {
+        // initialization Functions it can be loaded in a specific order,
+        // just removing the constructors push and listing in here the init functions in the order desired
+        this.inits = [
+            // Load anthill with ants
+            () => this.anthill = this.factory.create(Anthill, {app: this})
+        ];
+        this.entities = [];
+        /*
+         * LOAD GAME CLASSES
+         */
+        this.tools = new Tools(this);
+        this.factory = new Factory(this);
         this.camera = new Camera(this)
-        // create the controls
         this.controls = new Controls(this);
-        // create gui
         this.gui = new Gui(this);
-        // create physics
         this.physics = new Physics(this);
-        // create the cheat mode
+
+        /*
+         * LOAD CANVAS
+         */
+        this.canvas = document.getElementById('gameCanvas');
+        this.canvas.width = window.innerWidth;
+        this.canvas.id = 'gameCanvas';
+        this.ctx = this.canvas.getContext('2d');
+
+        /*
+         * LOAD GAME CLASSES ENTITIES
+         */
+        for (let i = 0; i < this.inits.length; i++) {
+            this.inits[i]();
+        }
+
         (onWindow) && (window.app = this);
-        // create the request animation frame
-        this.request = requestAnimationFrame(this.animate);
+
+        this.request = requestAnimationFrame(this.#animate);
     }
 
-    // draw the entities
-    animate = () => {
-        // begin camera
+    #animate = () => {
         this.camera.begin();
-
-        // update the entities
         this.updateEntities();
-
-        // draw
         this.drawEntities();
-
-        // end camera: restore and request
-        this.camera.end(this.animate);
+        this.camera.end(this.#animate);
     }
 
-    // update entities
     updateEntities() {
-        // loop this.factory.binnacle to update all the entities
         for (let key in this.factory.binnacle) {
             for (let i = 0; i < this.factory.binnacle[key].length; i++) {
                 (Boolean(this.factory.binnacle[key][i].update)) &&
@@ -61,7 +65,6 @@ export default class App {
         }
     }
 
-    // draw all entities
     drawEntities() {
         for (let key in this.factory.binnacle) {
             for (let i = 0; i < this.factory.binnacle[key].length; i++) {

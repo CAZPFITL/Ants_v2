@@ -1,7 +1,8 @@
 export default class Factory {
-    constructor() {
+    constructor(app) {
+        this.app = app;
         this.binnacle = {};
-        this.verbose = true;
+        this.verbose = false;
     }
 
     create(object, props) {
@@ -14,6 +15,7 @@ export default class Factory {
 
         // Object registration in binnacle
         this.binnacle[object.name].push(instanceFromType);
+        this.app.entities.push(instanceFromType);
         this.verbose && console.log(
             `%c${instanceFromType.prefix ?? ''}%c${instanceFromType.name} - Created.`,
             'font-weight: bold; color: #AA9922;',

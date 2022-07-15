@@ -13,19 +13,16 @@ export default class Anthill {
     }
 
     #createAnt() {
-        this.population.push(this.app.factory.create(
-            Ant,
-            {
-                id: this.#id(),
-                app: this.app
-            }
-        ));
-        this.population.push(this.app.factory.create(
-            Ant,
-            {
-                id: this.#id(),
-                app: this.app
-            }
-        ));
+        [0,1,2].forEach((a) => {
+            this.population.push(this.app.factory.create(
+                Ant,
+                {
+                    id: this.#id(),
+                    app: this.app,
+                    x: 0,
+                    y: 0
+                }
+            ))
+        });
     }
 }

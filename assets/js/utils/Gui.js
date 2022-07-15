@@ -5,9 +5,14 @@ export default class Gui {
 
     // update new polygon coordinates
     createPolygon(entity) {
-        entity.polygons = this.rectangle(entity).map(point =>
-            ({x: point.x, y: point.y})
-        );
+        const points = [];
+        this.rectangle(entity).forEach(point => {
+            points.push({
+                x: point.x,
+                y: point.y
+            });
+        });
+        entity.polygons = points;
     }
 
     // rectangle polygon array points calculation

@@ -3,7 +3,6 @@ export default class Ant {
         this.#getModelData(props)
     }
 
-    // calculate model data
     #getModelData({id, x = 0, y = 0, color = '#ff0000', app}) {
         this.name = 'Ant #' + id;
         this.app = app;
@@ -21,16 +20,12 @@ export default class Ant {
         this.polygons = [];
     }
 
-    // update ant
     update() {
         this.app.controls.entity === this && this.app.physics.walk(this);
         this.app.gui.createPolygon(this);
     }
 
-    // ant draw
     draw(ctx) {
-        ctx.translate(this.x, this.y);
-
         ctx.beginPath();
         ctx.moveTo(this.polygons[0].x, this.polygons[0].y);
 
