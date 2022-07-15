@@ -1,9 +1,19 @@
+import NeuralNetwork from "./Network.js";
+import Sensor from "./Sensor.js";
+
 export default class Ant {
     constructor(props) {
         this.#getModelData(props)
+        this.sensor = new Sensor(this);
+        this.brain = new NeuralNetwork(this,[
+            this.sensor.rayCount,
+            6,
+            4,
+            4
+        ]);
     }
 
-    #getModelData({id, x = 0, y = 0, color = '#ff0000', app}) {
+    #getModelData({id, x = 0, y = 0, color = '#000', app}) {
         this.name = 'Ant #' + id;
         this.app = app;
         this.x = x;
@@ -18,11 +28,25 @@ export default class Ant {
         this.maxSpeed = 0.5;
         this.turnSpeed = 0.05;
         this.polygons = [];
+        this.controls = {
+            forward: false,
+            reverse: false,
+            right: false,
+            left: false
+        }
     }
 
     update() {
-        this.app.controls.entity === this && this.app.physics.walk(this);
+        this.app.physics.walk(this);
         this.app.gui.createPolygon(this);
+
+        this.sensor.update(this.app.entities);
+        const offsets = this.sensor.readings.map(sensor => sensor==null ? 0 : 1 - sensor.offset );
+        const outputs = NeuralNetwork.feedForward(offsets, this.brain);
+        // this.controls.forward = outputs[0];
+        // this.controls.left = outputs[1];
+        // this.controls.right = outputs[2];
+        // this.controls.reverse = outputs[3];
     }
 
     draw(ctx) {
@@ -35,6 +59,8 @@ export default class Ant {
 
         ctx.fillStyle = this.color;
         ctx.fill();
+
+        this.sensor.draw(ctx);
     }
 }
 

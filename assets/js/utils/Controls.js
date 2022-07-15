@@ -7,8 +7,6 @@ export default class Controls {
         this.right = false;
         this.left = false;
         this.app.inits.push(this.init.bind(this));
-
-
     }
 
     init() {
