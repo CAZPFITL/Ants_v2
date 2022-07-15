@@ -1,10 +1,11 @@
 import Factory from '../utils/Factory.js';
-import Anthill from './Anthill.js';
 import Camera from '../utils/Camera.js';
 import Controls from "../utils/Controls.js";
 import Gui from "../utils/Gui.js";
 import Physics from "../utils/Physics.js";
 import Tools from "../utils/Tools.js";
+import Anthill from './Anthill.js';
+import Level from "./Level.js";
 
 export default class App {
     constructor(onWindow) {
@@ -19,6 +20,7 @@ export default class App {
             () => this.anthill = this.factory.create(Anthill, {app: this})
         ];
         this.entities = [];
+        this.showSensors = false;
         /*
          * LOAD GAME CLASSES
          */
@@ -28,6 +30,7 @@ export default class App {
         this.controls = new Controls(this);
         this.gui = new Gui(this);
         this.physics = new Physics(this);
+        this.level = this.factory.create(Level, {app: this});
 
         /*
          * LOAD CANVAS
@@ -47,6 +50,10 @@ export default class App {
         (onWindow) && (window.app = this);
 
         this.request = requestAnimationFrame(this.#animate);
+    }
+
+    show() {
+        this.showSensors = !this.showSensors;
     }
 
     #animate = () => {

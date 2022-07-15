@@ -60,7 +60,7 @@ export default class Ant {
         ctx.fillStyle = this.color;
         ctx.fill();
 
-        // this.sensor.draw(ctx);
+        this.app.showSensors && this.sensor.draw(ctx);
     }
 }
 
