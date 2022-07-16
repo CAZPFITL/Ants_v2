@@ -5,6 +5,7 @@ export default class Anthill {
         this.name = 'Anthill';
         this.population = [];
         this.app = app;
+        this.ants = ants;
         this.#createAnt();
     }
 
@@ -14,7 +15,7 @@ export default class Anthill {
 
     #createAnt() {
         // create a x length array of zeros
-        const x = Array(100).fill(0);
+        const x = Array(this.ants).fill(0);
         console.log(x.length);
         x.forEach((a) => {
             this.population.push(this.app.factory.create(

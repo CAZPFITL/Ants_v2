@@ -36,30 +36,27 @@ export default class Ant {
         ]);
     }
 
-    update() {
-        this.app.physics.walk(this);
-        this.app.gui.createPolygon(this);
-
+    neuralProcess() {
         this.sensor.update(this.app.entities);
+
         const offsets = this.sensor.readings.map(sensor => sensor==null ? 0 : 1 - sensor.offset );
         const outputs = NeuralNetwork.feedForward(offsets, this.brain);
+
         this.controls.forward = outputs[0];
         this.controls.left = outputs[1];
         this.controls.right = outputs[2];
         this.controls.reverse = outputs[3];
     }
 
+    update() {
+        this.neuralProcess();
+        this.app.controls.readMovement(this);
+        this.app.physics.walk(this);
+        this.app.gui.createPolygon(this);
+    }
+
     draw(ctx) {
-        ctx.beginPath();
-        ctx.moveTo(this.polygons[0].x, this.polygons[0].y);
-
-        for (let i = 1; i < this.polygons.length; i++) {
-            ctx.lineTo(this.polygons[i].x, this.polygons[i].y);
-        }
-
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
+        this.app.gui.drawPolygon(ctx, this);
         this.app.showSensors && this.sensor.draw(ctx);
     }
 }

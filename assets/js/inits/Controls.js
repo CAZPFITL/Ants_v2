@@ -2,6 +2,7 @@ export default class Controls {
     constructor(app) {
         this.app = app;
         this.entity = null;
+        // Arrows
         this.forward = false;
         this.reverse = false;
         this.right = false;
@@ -16,7 +17,6 @@ export default class Controls {
         });
     }
 
-    // update controls entity
     updateEntity(entity) {
         this.entity = entity;
     }
@@ -29,7 +29,20 @@ export default class Controls {
         }
     }
 
-    // Private method to add keyboard listeners
+    getControls(entity) {
+        return this.entity === entity ? this : entity.controls;
+    }
+
+    readMovement(entity) {
+        const controls = this.getControls(entity);
+
+        (controls.forward) && (entity.speed += entity.acceleration);
+        (controls.reverse) && (entity.speed -= entity.acceleration);
+
+        (controls.left) && (entity.angle += entity.turnSpeed);
+        (controls.right) && (entity.angle -= entity.turnSpeed);
+    }
+
     #addKeyboardListeners(externalEventListeners) {
         document.addEventListener('keydown', (e) => {
             switch (e.key) {

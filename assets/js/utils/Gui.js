@@ -3,7 +3,18 @@ export default class Gui {
         this.app = app;
     }
 
-    // update new polygon coordinates
+    drawPolygon(ctx, entity) {
+        ctx.beginPath();
+        ctx.moveTo(entity.polygons[0].x, entity.polygons[0].y);
+
+        for (let i = 1; i < entity.polygons.length; i++) {
+            ctx.lineTo(entity.polygons[i].x, entity.polygons[i].y);
+        }
+
+        ctx.fillStyle = entity.color ?? '#000';
+        ctx.fill();
+    }
+
     createPolygon(entity) {
         const points = [];
         this.rectangle(entity).forEach(point => {
@@ -15,7 +26,6 @@ export default class Gui {
         entity.polygons = points;
     }
 
-    // rectangle polygon array points calculation
     rectangle(entity) {
         const rad = Math.hypot(entity.width, entity.height) / 2;
         const alpha = Math.atan2(entity.width, entity.height);
