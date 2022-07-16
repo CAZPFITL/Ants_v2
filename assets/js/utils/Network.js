@@ -52,7 +52,7 @@ export default  class NeuralNetwork {
 }
 
 // this class works as a layer of the neural network
-export class Level {
+class Level {
     // constructor takes the number of inputs and outputs
     constructor(inputCount, outputCount) {
         // create the arrays

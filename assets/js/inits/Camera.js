@@ -16,9 +16,9 @@ export default class Camera {
             height: 0,
             scale: [1.0, 1.0]
         };
-        this.maxZoom = 800;
+        this.maxZoom = 2000;
         this.minZoom = 50;
-        this.zoom = 800;
+        this.zoom = this.maxZoom;
         this.#updateViewportData();
     }
 

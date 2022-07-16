@@ -2,8 +2,8 @@ export default class Sensor {
     constructor(entity) {
         this.entity = entity;
         this.app = entity.app;
-        this.rayCount = 5;
-        this.rayLength = 10;
+        this.rayCount = 2;
+        this.rayLength = 8;
         this.raySpread = Math.PI * 0.5;
 
         this.rays = [];
@@ -71,7 +71,7 @@ export default class Sensor {
         let end = this.readings[i] ?? ray[1];
 
         ctx.beginPath();
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.strokeStyle = color;
         ctx.moveTo(
             ray[n].x,
@@ -86,8 +86,8 @@ export default class Sensor {
 
     #drawRays(ctx) {
         for (let i = 0; i < this.rays.length; i++) {
-            this.#drawRay(ctx, this.rays[i], i, '#fffb65', 0);
-            this.#drawRay(ctx, this.rays[i], i, '#e8003e', 1);
+            this.#drawRay(ctx, this.rays[i], i, '#000000', 0);
+            this.#drawRay(ctx, this.rays[i], i, '#818181', 1);
         }
     }
 
