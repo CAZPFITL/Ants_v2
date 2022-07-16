@@ -1,10 +1,10 @@
 
 import Ant from './Ant.js';
 export default class Anthill {
-    constructor(props) {
+    constructor({app, id = 0, width, height, ants = 100}) {
         this.name = 'Anthill';
         this.population = [];
-        this.app = props.app;
+        this.app = app;
         this.#createAnt();
     }
 

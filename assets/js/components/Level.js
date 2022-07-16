@@ -1,13 +1,22 @@
 export default class Level {
-    constructor(props) {
-        this.name = 'Level';
-        this.app = props.app;
+    constructor({app, id = 0, width, height}) {
+        this.name = 'Level #' + id;
+        this.app = app;
         this.entities = [];
-        this.targets = [];
-        this.anthills = [];
-        this.food = [];
-        this.foodCount = 0;
-        this.foodLimit = 100;
-        this.foodRate = 0.1;
+        this.coords = { x: -width / 2, y: -height / 2 };
+        this.size = { width, height}
+        this.color = '#523f32';
+    }
+
+    update() {
+        this.entities.forEach(entity => entity.update());
+    }
+
+    draw() {
+        // draw a rectangle with this.size measurements
+        this.app.ctx.fillStyle = this.color;
+        this.app.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
+        // // draw all entities
+        // this.entities.forEach(entity => entity.draw(ctx));
     }
 }
