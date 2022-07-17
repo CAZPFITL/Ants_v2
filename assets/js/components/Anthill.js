@@ -14,10 +14,9 @@ export default class Anthill {
     }
 
     #createAnt() {
-        // create a x length array of zeros
         const x = Array(this.ants).fill(0);
-        console.log(x.length);
-        x.forEach((a) => {
+
+        x.forEach(() => {
             this.population.push(this.app.factory.create(
                 Ant,
                 {

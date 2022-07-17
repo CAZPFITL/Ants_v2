@@ -18,7 +18,7 @@ export default class Controls {
     }
 
     updateEntity(entity) {
-        this.entity = entity;
+        (this.entity !== entity) && (this.entity = entity);
     }
 
     changeControlledEntity(event) {
@@ -80,5 +80,10 @@ export default class Controls {
             this.changeControlledEntity(e);
         });
         externalEventListeners();
+    }
+
+    draw() {
+        console.log('draw')
+        this.app.gui.drawControls();
     }
 }

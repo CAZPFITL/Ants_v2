@@ -15,25 +15,18 @@ export default class AppMethods {
         this.entities = [];
     }
 
-    loadCanvas() {
-        this.canvas = document.getElementById('gameCanvas');
-        this.canvas.width = window.innerWidth;
-        this.canvas.id = 'gameCanvas';
-        this.ctx = this.canvas.getContext('2d');
-    }
-
     loadGameClasses() {
+        this.gui = new Gui(this);
         this.tools = new Tools(this);
+        this.physics = new Physics(this);
         this.factory = new Factory(this);
         this.camera = new Camera(this)
         this.controls = new Controls(this);
-        this.gui = new Gui(this);
-        this.physics = new Physics(this);
     }
 
     loadInits(app) {
         for (let i = 0; i < app.inits.length; i++) {
-            app.inits[i]();
+            (typeof app.inits[i] === 'function') && app.inits[i]();
         }
         app.request = requestAnimationFrame(app.animate);
     }
@@ -51,7 +44,7 @@ export default class AppMethods {
         for (let key in this.factory.binnacle) {
             for (let i = 0; i < this.factory.binnacle[key].length; i++) {
                 (Boolean(this.factory.binnacle[key][i].draw)) &&
-                this.factory.binnacle[key][i].draw(this.ctx);
+                this.factory.binnacle[key][i].draw(this.gui.ctx);
             }
         }
     }

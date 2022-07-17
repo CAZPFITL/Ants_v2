@@ -24,4 +24,11 @@ export default class Factory {
 
         return instanceFromType;
     }
+
+    addGameEntity(entity) {
+        if (!(this.binnacle.GameObjects instanceof Array)) {
+            this.binnacle.GameObjects = [];
+        }
+        this.binnacle.GameObjects.push(entity);
+    }
 }

@@ -23,8 +23,8 @@ export default class Camera {
     }
 
     #scaleAndTranslate() {
-        this.app.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
-        this.app.ctx.translate(-this.viewport.left, -this.viewport.top);
+        this.app.gui.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
+        this.app.gui.ctx.translate(-this.viewport.left, -this.viewport.top);
     }
 
     #zoomTo(z) {
@@ -38,7 +38,7 @@ export default class Camera {
     }
 
     #updateViewportData() {
-        this.aspectRatio = this.app.ctx.canvas.width / this.app.ctx.canvas.height;
+        this.aspectRatio = this.app.gui.ctx.canvas.width / this.app.gui.ctx.canvas.height;
         this.viewport.width = this.zoom * Math.tan(this.fieldOfView);
         this.viewport.height = this.viewport.width / this.aspectRatio;
         this.viewport.left = this.lookAt[0] - (this.viewport.width / 2.0);
@@ -46,8 +46,8 @@ export default class Camera {
         this.viewport.right = this.viewport.left + this.viewport.width;
         this.viewport.bottom = this.viewport.top + this.viewport.height;
         this.viewport.scale = [
-            this.app.ctx.canvas.width / this.viewport.width,
-            this.app.ctx.canvas.height / this.viewport.height
+            this.app.gui.ctx.canvas.width / this.viewport.width,
+            this.app.gui.ctx.canvas.height / this.viewport.height
         ];
     }
 
@@ -80,13 +80,16 @@ export default class Camera {
 
     begin() {
         this.#updateViewportData()
-        this.app.ctx.canvas.height = window.innerHeight;
-        this.app.ctx.save();
+        this.app.gui.ctx.canvas.height = window.innerHeight;
+        this.app.gui.ctx.save();
+        this.app.gui.controlsCtx.canvas.height = window.innerHeight;
+        this.app.gui.controlsCtx.save();
         this.#scaleAndTranslate();
     }
 
     end(animate) {
-        this.app.ctx.restore();
+        this.app.gui.ctx.restore();
+        this.app.gui.controlsCtx.restore();
         this.app.request = requestAnimationFrame(animate);
     }
 };

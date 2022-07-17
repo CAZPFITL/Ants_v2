@@ -1,4 +1,4 @@
-export default  class NeuralNetwork {
+export default class NeuralNetwork {
     constructor(app, neuronCount) {
         this.app = app;
         this.levels = [];

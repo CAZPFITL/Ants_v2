@@ -11,34 +11,35 @@ export default class Ant {
         this.app = app;
         this.x = x;
         this.y = y;
+        this.speed = 0;
         this.width = 4;
         this.height = 8;
         this.color = color;
         this.angle = angle;
-        this.speed = 0;
         this.acceleration = 0.3;
         this.friction = 0.040;
         this.maxSpeed = 0.5;
         this.turnSpeed = 0.05;
+
         this.polygons = [];
+
         this.controls = {
             forward: false,
             reverse: false,
             right: false,
             left: false
         }
+
         this.sensor = new Sensor(this);
         this.brain = new NeuralNetwork(this,[
-            this.sensor.rayCount,
-            6,
-            4,
-            4
+            this.sensor.rayCount, // #inputs
+            6, // first layer
+            4, // second layer
+            4  // outputs
         ]);
     }
 
     neuralProcess() {
-        this.sensor.update(this.app.entities);
-
         const offsets = this.sensor.readings.map(sensor => sensor==null ? 0 : 1 - sensor.offset );
         const outputs = NeuralNetwork.feedForward(offsets, this.brain);
 
@@ -49,7 +50,8 @@ export default class Ant {
     }
 
     update() {
-        this.neuralProcess();
+        this.sensor.update(this.app.entities);
+        // this.neuralProcess();
         this.app.controls.readMovement(this);
         this.app.physics.walk(this);
         this.app.gui.createPolygon(this);

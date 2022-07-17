@@ -14,8 +14,8 @@ export default class Level {
 
     draw() {
         // draw a rectangle with this.size measurements
-        this.app.ctx.fillStyle = this.color;
-        this.app.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
+        this.app.gui.ctx.fillStyle = this.color;
+        this.app.gui.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
         // // draw all entities
         // this.entities.forEach(entity => entity.draw(ctx));
     }

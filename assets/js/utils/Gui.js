@@ -1,6 +1,18 @@
 export default class Gui {
     constructor(app) {
         this.app = app;
+        app.inits.push(this.init.bind(this));
+    }
+
+    init() {
+        this.ctx = this.createCanvas('gameCanvas');
+        this.controlsCtx = this.createCanvas('controlsCanvas');
+    }
+
+    createCanvas(id) {
+        const canvas = document.getElementById(id);
+        canvas.width = window.innerWidth;
+        return canvas.getContext('2d');
     }
 
     drawPolygon(ctx, entity) {
@@ -47,5 +59,32 @@ export default class Gui {
                 y: entity.y - Math.cos(Math.PI + entity.angle + alpha) * rad
             }
         ]
+    }
+
+    button({ctx, x, y, width, height, text, onClick}) {
+        // create a button to be used in the canvas
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
+    }
+
+    drawControls() {
+        const width = this.controlsCtx.canvas.width * 0.11;
+        const height = this.controlsCtx.canvas.height * 0.1;
+        this.button({
+            ctx: this.controlsCtx,
+            x: this.controlsCtx.canvas.width - width,
+            y: this.controlsCtx.canvas.height - height,
+            width: 100,
+            height: 50,
+            text: 'Show Sensors',
+            onClick: () => {
+                console.log('show sensors');
+                this.app.show();
+            }
+        })
     }
 }

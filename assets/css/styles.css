@@ -1,6 +1,14 @@
 body {
     overflow: hidden;
+    position: relative;
 }
+
 #gameCanvas {
     background: #5e8a1e;
+}
+
+#controlsCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
 }
