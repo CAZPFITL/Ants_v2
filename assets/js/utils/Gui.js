@@ -65,7 +65,7 @@ export default class Gui {
         // create a button to be used in the canvas
         ctx.beginPath();
         ctx.rect(x, y, width, height);
-        ctx.fillStyle = '#000';
+        ctx.fillStyle = '#000000';
         ctx.fill();
         ctx.strokeStyle = '#fff';
         ctx.stroke();

@@ -16,28 +16,28 @@ export default class Camera {
             height: 0,
             scale: [1.0, 1.0]
         };
-        this.maxZoom = 3000;
-        this.minZoom = 50;
+        this.maxZoom = 1000;
+        this.minZoom = 500;
         this.zoom = this.maxZoom;
-        this.#updateViewportData();
+        this.updateViewportData();
     }
 
-    #scaleAndTranslate() {
+    scaleAndTranslate() {
         this.app.gui.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
         this.app.gui.ctx.translate(-this.viewport.left, -this.viewport.top);
     }
 
-    #zoomTo(z) {
+    zoomTo(z) {
         this.zoom = z;
-        this.#updateViewportData();
+        this.updateViewportData();
     }
 
-    #moveTo([x, y]) {
+    moveTo([x, y]) {
         this.lookAt = [x, y];
-        this.#updateViewportData();
+        this.updateViewportData();
     }
 
-    #updateViewportData() {
+    updateViewportData() {
         this.aspectRatio = this.app.gui.ctx.canvas.width / this.app.gui.ctx.canvas.height;
         this.viewport.width = this.zoom * Math.tan(this.fieldOfView);
         this.viewport.height = this.viewport.width / this.aspectRatio;
@@ -52,39 +52,51 @@ export default class Camera {
     }
 
     addListeners() {
-        window.onwheel = e => {
-            if (e.ctrlKey) {
-                let zoomLevel = this.zoom + Math.floor(e.deltaY);
-                this.#zoomTo(
+        const zoomCamera = (event) => {
+            if (event.ctrlKey) {
+                let zoomLevel = this.zoom + Math.floor(event.deltaY);
+                this.zoomTo(
                     (zoomLevel <= this.minZoom) ?
                         this.minZoom :
                         (zoomLevel >= this.maxZoom) ?
                             this.maxZoom :
                             zoomLevel
                 );
-            } else {
-                this.#moveTo([
-                    this.lookAt[0] + Math.floor(e.deltaX),
-                    this.lookAt[1] + Math.floor(e.deltaY)
-                ]);
             }
-        };
+        }
 
-        window.addEventListener('keydown', e => {
-            if (e.key === 'r') {
-                this.#zoomTo(this.maxZoom);
-                this.#moveTo([0, 0]);
+        const moveCamera = (event) => {
+            this.moveTo([
+                this.lookAt[0] + Math.floor(event.deltaX),
+                this.lookAt[1] + Math.floor(event.deltaY)
+            ]);
+        }
+
+        const resetCamera = (event) => {
+            if (event.key === 'r') {
+                this.zoomTo(this.maxZoom);
+                this.moveTo([0, 0]);
             }
-        });
-    }
+        }
+
+        return {
+            onwheel: [
+                zoomCamera,
+                moveCamera,
+            ],
+            onkeydown: [
+                resetCamera,
+            ]
+        }
+    };
 
     begin() {
-        this.#updateViewportData()
+        this.updateViewportData()
         this.app.gui.ctx.canvas.height = window.innerHeight;
         this.app.gui.ctx.save();
         this.app.gui.controlsCtx.canvas.height = window.innerHeight;
         this.app.gui.controlsCtx.save();
-        this.#scaleAndTranslate();
+        this.scaleAndTranslate();
     }
 
     end(animate) {

@@ -2,35 +2,41 @@ export default class Controls {
     constructor(app) {
         this.app = app;
         this.entity = null;
-        // Arrows
-        this.forward = false;
-        this.reverse = false;
-        this.right = false;
-        this.left = false;
         this.app.inits.push(this.init.bind(this));
     }
 
     init() {
         this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
-        this.#addKeyboardListeners(() => {
-            this.app.camera.addListeners();
+        this.addListeners(() => {
+            const camera = this.app.camera.addListeners();
+            const player = this.app.player.addListeners();
+            return {
+                onclick: [
+                    ...player.onclick
+                ],
+                onwheel: [
+                    ...camera.onwheel
+                ],
+                onkeydown: [
+                    ...camera.onkeydown,
+                    ...player.onkeydown,
+                ],
+                onkeyup: [
+                    ...player.onkeyup,
+                ],
+            }
         });
     }
 
     updateEntity(entity) {
-        (this.entity !== entity) && (this.entity = entity);
-    }
-
-    changeControlledEntity(event) {
-        const coords = this.app.tools.getClickCoords(event);
-        const entity = this.app.tools.getEntityAt(coords);
-        if (entity) {
-            this.updateEntity(entity);
-        }
+        this.entity !== entity && (this.entity = entity);
     }
 
     getControls(entity) {
-        return this.entity === entity ? this : entity.controls;
+        // console.log(this.entity.controls)
+        return this.entity === entity
+            ? this.app.player.controls
+            : entity.controls;
     }
 
     readMovement(entity) {
@@ -43,47 +49,15 @@ export default class Controls {
         (controls.right) && (entity.angle -= entity.turnSpeed);
     }
 
-    #addKeyboardListeners(externalEventListeners) {
-        document.addEventListener('keydown', (e) => {
-            switch (e.key) {
-                case 'ArrowUp':
-                    this.forward = true;
-                    break;
-                case 'ArrowDown':
-                    this.reverse = true;
-                    break;
-                case 'ArrowRight':
-                    this.right = true;
-                    break;
-                case 'ArrowLeft':
-                    this.left = true;
-                    break;
-            }
-        });
-        document.addEventListener('keyup', (e) => {
-            switch(e.key) {
-                case 'ArrowUp':
-                    this.forward = false;
-                    break;
-                case 'ArrowDown':
-                    this.reverse = false;
-                    break;
-                case 'ArrowRight':
-                    this.right = false;
-                    break;
-                case 'ArrowLeft':
-                    this.left = false;
-                    break;
-            }
-        });
-        document.addEventListener('click', (e) => {
-            this.changeControlledEntity(e);
-        });
-        externalEventListeners();
+    addListeners(listeners) {
+        const { onclick, onwheel, onkeydown, onkeyup } = listeners();
+        document.addEventListener('keydown', (e) => onkeydown.forEach(fn => fn(e)));
+        document.addEventListener('keyup', (e) => onkeyup.forEach(fn => fn(e)));
+        document.addEventListener('click', (e) => onclick.forEach(fn => fn(e)));
+        document.addEventListener('wheel', (e) => onwheel.forEach(fn => fn(e)));
     }
 
     draw() {
-        console.log('draw')
         this.app.gui.drawControls();
     }
 }

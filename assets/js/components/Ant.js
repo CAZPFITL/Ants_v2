@@ -24,10 +24,10 @@ export default class Ant {
         this.polygons = [];
 
         this.controls = {
-            forward: false,
-            reverse: false,
-            right: false,
-            left: false
+            forward: 0,
+            reverse: 0,
+            right: 0,
+            left: 0
         }
 
         this.sensor = new Sensor(this);
@@ -51,7 +51,7 @@ export default class Ant {
 
     update() {
         this.sensor.update(this.app.entities);
-        // this.neuralProcess();
+        this.neuralProcess();
         this.app.controls.readMovement(this);
         this.app.physics.walk(this);
         this.app.gui.createPolygon(this);

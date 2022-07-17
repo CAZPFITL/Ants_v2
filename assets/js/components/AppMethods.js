@@ -1,9 +1,10 @@
 import Tools from "../utils/Tools.js";
 import Factory from "../utils/Factory.js";
-import Camera from "../inits/Camera.js";
-import Controls from "../inits/Controls.js";
 import Gui from "../utils/Gui.js";
 import Physics from "../utils/Physics.js";
+import Camera from "../inits/Camera.js";
+import Controls from "../inits/Controls.js";
+import Player from "../inits/Player.js";
 
 export default class AppMethods {
     show() {
@@ -20,7 +21,8 @@ export default class AppMethods {
         this.tools = new Tools(this);
         this.physics = new Physics(this);
         this.factory = new Factory(this);
-        this.camera = new Camera(this)
+        this.camera = new Camera(this);
+        this.player = new Player(this);
         this.controls = new Controls(this);
     }
 
