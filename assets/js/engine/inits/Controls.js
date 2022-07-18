@@ -36,6 +36,15 @@ export default class Controls {
             'mouseup': [
                 ...gui.onmouseup,
             ],
+            'touchstart': [
+                ...gui.onmousedown,
+            ],
+            'touchend': [
+                ...gui.onmouseup,
+            ],
+            'touchcancel': [
+                ...gui.onmouseup,
+            ],
             'wheel': [
                 ...camera.onwheel
             ],

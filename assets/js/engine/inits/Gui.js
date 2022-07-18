@@ -8,33 +8,33 @@ export default class Gui {
         this.ctx = this.createCanvas('gameCanvas');
         this.controlsCtx = this.createCanvas('controlsCanvas');
         this.movementControls = {
-            up: {
+            'forward': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 120,
                 width: 50,
                 height: 50,
-                text: 'up'
+                text: '↑'
             },
-            down: {
+            'reverse': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: 'down'
+                text: '↓️'
             },
-            left: {
+            'left': {
                 x: this.controlsCtx.canvas.width - 180,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: 'left'
+                text: '←'
             },
-            right: {
+            'right': {
                 x: this.controlsCtx.canvas.width - 60,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: 'right'
+                text: '→️'
             }
         }
     }
@@ -159,8 +159,8 @@ export default class Gui {
         const height = ctx.canvas.height;
 
         const controlAnt = {
-            up: {ctx, ...this.movementControls.up,},
-            down: {ctx, ...this.movementControls.down,},
+            forward: {ctx, ...this.movementControls.forward,},
+            reverse: {ctx, ...this.movementControls.reverse,},
             left: {ctx, ...this.movementControls.left,},
             right: {ctx, ...this.movementControls.right,},
         }
