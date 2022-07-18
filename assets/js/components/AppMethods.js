@@ -1,6 +1,6 @@
 import Tools from "../utils/Tools.js";
 import Factory from "../utils/Factory.js";
-import Gui from "../utils/Gui.js";
+import Gui from "../inits/Gui.js";
 import Physics from "../utils/Physics.js";
 import Camera from "../inits/Camera.js";
 import Controls from "../inits/Controls.js";

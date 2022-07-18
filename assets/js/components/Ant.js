@@ -52,7 +52,7 @@ export default class Ant {
     update() {
         this.sensor.update(this.app.entities);
         this.neuralProcess();
-        this.app.controls.readMovement(this);
+        this.app.player.readMovement(this);
         this.app.physics.walk(this);
         this.app.gui.createPolygon(this);
     }

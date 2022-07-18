@@ -38,16 +38,6 @@ export default class Controls {
             : entity.controls;
     }
 
-    readMovement(entity) {
-        const controls = this.getControls(entity);
-
-        (controls.forward) && (entity.speed += entity.acceleration);
-        (controls.reverse) && (entity.speed -= entity.acceleration);
-
-        (controls.left) && (entity.angle += entity.turnSpeed);
-        (controls.right) && (entity.angle -= entity.turnSpeed);
-    }
-
     addListeners(listeners) {
         const { onclick, onwheel, onkeydown, onkeyup } = listeners();
         document.addEventListener('keydown', (e) => onkeydown.forEach(fn => fn(e)));
