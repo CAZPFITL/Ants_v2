@@ -1,5 +1,5 @@
 import NeuralNetwork from "../utils/Network.js";
-import Sensor from "../utils/Sensor.js";
+import Sensor from "../../engine/utils/Sensor.js";
 
 export default class Ant {
     constructor(props) {

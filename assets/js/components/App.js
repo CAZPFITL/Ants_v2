@@ -1,6 +1,6 @@
 import AppMethods from './AppMethods.js';
-import Anthill from './Anthill.js';
-import Level from "./Level.js";
+import Anthill from './entities/Anthill.js';
+import GameLevel from "./utils/GameLevel.js";
 
 export default class App extends AppMethods {
     constructor(onWindow) {
@@ -11,12 +11,17 @@ export default class App extends AppMethods {
     loadGame(onWindow) {
         this.inits = [
             () => this.factory.addGameEntity(this.controls),
-            () => this.level = this.factory.create(Level, {app: this, width: 400, height: 400}),
-            () => this.anthill = this.factory.create(Anthill, {app: this, ants: 3}),
+            () => this.level = this.factory.create(GameLevel, {
+                app: this,
+                width: 400,
+                height: 400
+            }),
+            () => this.anthill = this.factory.create(Anthill, {
+                app: this,
+                ants: 3
+            }),
         ];
-        this.loadVariables();
-        this.loadGameClasses();
-        this.loadInits(this);
+        this.loadEngine(this);
         (onWindow) && (window.app = this);
     }
 

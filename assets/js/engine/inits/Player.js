@@ -11,7 +11,6 @@ export default class Player {
             right: 0,
             left: 0
         }
-        console.log('Player init');
     }
 
     readMovement(entity) {

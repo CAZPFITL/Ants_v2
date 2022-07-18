@@ -1,10 +1,10 @@
-import Tools from "../utils/Tools.js";
-import Factory from "../utils/Factory.js";
-import Gui from "../inits/Gui.js";
-import Physics from "../utils/Physics.js";
-import Camera from "../inits/Camera.js";
-import Controls from "../inits/Controls.js";
-import Player from "../inits/Player.js";
+import Tools from "../engine/utils/Tools.js";
+import Factory from "../engine/utils/Factory.js";
+import Gui from "../engine/inits/Gui.js";
+import Physics from "../engine/utils/Physics.js";
+import Camera from "../engine/inits/Camera.js";
+import Controls from "../engine/inits/Controls.js";
+import Player from "../engine/inits/Player.js";
 
 export default class AppMethods {
     show() {
@@ -16,7 +16,8 @@ export default class AppMethods {
         this.entities = [];
     }
 
-    loadGameClasses() {
+    loadEngine(app) {
+        this.loadVariables();
         this.gui = new Gui(this);
         this.tools = new Tools(this);
         this.physics = new Physics(this);
@@ -24,6 +25,7 @@ export default class AppMethods {
         this.camera = new Camera(this);
         this.player = new Player(this);
         this.controls = new Controls(this);
+        this.loadInits(app);
     }
 
     loadInits(app) {

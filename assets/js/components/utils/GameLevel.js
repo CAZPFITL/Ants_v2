@@ -1,6 +1,6 @@
-export default class Level {
+export default class GameLevel {
     constructor({app, id = 0, width, height}) {
-        this.name = 'Level #' + id;
+        this.name = 'GameLevel #' + id;
         this.app = app;
         this.entities = [];
         this.coords = { x: -width / 2, y: -height / 2 };
