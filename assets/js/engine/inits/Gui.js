@@ -7,34 +7,39 @@ export default class Gui {
     init() {
         this.ctx = this.createCanvas('gameCanvas');
         this.controlsCtx = this.createCanvas('controlsCanvas');
+        const font = "16px Mouse"
         this.movementControls = {
             'forward': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 120,
                 width: 50,
                 height: 50,
-                text: '↑'
+                text: '↑',
+                font
             },
             'reverse': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: '↓️'
+                text: '↓️',
+                font
             },
             'left': {
                 x: this.controlsCtx.canvas.width - 180,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: '←'
+                text: '←',
+                font
             },
             'right': {
                 x: this.controlsCtx.canvas.width - 60,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
-                text: '→️'
+                text: '→️',
+                font
             }
         }
     }
@@ -92,16 +97,24 @@ export default class Gui {
         ]
     }
 
-    button({ctx, x, y, width, height, text}) {
+
+    button({ctx, font, x, y, width, height, text}) {
         // create a button to be used in the canvas
+        this.square({ctx, x, y, width, height, color: '#ffa600', stroke: '#000'});
+        this.text({ctx, font, color: '#000', text, x, y, width, height});
+    }
+
+    square({ctx, x, y, width, height, color, stroke}) {
         ctx.beginPath();
         ctx.rect(x, y, width, height);
-        ctx.fillStyle = '#ffa600';
+        ctx.fillStyle = color;
         ctx.fill();
-        ctx.strokeStyle = '#000000';
-        ctx.stroke();
-        ctx.font = "16px Mouse";
-        ctx.fillStyle = '#000000';
+        stroke && (ctx.strokeStyle = stroke);
+        stroke && ctx.stroke();
+    }
+    text({ctx, font, color, text, x, y, width, height}) {
+        ctx.font = font;
+        ctx.fillStyle = color;
         const xText = x + width / 2 - ctx.measureText(text).width / 2;
         const yText = y + height / 2 + 5;
         ctx.fillText(text, xText, yText);
