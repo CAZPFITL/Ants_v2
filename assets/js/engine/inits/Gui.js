@@ -96,16 +96,20 @@ export default class Gui {
         // create a button to be used in the canvas
         ctx.beginPath();
         ctx.rect(x, y, width, height);
-        ctx.fillStyle = '#ffd5e5';
+        ctx.fillStyle = '#ffa600';
         ctx.fill();
         ctx.strokeStyle = '#000000';
         ctx.stroke();
+        ctx.font = "16px Mouse";
+        ctx.fillStyle = '#000000';
+        const xText = x + width / 2 - ctx.measureText(text).width / 2;
+        const yText = y + height / 2 + 5;
+        ctx.fillText(text, xText, yText);
     }
 
     addListeners(e) {
-        const onClick = (e) => {
-            const x = e.offsetX;
-            const y = e.offsetY;
+        const onMouseDown = (e) => {
+            const {x, y} = {x: e.offsetX, y: e.offsetY};
             const controlAnt = this.movementControls;
 
             Object.keys(controlAnt).forEach(key => {
@@ -120,9 +124,29 @@ export default class Gui {
             });
         }
 
+        const onMouseUp = (e) => {
+            const {x, y} = {x: e.offsetX, y: e.offsetY};
+            const controlAnt = this.movementControls;
+
+            Object.keys(controlAnt).forEach(key => {
+                if (
+                    x > controlAnt[key].x &&
+                    x < controlAnt[key].x + controlAnt[key].width &&
+                    y > controlAnt[key].y &&
+                    y < controlAnt[key].y + controlAnt[key].height
+                ) {
+                    this.app.player.controls[key] = false;
+                }
+            });
+        }
+
+
         return {
-            onclick: [
-                onClick,
+            onmousedown: [
+                onMouseDown,
+            ],
+            onmouseup: [
+                onMouseUp,
             ]
         }
     }
@@ -130,10 +154,9 @@ export default class Gui {
     /**
      * In game draw section
      */
-    drawControls() {
-        const ctx = this.controlsCtx;
-        const width = this.controlsCtx.canvas.width;
-        const height = this.controlsCtx.canvas.height;
+    drawControls(ctx = this.controlsCtx) {
+        const width = ctx.canvas.width;
+        const height = ctx.canvas.height;
 
         const controlAnt = {
             up: {ctx, ...this.movementControls.up,},
@@ -147,10 +170,11 @@ export default class Gui {
         });
     }
 
-    drawGameData() {
-        const count = this.app.anthill.population.length;
-        // draw count at {x:10, y: 10} in this.controlsCtx
-
+    drawGameData(ctx = this.controlsCtx) {
+        ctx.font = "20px Mouse";
+        ctx.fillStyle = '#000000';
+        ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 30);
+        ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 60);
     }
 
     draw() {

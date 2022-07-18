@@ -25,25 +25,30 @@ export default class Controls {
         const camera = this.app.camera.addListeners();
         const player = this.app.player.addListeners();
         const gui = this.app.gui.addListeners();
-        const listedListeners = {
-            onclick: [
+        const listeners = {
+            'click': [
                 ...player.onclick,
-                ...gui.onclick
+                ...gui.onmouseup,
             ],
-            onwheel: [
+            'mousedown': [
+                ...gui.onmousedown,
+            ],
+            'mouseup': [
+                ...gui.onmouseup,
+            ],
+            'wheel': [
                 ...camera.onwheel
             ],
-            onkeydown: [
+            'keydown': [
                 ...player.onkeydown,
                 ...camera.onkeydown,
             ],
-            onkeyup: [
+            'keyup': [
                 ...player.onkeyup,
             ],
         }
-        document.addEventListener('keydown', (e) => listedListeners.onkeydown.forEach(fn => fn(e)));
-        document.addEventListener('keyup', (e) => listedListeners.onkeyup.forEach(fn => fn(e)));
-        document.addEventListener('click', (e) => listedListeners.onclick.forEach(fn => fn(e)));
-        document.addEventListener('wheel', (e) => listedListeners.onwheel.forEach(fn => fn(e)));
+        for ( let listener in listeners ) {
+            document.addEventListener(listener, (e) => listeners[listener].forEach(fn => fn(e)));
+        }
     }
 }

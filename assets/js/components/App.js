@@ -1,6 +1,6 @@
 import AppMethods from './AppMethods.js';
-import Anthill from './entities/Anthill.js';
-import GameLevel from "./utils/GameLevel.js";
+import Anthill from './Anthill.js';
+import GameLevel from "./GameLevel.js";
 
 export default class App extends AppMethods {
     constructor(onWindow) {

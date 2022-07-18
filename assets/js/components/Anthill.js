@@ -6,6 +6,7 @@ export default class Anthill {
         this.population = [];
         this.app = app;
         this.ants = ants;
+        this.food = 0;
         this.#createAnt();
     }
 
