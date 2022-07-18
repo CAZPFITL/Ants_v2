@@ -2,13 +2,13 @@ import NeuralNetwork from "./Network.js";
 import Sensor from "../engine/utils/Sensor.js";
 
 export default class Ant {
-    constructor(props) {
+    constructor({app, ...props}) {
+        this.app = app;
         this.getModelData(props)
     }
 
-    getModelData({id, x = 0, y = 0, color = '#000', angle = 0, app}) {
+    getModelData({id, x = 0, y = 0, color = '#000', angle = 0}) {
         this.name = 'Ant #' + id;
-        this.app = app;
         this.x = x;
         this.y = y;
         this.speed = 0;

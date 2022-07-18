@@ -13,6 +13,7 @@ export default class AppMethods {
 
     loadVariables() {
         this.showSensors = true;
+        this.gameOver = false;
         this.entities = [];
     }
 
@@ -51,5 +52,12 @@ export default class AppMethods {
                 this.factory.binnacle[key][i].draw(this.gui.ctx);
             }
         }
+    }
+
+    animate = () => {
+        this.camera.begin();
+        this.updateEntities();
+        this.drawEntities();
+        this.camera.end(this.animate);
     }
 }

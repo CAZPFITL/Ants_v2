@@ -1,10 +1,15 @@
 
 import Ant from './Ant.js';
+
 export default class Anthill {
     constructor({app, id = 0, width, height, ants = 100}) {
+        this.app = app;
+        this.getAnthillData({ants});
+    }
+
+    getAnthillData({ants}) {
         this.name = 'Anthill';
         this.population = [];
-        this.app = app;
         this.ants = ants;
         this.food = 0;
         this.#createAnt();
@@ -12,6 +17,14 @@ export default class Anthill {
 
     #id() {
         return this.population.length + 1;
+    }
+
+    update() {
+        this.population = [...this.app.factory.binnacle.Ant]
+        this.ants = this.population.length;
+        if (this.population.length === 0) {
+            this.app.gameOver = true;
+        }
     }
 
     #createAnt() {

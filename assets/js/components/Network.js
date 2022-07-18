@@ -1,6 +1,10 @@
 export default class NeuralNetwork {
     constructor(app, neuronCount) {
         this.app = app;
+        this.getNetworkData({neuronCount});
+    }
+
+    getNetworkData({neuronCount}) {
         this.levels = [];
         for (let i = 0; i < neuronCount.length - 1; i++) {
             this.levels.push(new Level(

@@ -51,7 +51,7 @@ export default class Gui {
         return canvas.getContext('2d');
     }
 
-    drawPolygon(ctx, entity) {
+    drawPolygon(ctx = this.ctx, entity) {
         ctx.beginPath();
         ctx.moveTo(entity.polygons[0].x, entity.polygons[0].y);
 
@@ -97,7 +97,6 @@ export default class Gui {
         ]
     }
 
-
     button({ctx, font, x, y, width, height, text}) {
         // create a button to be used in the canvas
         this.square({ctx, x, y, width, height, color: '#ffa600', stroke: '#000'});
@@ -112,6 +111,7 @@ export default class Gui {
         stroke && (ctx.strokeStyle = stroke);
         stroke && ctx.stroke();
     }
+
     text({ctx, font, color, text, x, y, width, height}) {
         ctx.font = font;
         ctx.fillStyle = color;

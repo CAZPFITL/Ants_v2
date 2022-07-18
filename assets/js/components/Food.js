@@ -1,16 +1,24 @@
 export default class Food {
-    constructor(app, {x, y, radius}) {
+    constructor({app, x, y}) {
         this.app = app;
+        this.getFoodData({x, y});
+    }
+
+    getFoodData({x, y}) {
+        this.polygons = [];
         this.x = x;
         this.y = y;
-        this.radius = radius;
-        this.color = '#523f32';
+        this.width = 40;
+        this.height = 80;
+        this.angle = 0;
+        this.color = '#ff6600';
+    }
+
+    update() {
+        this.app.gui.createPolygon(this);
     }
 
     draw() {
-        this.app.gui.ctx.fillStyle = this.color;
-        this.app.gui.ctx.beginPath();
-        this.app.gui.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-        this.app.gui.ctx.fill();
+        this.app.gui.drawPolygon(this.app.gui.ctx, this);
     }
 }
