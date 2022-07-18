@@ -8,8 +8,8 @@ export default class Food {
         this.polygons = [];
         this.x = x;
         this.y = y;
-        this.width = 40;
-        this.height = 80;
+        this.width = 60;
+        this.height = 120;
         this.angle = 0;
         this.color = '#ff6600';
     }

@@ -26,7 +26,7 @@ export default class Player {
     addListeners() {
         const changeControlledEntity = (event) => {
             const coords = this.app.tools.getClickCoords(event);
-            const entity = this.app.tools.getEntityAt(coords);
+            const entity = this.app.tools.getEntityAt(coords, this.app.factory.binnacle.Ant);
             entity && this.app.controls.updateEntity(entity);
         }
 

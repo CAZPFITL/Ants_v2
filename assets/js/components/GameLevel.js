@@ -19,19 +19,55 @@ export default class GameLevel {
                 app: this.app,
                 x: 200,
                 y: 200,
-                radius: 10
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: -200,
+                y: 0,
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: 200,
+                y: 0,
+                radius: 20
             }),
             this.app.factory.create(Food, {
                 app: this.app,
                 x: -200,
                 y: -200,
-                radius: 10
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: 200,
+                y: -200,
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: 0,
+                y: -200,
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: 0,
+                y: 200,
+                radius: 20
+            }),
+            this.app.factory.create(Food, {
+                app: this.app,
+                x: -200,
+                y: 200,
+                radius: 20
             }),
         ];
         // this creates the anthill and the ants
         this.app.anthill = this.app.factory.create(Anthill, {
             app: this.app,
-            ants: 3
+            ants: 200
         })
         this.app.factory.addGameEntity(this);
     }

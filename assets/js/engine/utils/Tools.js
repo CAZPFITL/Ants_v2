@@ -74,10 +74,9 @@ export default class Tools {
         return isInside;
     }
 
-    getEntityAt(click) {
-        const entities = this.app.entities;
-        for (let i = 0; i < entities.length; i++) {
-            const entity = entities[i];
+    getEntityAt(click, collection) {
+        for (let i = 0; i < collection.length; i++) {
+            const entity = collection[i];
 
             if (entity.polygons instanceof Array) {
                 const polysIntersect = this.isPointInsidePolygon(click, entity.polygons);

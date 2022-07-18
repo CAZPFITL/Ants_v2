@@ -83,6 +83,10 @@ export default class Gui {
                 y: entity.y - Math.cos(entity.angle - alpha) * rad
             },
             {
+                x: entity.x - Math.sin(entity.angle + 0) * rad * 0.9,
+                y: entity.y - Math.cos(entity.angle + 0) * rad * 0.9
+            },
+            {
                 x: entity.x - Math.sin(entity.angle + alpha) * rad,
                 y: entity.y - Math.cos(entity.angle + alpha) * rad
             },
