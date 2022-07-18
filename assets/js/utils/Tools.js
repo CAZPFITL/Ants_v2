@@ -7,14 +7,11 @@ export default class Tools {
         return a + (b - a) * t;
     }
 
-    // random number in range
     random(min, max, floor = false) {
         const r = Math.random() * (max - min) + min;
         return floor ? Math.floor(r) : r;
     }
 
-
-    // detect the intersection of two lines
     getIntersection(A, B, C, D) {
         const tTop = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
         const uTop = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);
@@ -35,7 +32,6 @@ export default class Tools {
         return null;
     };
 
-    // detect polygons intersection
     polysIntersect(poly1, poly2) {
         for (let i = 0; i < poly1.length; i++) {
             for (let j = 0; j < poly2.length; j++) {

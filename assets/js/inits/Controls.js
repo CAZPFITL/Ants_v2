@@ -18,8 +18,8 @@ export default class Controls {
                     ...camera.onwheel
                 ],
                 onkeydown: [
-                    ...camera.onkeydown,
                     ...player.onkeydown,
+                    ...camera.onkeydown,
                 ],
                 onkeyup: [
                     ...player.onkeyup,
@@ -33,7 +33,6 @@ export default class Controls {
     }
 
     getControls(entity) {
-        // console.log(this.entity.controls)
         return this.entity === entity
             ? this.app.player.controls
             : entity.controls;

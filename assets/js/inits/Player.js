@@ -42,16 +42,16 @@ export default class Player {
         const movePlayerKU = (event) => {
             switch (event.key) {
                 case 'ArrowUp':
-                    this.forward = 0;
+                    this.controls.forward = 0;
                     break;
                 case 'ArrowDown':
-                    this.reverse = 0;
+                    this.controls.reverse = 0;
                     break;
                 case 'ArrowRight':
-                    this.right = 0;
+                    this.controls.right = 0;
                     break;
                 case 'ArrowLeft':
-                    this.left = 0;
+                    this.controls.left = 0;
                     break;
             }
         }

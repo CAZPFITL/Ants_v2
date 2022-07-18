@@ -3,10 +3,10 @@ import Sensor from "../utils/Sensor.js";
 
 export default class Ant {
     constructor(props) {
-        this.#getModelData(props)
+        this.getModelData(props)
     }
 
-    #getModelData({id, x = 0, y = 0, color = '#000', angle = 0, app}) {
+    getModelData({id, x = 0, y = 0, color = '#000', angle = 0, app}) {
         this.name = 'Ant #' + id;
         this.app = app;
         this.x = x;
