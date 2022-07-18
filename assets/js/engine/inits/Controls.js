@@ -46,8 +46,4 @@ export default class Controls {
         document.addEventListener('click', (e) => listedListeners.onclick.forEach(fn => fn(e)));
         document.addEventListener('wheel', (e) => listedListeners.onwheel.forEach(fn => fn(e)));
     }
-
-    draw() {
-        this.app.gui.drawControls();
-    }
 }

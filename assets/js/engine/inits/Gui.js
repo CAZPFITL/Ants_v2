@@ -102,23 +102,6 @@ export default class Gui {
         ctx.stroke();
     }
 
-    drawControls() {
-        const ctx = this.controlsCtx;
-        const width = this.controlsCtx.canvas.width;
-        const height = this.controlsCtx.canvas.height;
-
-        const controlAnt = {
-            up: {ctx, ...this.movementControls.up,},
-            down: {ctx, ...this.movementControls.down,},
-            left: {ctx, ...this.movementControls.left,},
-            right: {ctx, ...this.movementControls.right,},
-        }
-
-        Object.keys(controlAnt).forEach(key => {
-            this.button(controlAnt[key]);
-        });
-    }
-
     addListeners(e) {
         const onClick = (e) => {
             const x = e.offsetX;
@@ -142,5 +125,36 @@ export default class Gui {
                 onClick,
             ]
         }
+    }
+
+    /**
+     * In game draw section
+     */
+    drawControls() {
+        const ctx = this.controlsCtx;
+        const width = this.controlsCtx.canvas.width;
+        const height = this.controlsCtx.canvas.height;
+
+        const controlAnt = {
+            up: {ctx, ...this.movementControls.up,},
+            down: {ctx, ...this.movementControls.down,},
+            left: {ctx, ...this.movementControls.left,},
+            right: {ctx, ...this.movementControls.right,},
+        }
+
+        Object.keys(controlAnt).forEach(key => {
+            this.button(controlAnt[key]);
+        });
+    }
+
+    drawGameData() {
+        const count = this.app.anthill.population.length;
+        // draw count at {x:10, y: 10} in this.controlsCtx
+
+    }
+
+    draw() {
+        this.drawControls();
+        this.drawGameData();
     }
 }

@@ -10,7 +10,7 @@ export default class App extends AppMethods {
 
     loadGame(onWindow) {
         this.inits = [
-            () => this.factory.addGameEntity(this.controls),
+            () => this.factory.addGameEntity(this.gui),
             () => this.level = this.factory.create(GameLevel, {
                 app: this,
                 width: 400,
