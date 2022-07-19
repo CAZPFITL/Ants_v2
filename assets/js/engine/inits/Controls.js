@@ -8,6 +8,16 @@ export default class Controls {
         this.addListeners();
     }
 
+    readMovement(entity) {
+        const controls = this.app.controls.getControls(entity);
+
+        (controls.forward) && (entity.speed += entity.acceleration);
+        (controls.reverse) && (entity.speed -= entity.acceleration);
+
+        (controls.left) && (entity.angle += entity.turnSpeed);
+        (controls.right) && (entity.angle -= entity.turnSpeed);
+    }
+
     getControls(entity) {
         return this.app.player.entity === entity
             ? this.app.player.controls

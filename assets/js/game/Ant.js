@@ -68,7 +68,7 @@ export default class Ant {
         ]);
         this.app.gui.createPolygon(this);
         // this.app.gui.createShape(this, Shape.ant());
-        this.app.player.readMovement(this);
+        this.app.controls.readMovement(this);
         this.app.physics.walk(this);
         this.neuralProcess();
     }
