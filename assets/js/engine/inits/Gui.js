@@ -7,8 +7,12 @@ export default class Gui {
     init() {
         this.ctx = this.createCanvas('gameCanvas');
         this.controlsCtx = this.createCanvas('controlsCanvas');
+        this.updateControlsData();
+    }
+
+    updateControlsData() {
         const font = "16px Mouse"
-        this.movementControls = {
+        this.movementControls =  {
             'forward': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 120,
@@ -51,28 +55,6 @@ export default class Gui {
         return canvas.getContext('2d');
     }
 
-    drawPolygon(ctx = this.ctx, entity) {
-        ctx.beginPath();
-        ctx.moveTo(entity.polygons[0].x, entity.polygons[0].y);
-
-        for (let i = 1; i < entity.polygons.length; i++) {
-            ctx.lineTo(entity.polygons[i].x, entity.polygons[i].y);
-        }
-
-        ctx.fillStyle = entity.color ?? '#000';
-        ctx.fill();
-    }
-
-    createPolygon(entity) {
-        const points = [];
-        this.rectangle(entity).forEach(point => {
-            points.push({
-                x: point.x,
-                y: point.y
-            });
-        });
-        entity.polygons = points;
-    }
 
     rectangle(entity) {
         const rad = Math.hypot(entity.width, entity.height) / 2;
@@ -99,6 +81,38 @@ export default class Gui {
                 y: entity.y - Math.cos(Math.PI + entity.angle + alpha) * rad
             }
         ]
+    }
+
+    createPolygon(entity) {
+        const points = [];
+        this.rectangle(entity).forEach(point => {
+            points.push({
+                x: point.x,
+                y: point.y
+            });
+        });
+        entity.polygons = points;
+    }
+
+    createShape(entity, points) {
+        const unit = 10
+        // we need to rotate the polygon around the center of the car so we add 90 degrees to the angle
+        entity.polygons = points.map(point => ({
+            x: entity.x - Math.sin(entity.angle - point.lambda) * unit * point.radius,
+            y: entity.y - Math.cos(entity.angle - point.lambda) * unit * point.radius
+        }))
+    }
+
+    drawPolygon(ctx = this.ctx, entity) {
+        ctx.beginPath();
+        ctx.moveTo(entity.polygons[0].x, entity.polygons[0].y);
+
+        for (let i = 1; i < entity.polygons.length; i++) {
+            ctx.lineTo(entity.polygons[i].x, entity.polygons[i].y);
+        }
+
+        ctx.fillStyle = entity.color ?? '#000';
+        ctx.fill();
     }
 
     button({ctx, font, x, y, width, height, text}) {
@@ -192,6 +206,10 @@ export default class Gui {
         ctx.fillStyle = '#000000';
         ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 30);
         ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 60);
+    }
+
+    update() {
+        this.updateControlsData();
     }
 
     draw() {

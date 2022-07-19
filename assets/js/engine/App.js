@@ -1,10 +1,11 @@
-import AppMethods from './AppMethods.js';
-import GameLevel from "./GameLevel.js";
+import AppMethods from './utils/AppMethods.js';
+import GameLevel from "../game/GameLevel.js";
 
 export default class App extends AppMethods {
     constructor(onWindow) {
         super();
         this.loadGame(onWindow);
+        this.gpu = new GPU();
     }
 
     loadGame(onWindow) {
@@ -12,8 +13,8 @@ export default class App extends AppMethods {
             () => this.factory.addGameEntity(this.gui),
             () => this.level = this.factory.create(GameLevel, {
                 app: this,
-                width: 400,
-                height: 400
+                width: 2000,
+                height: 1200
             })
         ];
         this.loadEngine(this);

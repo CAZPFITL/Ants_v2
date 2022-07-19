@@ -16,8 +16,8 @@ export default class Camera {
             height: 0,
             scale: [1.0, 1.0]
         };
-        this.maxZoom = 1000;
-        this.minZoom = 500;
+        this.maxZoom = 2500;
+        this.minZoom = 800;
         this.zoom = this.maxZoom;
         this.updateViewportData();
     }
@@ -93,8 +93,10 @@ export default class Camera {
     begin() {
         this.updateViewportData()
         this.app.gui.ctx.canvas.height = window.innerHeight;
+        this.app.gui.ctx.canvas.width = window.innerWidth;
         this.app.gui.ctx.save();
         this.app.gui.controlsCtx.canvas.height = window.innerHeight;
+        this.app.gui.controlsCtx.canvas.width = window.innerWidth;
         this.app.gui.controlsCtx.save();
         this.scaleAndTranslate();
     }

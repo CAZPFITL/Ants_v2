@@ -1,3 +1,4 @@
+import Shape from './Shape.js';
 import NeuralNetwork from "./Network.js";
 import Sensor from "../engine/utils/Sensor.js";
 
@@ -11,14 +12,14 @@ export default class Ant {
         this.name = 'Ant #' + id;
         this.x = x;
         this.y = y;
-        this.speed = 0;
         this.width = 4;
         this.height = 8;
+        this.speed = 0;
         this.color = color;
         this.angle = angle;
         this.acceleration = 0.3;
         this.friction = 0.040;
-        this.maxSpeed = 2.5;
+        this.maxSpeed = 0.7;
         this.turnSpeed = 0.05;
 
         this.polygons = [];
@@ -52,7 +53,6 @@ export default class Ant {
         this.controls.reverse = outputs[3];
     }
 
-
     tasteFood() {
         this.mouth = {
             x: this.polygons[1].x,
@@ -60,12 +60,14 @@ export default class Ant {
         }
         this.onFood = Boolean(this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Food));
     }
+
     update() {
         this.sensor.update([
             ...this.app.factory.binnacle.Food,
             ...this.app.factory.binnacle.Ant
         ]);
         this.app.gui.createPolygon(this);
+        // this.app.gui.createShape(this, Shape.ant());
         this.app.player.readMovement(this);
         this.app.physics.walk(this);
         this.neuralProcess();
@@ -73,7 +75,7 @@ export default class Ant {
 
     draw(ctx) {
         this.app.gui.drawPolygon(ctx, this);
-        this.app.showSensors && this.sensor.draw(ctx);
+        // this.app.showSensors && this.sensor.draw(ctx);
     }
 }
 

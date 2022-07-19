@@ -1,10 +1,10 @@
-import Tools from "../engine/utils/Tools.js";
-import Factory from "../engine/utils/Factory.js";
-import Gui from "../engine/inits/Gui.js";
-import Physics from "../engine/utils/Physics.js";
-import Camera from "../engine/inits/Camera.js";
-import Controls from "../engine/inits/Controls.js";
-import Player from "../engine/inits/Player.js";
+import Tools from "./Tools.js";
+import Factory from "./Factory.js";
+import Gui from "../inits/Gui.js";
+import Physics from "./Physics.js";
+import Camera from "../inits/Camera.js";
+import Controls from "../inits/Controls.js";
+import Player from "../inits/Player.js";
 
 export default class AppMethods {
     show() {

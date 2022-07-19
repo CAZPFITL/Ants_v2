@@ -67,7 +67,7 @@ export default class GameLevel {
         // this creates the anthill and the ants
         this.app.anthill = this.app.factory.create(Anthill, {
             app: this.app,
-            ants: 200
+            ants: 80
         })
         this.app.factory.addGameEntity(this);
     }
