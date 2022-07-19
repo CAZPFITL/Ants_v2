@@ -1,22 +1,15 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.entity = null;
         this.app.inits.push(this.init.bind(this));
     }
 
     init() {
-        this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
         this.addListeners();
     }
 
-    updateEntity(entity) {
-        this.entity !== entity &&
-            (this.entity = entity);
-    }
-
     getControls(entity) {
-        return this.entity === entity
+        return this.app.player.entity === entity
             ? this.app.player.controls
             : entity.controls;
     }

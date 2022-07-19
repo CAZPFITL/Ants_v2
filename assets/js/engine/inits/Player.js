@@ -1,16 +1,24 @@
 export default class Player {
     constructor(app) {
         this.app = app;
+        this.entity = null;
         this.app.inits.push(this.init.bind(this));
     }
 
     init() {
+        this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
         this.controls = {
             forward: 0,
             reverse: 0,
             right: 0,
             left: 0
         }
+    }
+
+    updateEntity(entity) {
+        console.log('updateEntity',this.entity, entity);
+        this.entity !== entity &&
+        (this.entity = entity);
     }
 
     readMovement(entity) {
@@ -27,7 +35,7 @@ export default class Player {
         const changeControlledEntity = (event) => {
             const coords = this.app.tools.getClickCoords(event);
             const entity = this.app.tools.getEntityAt(coords, this.app.factory.binnacle.Ant);
-            entity && this.app.controls.updateEntity(entity);
+            entity && this.app.player.updateEntity(entity);
         }
 
         const movePlayerKD = (event) => {
