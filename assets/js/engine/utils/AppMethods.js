@@ -3,7 +3,7 @@ import Factory from "./Factory.js";
 import Gui from "../inits/Gui.js";
 import Physics from "./Physics.js";
 import Camera from "../inits/Camera.js";
-import Controls from "../inits/Controls.js";
+import Controls from "../../game/Controls.js";
 import Player from "../inits/Player.js";
 
 export default class AppMethods {
