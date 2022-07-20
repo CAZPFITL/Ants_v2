@@ -15,7 +15,7 @@ export default class Player {
             reverse: 0,
             right: 0,
             left: 0,
-            eat: 0,
+            pick: 0,
         }
     }
 

@@ -8,7 +8,6 @@ export default class Gui {
         this.ctx = this.#createCanvas('gameCanvas');
         this.controlsCtx = this.#createCanvas('controlsCanvas');
         this.#updateControlsData();
-
     }
 
     /**

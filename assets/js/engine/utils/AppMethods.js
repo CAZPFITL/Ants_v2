@@ -5,6 +5,7 @@ import Physics from "./Physics.js";
 import Camera from "../inits/Camera.js";
 import Controls from "../../game/Controls.js";
 import Player from "../inits/Player.js";
+import GameLevel from "../../game/GameLevel.js";
 
 export default class AppMethods {
     show() {
@@ -15,6 +16,14 @@ export default class AppMethods {
         this.showSensors = true;
         this.gameOver = false;
         this.entities = [];
+        this.inits = [
+            () => this.factory.addGameEntity(this.gui),
+            () => this.level = this.factory.create(GameLevel, {
+                app: this,
+                width: 2000,
+                height: 1200
+            })
+        ];
     }
 
     loadEngine(app) {

@@ -14,7 +14,7 @@ export default class Ant {
     #getModelData({id, x = 0, y = 0, color = '#000', angle = 0}) {
         this.name = 'Ant #' + id;
         const size = this.app.tools.random(4, 16);
-        this.eatRate = this.app.tools.random(size * 0.08, size * 0.1);
+        this.eatRate = this.app.tools.random(size * 0.005, size * 0.01);
 
         this.x = x;
         this.y = y;
@@ -38,7 +38,7 @@ export default class Ant {
             reverse: 0,
             right: 0,
             left: 0,
-            eat: 0,
+            pick: 0,
         }
 
         this.sensor = new Sensor(this);
@@ -58,7 +58,7 @@ export default class Ant {
         this.controls.left = outputs[1];
         this.controls.right = outputs[2];
         this.controls.reverse = outputs[3];
-        this.controls.eat = outputs[4];
+        this.controls.pick = outputs[4];
     }
 
     #tasteFood() {
@@ -68,8 +68,8 @@ export default class Ant {
         }
         this.onFood = Boolean(this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Food));
         // Read if AI or user are eating the food
-        const eating = this.app.controls.getControls(this).eat;
-        (this.onFood && Boolean(eating)) && this.#eatFood();
+        const pick = this.app.controls.getControls(this).eat;
+        (this.onFood && Boolean(pick)) && this.#eatFood();
     }
 
     #eatFood() {

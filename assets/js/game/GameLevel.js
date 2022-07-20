@@ -6,7 +6,6 @@ export default class GameLevel {
         this.app = app;
         this.#getLevelData({app, id, width, height});
     }
-
     /**
      * Private
      */
@@ -16,71 +15,29 @@ export default class GameLevel {
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height}
         this.color = '#523f32';
+        this.app.factory.addGameEntity(this);
+        this.#loadEntities({width, height})
+    }
 
-        this.food = [
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: 200,
-                y: 200,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: -200,
-                y: 0,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: 200,
-                y: 0,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: -200,
-                y: -200,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: 200,
-                y: -200,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: 0,
-                y: -200,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: 0,
-                y: 200,
-                radius: 20
-            }),
-            this.app.factory.create(Food, {
-                app: this.app,
-                x: -200,
-                y: 200,
-                radius: 20
-            }),
-        ];
+    // TODO move this to the state "play"
+    #loadEntities({width, height}) {
         // this creates the anthill and the ants
+        for (let i = 0; i < 4; i++) {
+            this.app.factory.create(Food, {
+                app: this.app,
+                bounds: { width: width / 2, height: height / 2 }
+            });
+        }
         this.app.anthill = this.app.factory.create(Anthill, {
             app: this.app,
             ants: 1
-        })
-        this.app.factory.addGameEntity(this);
+        });
     }
 
     /**
      * In game draw section
      */
-    update() {
-
-    }
+    update() {}
 
     draw() {
         // TODO change this to draw the level
