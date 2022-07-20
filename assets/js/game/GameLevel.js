@@ -4,10 +4,13 @@ import Anthill from "./Anthill.js";
 export default class GameLevel {
     constructor({app, id = 0, width, height}) {
         this.app = app;
-        this.getLevelData({app, id, width, height});
+        this.#getLevelData({app, id, width, height});
     }
 
-    getLevelData({id, width, height}) {
+    /**
+     * Private
+     */
+    #getLevelData({id, width, height}) {
         this.name = 'GameLevel #' + id;
         this.entities = [];
         this.coords = { x: -width / 2, y: -height / 2 };
@@ -67,11 +70,14 @@ export default class GameLevel {
         // this creates the anthill and the ants
         this.app.anthill = this.app.factory.create(Anthill, {
             app: this.app,
-            ants: 2
+            ants: 1
         })
         this.app.factory.addGameEntity(this);
     }
 
+    /**
+     * In game draw section
+     */
     update() {
 
     }

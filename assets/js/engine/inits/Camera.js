@@ -2,10 +2,12 @@ export default class Camera {
     constructor(app) {
         this.app = app;
         this.fieldOfView = Math.PI / 4.0;
-        this.app.inits.push(this.init.bind(this));
+        this.app.inits.push(this.#init.bind(this));
     }
-
-    init() {
+    /**
+     * Private
+     */
+    #init() {
         this.lookAt = [0, 0];
         this.viewport = {
             left: 0,
@@ -19,25 +21,25 @@ export default class Camera {
         this.maxZoom = 2500;
         this.minZoom = 800;
         this.zoom = this.maxZoom;
-        this.updateViewportData();
+        this.#updateViewportData();
     }
 
-    scaleAndTranslate() {
+    #scaleAndTranslate() {
         this.app.gui.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
         this.app.gui.ctx.translate(-this.viewport.left, -this.viewport.top);
     }
 
-    zoomTo(z) {
+    #zoomTo(z) {
         this.zoom = z;
-        this.updateViewportData();
+        this.#updateViewportData();
     }
 
-    moveTo([x, y]) {
+    #moveTo([x, y]) {
         this.lookAt = [x, y];
-        this.updateViewportData();
+        this.#updateViewportData();
     }
 
-    updateViewportData() {
+    #updateViewportData() {
         this.aspectRatio = this.app.gui.ctx.canvas.width / this.app.gui.ctx.canvas.height;
         this.viewport.width = this.zoom * Math.tan(this.fieldOfView);
         this.viewport.height = this.viewport.width / this.aspectRatio;
@@ -51,11 +53,14 @@ export default class Camera {
         ];
     }
 
+    /**
+     * Listeners
+     */
     addListeners() {
         const zoomCamera = (event) => {
             if (event.ctrlKey) {
                 let zoomLevel = this.zoom + Math.floor(event.deltaY);
-                this.zoomTo(
+                this.#zoomTo(
                     (zoomLevel <= this.minZoom) ?
                         this.minZoom :
                         (zoomLevel >= this.maxZoom) ?
@@ -66,7 +71,7 @@ export default class Camera {
         }
 
         const moveCamera = (event) => {
-            this.moveTo([
+            this.#moveTo([
                 this.lookAt[0] + Math.floor(event.deltaX),
                 this.lookAt[1] + Math.floor(event.deltaY)
             ]);
@@ -74,8 +79,8 @@ export default class Camera {
 
         const resetCamera = (event) => {
             if (event.key === 'r') {
-                this.zoomTo(this.maxZoom);
-                this.moveTo([0, 0]);
+                this.#zoomTo(this.maxZoom);
+                this.#moveTo([0, 0]);
             }
         }
 
@@ -90,15 +95,18 @@ export default class Camera {
         }
     };
 
+    /**
+     * In game draw section
+     */
     begin() {
-        this.updateViewportData()
+        this.#updateViewportData()
         this.app.gui.ctx.canvas.height = window.innerHeight;
         this.app.gui.ctx.canvas.width = window.innerWidth;
         this.app.gui.ctx.save();
         this.app.gui.controlsCtx.canvas.height = window.innerHeight;
         this.app.gui.controlsCtx.canvas.width = window.innerWidth;
         this.app.gui.controlsCtx.save();
-        this.scaleAndTranslate();
+        this.#scaleAndTranslate();
     }
 
     end(animate) {

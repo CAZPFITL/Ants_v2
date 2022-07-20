@@ -2,24 +2,34 @@ export default class Player {
     constructor(app) {
         this.app = app;
         this.entity = null;
-        this.app.inits.push(this.init.bind(this));
+        this.app.inits.push(this.#init.bind(this));
     }
 
-    init() {
+    /**
+     * Private
+     */
+    #init() {
         this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
         this.controls = {
             forward: 0,
             reverse: 0,
             right: 0,
-            left: 0
+            left: 0,
+            eat: 0,
         }
     }
 
+    /**
+     * Callback
+     */
     updateEntity(entity) {
         this.entity !== entity &&
         (this.entity = entity);
     }
 
+    /**
+     * Listeners
+     */
     addListeners() {
         const changeControlledEntity = (event) => {
             const coords = this.app.tools.getClickCoords(event);
@@ -41,6 +51,9 @@ export default class Player {
                 case 'ArrowLeft':
                     this.controls.left = 1;
                     break;
+                case ' ':
+                    this.controls.eat = 1;
+                    break;
             }
         }
 
@@ -58,6 +71,9 @@ export default class Player {
                 case 'ArrowLeft':
                     this.controls.left = 0;
                     break;
+                case ' ':
+                    this.controls.eat = 0;
+                    break;
             }
         }
 
@@ -73,5 +89,4 @@ export default class Player {
             ],
         }
     }
-
 }

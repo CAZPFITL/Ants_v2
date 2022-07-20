@@ -5,13 +5,16 @@ export default class Gui {
     }
 
     init() {
-        this.ctx = this.createCanvas('gameCanvas');
-        this.controlsCtx = this.createCanvas('controlsCanvas');
-        this.updateControlsData();
+        this.ctx = this.#createCanvas('gameCanvas');
+        this.controlsCtx = this.#createCanvas('controlsCanvas');
+        this.#updateControlsData();
 
     }
 
-    updateControlsData() {
+    /**
+     * Private
+     */
+    #updateControlsData() {
         const font = "16px Mouse"
         this.movementControls =  {
             'forward': {
@@ -49,58 +52,25 @@ export default class Gui {
         }
     }
 
-    createCanvas(id) {
+    #createCanvas(id) {
         const canvas = document.getElementById(id);
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         return canvas.getContext('2d');
     }
 
-    rectangle(entity) {
-        const rad = Math.hypot(entity.width, entity.height) / 2;
-        const alpha = Math.atan2(entity.width, entity.height);
-        return [
-            {
-                x: entity.x - Math.sin(entity.angle - alpha) * rad,
-                y: entity.y - Math.cos(entity.angle - alpha) * rad
-            },
-            {
-                x: entity.x - Math.sin(entity.angle + 0) * rad * 0.9,
-                y: entity.y - Math.cos(entity.angle + 0) * rad * 0.9
-            },
-            {
-                x: entity.x - Math.sin(entity.angle + alpha) * rad,
-                y: entity.y - Math.cos(entity.angle + alpha) * rad
-            },
-            {
-                x: entity.x - Math.sin(Math.PI + entity.angle - alpha) * rad,
-                y: entity.y - Math.cos(Math.PI + entity.angle - alpha) * rad
-            },
-            {
-                x: entity.x - Math.sin(Math.PI + entity.angle + alpha) * rad,
-                y: entity.y - Math.cos(Math.PI + entity.angle + alpha) * rad
-            }
-        ]
-    }
-
+    /**
+     * Polygons
+     */
     createPolygon(entity) {
         const points = [];
-        this.rectangle(entity).forEach(point => {
+        entity.shape().forEach(point => {
             points.push({
                 x: point.x,
                 y: point.y
             });
         });
         entity.polygons = points;
-    }
-
-    createShape(entity, points) {
-        const unit = 10
-        // we need to rotate the polygon around the center of the car so we add 90 degrees to the angle
-        entity.polygons = points.map(point => ({
-            x: entity.x - Math.sin(entity.angle - point.lambda) * unit * point.radius,
-            y: entity.y - Math.cos(entity.angle - point.lambda) * unit * point.radius
-        }))
     }
 
     drawPolygon(ctx = this.ctx, entity) {
@@ -115,6 +85,18 @@ export default class Gui {
         ctx.fill();
     }
 
+    createCustomShape(entity, points) {
+        const unit = 10
+        // we need to rotate the polygon around the center of the car so we add 90 degrees to the angle
+        entity.polygons = points.map(point => ({
+            x: entity.x - Math.sin(entity.angle - point.lambda) * unit * point.radius,
+            y: entity.y - Math.cos(entity.angle - point.lambda) * unit * point.radius
+        }))
+    }
+
+    /**
+     * Screen
+     */
     button({ctx, font, x, y, width, height, text}) {
         // create a button to be used in the canvas
         this.square({ctx, x, y, width, height, color: '#ffa600', stroke: '#000'});
@@ -204,12 +186,13 @@ export default class Gui {
     drawGameData(ctx = this.controlsCtx) {
         ctx.font = "20px Mouse";
         ctx.fillStyle = '#000000';
-        ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 30);
-        ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 60);
+        ctx.fillText(`Player: ${this.app.player.entity.name}`, 10, 30);
+        ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 60);
+        ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 90);
     }
 
     update() {
-        this.updateControlsData();
+        this.#updateControlsData();
     }
 
     draw() {

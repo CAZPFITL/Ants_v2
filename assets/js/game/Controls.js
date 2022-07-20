@@ -1,13 +1,19 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.app.inits.push(this.init.bind(this));
+        this.app.inits.push(this.#init.bind(this));
     }
 
-    init() {
+    /**
+     * Private
+     */
+    #init() {
         this.addListeners();
     }
 
+    /**
+     * Callback
+     */
     readMovement(entity) {
         const controls = this.app.controls.getControls(entity);
 
@@ -24,6 +30,9 @@ export default class Controls {
             : entity.controls;
     }
 
+    /**
+     * Listeners
+     */
     addListeners() {
         const camera = this.app.camera.addListeners();
         const player = this.app.player.addListeners();

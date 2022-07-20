@@ -17,9 +17,13 @@ export default class Anthill {
         this.#createAnt();
     }
 
+    /**
+     * Private
+     */
     #id() {
         return this.population.length + 1;
     }
+
     #createAnt() {
         const x = Array(this.ants).fill(0);
 
@@ -37,6 +41,9 @@ export default class Anthill {
         });
     }
 
+    /**
+     * In game draw section
+     */
     update() {
         this.population = [...this.app.factory.binnacle.Ant]
         this.ants = this.population.length;
