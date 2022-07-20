@@ -5,7 +5,6 @@ export default class App extends AppMethods {
     constructor(onWindow) {
         super();
         this.loadGame(onWindow);
-        this.gpu = new GPU();
     }
 
     loadGame(onWindow) {

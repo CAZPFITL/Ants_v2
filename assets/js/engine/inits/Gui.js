@@ -5,42 +5,6 @@ export default class Gui {
     }
 
     init() {
-        // function multiplyMatrix(a, b) {
-        //     const result = Array(a.length).fill([]).map(() => Array(a.length).fill(0));
-        //     for (let i = 0; i < a.length; i++) {
-        //         for (let j = 0; j < a.length; j++) {
-        //             for (let k = 0; k < a.length; k++) {
-        //                 result[i][j] += a[i][k] * b[k][j];
-        //             }
-        //         }
-        //     }
-        //     return result;
-        // }
-        //
-        // function multiplyMatrixGpu(a, b) {
-        //     const gpu = new GPU();
-        //
-        //     const multiplyMatrix = gpu.createKernel(function (a, b, matrixSize) {
-        //         let sum = 0;
-        //         for (let i = 0; i < matrixSize; i++) {
-        //             sum += a[this.thread.y][i] * b[i][this.thread.x];
-        //         }
-        //         return sum;
-        //     }).setOutput([a.length, a.length]);
-        //     return multiplyMatrix(a, b, a.length);
-        // }
-        //
-        //
-        // const size = 1024;
-        // const A = Array(size).fill([]).map(() => Array(size).fill(0).map(() => Math.random()));
-        // const B = Array(size).fill([]).map(() => Array(size).fill(0).map(() => Math.random()));
-        // console.time("CPU");
-        // multiplyMatrix(A, B);
-        // console.timeEnd("CPU");
-        // console.time("GPU");
-        // multiplyMatrixGpu(A, B, size);
-        // console.timeEnd("GPU");
-
         this.ctx = this.createCanvas('gameCanvas');
         this.controlsCtx = this.createCanvas('controlsCanvas');
         this.updateControlsData();

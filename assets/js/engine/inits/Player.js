@@ -16,7 +16,6 @@ export default class Player {
     }
 
     updateEntity(entity) {
-        console.log('updateEntity',this.entity, entity);
         this.entity !== entity &&
         (this.entity = entity);
     }
