@@ -251,7 +251,7 @@ export default class Gui {
     }
 
     drawGameData(ctx = this.controlsCtx) {
-        this.square( {
+        this.square({
             ctx: this.controlsCtx,
             x: 5,
             y: 10,
@@ -268,13 +268,20 @@ export default class Gui {
             x: 20,
             y: 40
         });
-        this.text({ctx, font: "20px Mouse", color: "#000", text: `Ants: ${this.app.anthill.ants}`, x: 20, y: 70});
-        this.text({ctx, font: "20px Mouse", color: "#000", text: `Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`, x: 20, y: 100});
+        this.text({ctx, font: "20px Mouse", color: "#000", text: `Anthill Ants: ${this.app.anthill.ants}`, x: 20, y: 70});
+        this.text({
+            ctx,
+            font: "20px Mouse",
+            color: "#000",
+            text: `Anthill Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`,
+            x: 20,
+            y: 100
+        });
         this.bar({
             ctx,
             x: 20,
             y: 135,
-            text: `Food Pick Capacity: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`,
+            text: `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Food: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`,
             cap: this.app.player.entity.maxFoodPickCapacity * 10,
             fill: this.app.player.entity.pickedFood * 10,
             fillColor: 'green-red',
@@ -285,7 +292,7 @@ export default class Gui {
             ctx,
             x: 20,
             y: 175,
-            text: `Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`,
+            text: `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`,
             cap: 100,
             fill: this.app.player.entity.hunger * 10,
             fillColor: 'red-green',
