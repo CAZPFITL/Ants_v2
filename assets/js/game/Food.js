@@ -14,6 +14,7 @@ export default class Food {
         this.height = this.app.tools.random(50, 100);
         this.initialSize = size;
         this.amount = size;
+        this.minSize = 30;
         // TODO Make a better random initial place generator (avoid appear near the anthill)
         this.x = this.app.tools.random(-(width - size), (width - size));
         this.y = this.app.tools.random(-(height - size), (height - size));
@@ -72,20 +73,20 @@ export default class Food {
     }
 
     update() {
-        (this.amount >= 10) && (this.width = this.amount);
-        (this.amount >= 10) && (this.height = this.amount);
+        (this.amount >= this.minSize) && (this.width = this.amount);
+        (this.amount >= this.minSize) && (this.height = this.amount);
         (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
         this.app.gui.createPolygon(this);
     }
 
     draw() {
         this.app.gui.drawPolygon(this.app.gui.ctx, this);
-        (this.amount < this.initialSize) &&
-        this.app.gui.bar({
+        (this.amount < this.initialSize) && this.app.gui.bar({
             ctx: this.app.gui.ctx,
-            x: this.x - this.width / 2,
-            y: this.y - this.height,
+            x: this.x - this.initialSize / 2,
+            y: this.y - this.height * 1.3,
             fillColor: 'red-green',
+            barColor: 'rgba(0,0,0,0.5)',
             cap: this.initialSize,
             fill: this.amount,
         }, false);
