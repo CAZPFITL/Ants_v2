@@ -29,7 +29,6 @@ export default class Anthill {
         const x = Array(1).fill(0);
 
         x.forEach(() => {
-            // this.addAnt();
             this.population.push(this.app.factory.create(
                 Ant,
                 {
@@ -123,6 +122,7 @@ export default class Anthill {
     update() {
         this.population = [...this.app.factory.binnacle.Ant]
         this.ants = this.population.length;
+        // TODO: delegate this to the state management
         if (this.population.length === 0) {
             this.app.gameOver = true;
         }

@@ -6,3 +6,5 @@ Related Docs:
 - https://medium.com/swlh/youre-using-lerp-wrong-73579052a3c3
 - https://www.youtube.com/watch?v=wB1pcXtEwIs&ab_channel=TheCodingTrain
 - https://www.youtube.com/watch?v=MsRROjQJxuo&ab_channel=TheCodingTrain
+- https://thecodest.co/blog/tricks-to-speed-up-javascript-application
+- https://www.smashingmagazine.com/2012/11/writing-fast-memory-efficient-javascript/

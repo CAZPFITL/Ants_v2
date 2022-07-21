@@ -252,8 +252,6 @@ export default class Gui {
     }
 
     drawGameData(ctx = this.controlsCtx) {
-        // get min number from array
-        const minWidth = (arr) => Math.max(...arr);
         const player = `Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`;
         const anthillFood = `Anthill Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`;
         const anthillAnts = `Anthill Ants: ${this.app.anthill.ants}`;
@@ -261,19 +259,28 @@ export default class Gui {
         const pickedCapacity = this.app.player.entity.maxFoodPickCapacity * 10;
         const hungerText = `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`
         const hungerCapacity = 100;
+        const sample = [
+            ctx.measureText(player).width,
+            ctx.measureText(anthillFood).width,
+            ctx.measureText(anthillAnts).width,
+            ctx.measureText(pickedBar).width,
+            pickedCapacity,
+            hungerCapacity
+        ];
+
+        let maxByFor = sample[0];
+        for (let index = 1; index < sample.length; index++) {
+            if (sample[index] > maxByFor) {
+                maxByFor = sample[index];
+            }
+        }
+        const width = maxByFor;
 
         this.square({
             ctx: this.controlsCtx,
             x: 5,
             y: 10,
-            width: minWidth([
-                ctx.measureText(player).width,
-                ctx.measureText(anthillFood).width,
-                ctx.measureText(anthillAnts).width,
-                ctx.measureText(pickedBar).width,
-                pickedCapacity,
-                hungerCapacity
-            ]) + 35,
+            width: width + 35,
             height: 190,
             color: 'rgba(255, 255, 255, 0.2)',
             stroke: '#000'
