@@ -138,7 +138,7 @@ export default class Ant {
 
     update() {
         this.sensor.update([
-            // ...this.app.factory.binnacle.Food,
+            ...this.app.factory.binnacle.Food,
             ...this.app.factory.binnacle.Ant
         ]);
         this.app.gui.createPolygon(this);
@@ -151,7 +151,7 @@ export default class Ant {
 
     draw(ctx) {
         this.app.gui.drawPolygon(ctx, this);
-        this.app.showSensors && this.sensor.draw(ctx);
+        // this.app.showSensors && this.sensor.draw(ctx);
     }
 }
 

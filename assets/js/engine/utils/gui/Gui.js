@@ -140,6 +140,7 @@ export default class Gui {
         const xText = x + width / 2 - ctx.measureText(text).width / 2;
         const yText = y + height / 2 + 5;
         ctx.fillText(text, center ? xText : x, center ? yText : y);
+        return ctx.measureText(text).width;
     }
 
     bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke}, negative = false) {
@@ -251,11 +252,28 @@ export default class Gui {
     }
 
     drawGameData(ctx = this.controlsCtx) {
+        // get min number from array
+        const minWidth = (arr) => Math.max(...arr);
+        const player = `Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`;
+        const anthillFood = `Anthill Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`;
+        const anthillAnts = `Anthill Ants: ${this.app.anthill.ants}`;
+        const pickedBar = `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Food: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`
+        const pickedCapacity = this.app.player.entity.maxFoodPickCapacity * 10;
+        const hungerText = `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`
+        const hungerCapacity = 100;
+
         this.square({
             ctx: this.controlsCtx,
             x: 5,
             y: 10,
-            width: this.app.player.entity.maxFoodPickCapacity * 10 + 30,
+            width: minWidth([
+                ctx.measureText(player).width,
+                ctx.measureText(anthillFood).width,
+                ctx.measureText(anthillAnts).width,
+                ctx.measureText(pickedBar).width,
+                pickedCapacity,
+                hungerCapacity
+            ]) + 35,
             height: 190,
             color: 'rgba(255, 255, 255, 0.2)',
             stroke: '#000'
@@ -264,16 +282,16 @@ export default class Gui {
             ctx,
             font: "20px Mouse",
             color: "#000",
-            text: `Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`,
+            text: player,
             x: 20,
             y: 40
         });
-        this.text({ctx, font: "20px Mouse", color: "#000", text: `Anthill Ants: ${this.app.anthill.ants}`, x: 20, y: 70});
+        this.text({ctx, font: "20px Mouse", color: "#000", text: anthillAnts, x: 20, y: 70});
         this.text({
             ctx,
             font: "20px Mouse",
             color: "#000",
-            text: `Anthill Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`,
+            text: anthillFood,
             x: 20,
             y: 100
         });
@@ -281,8 +299,8 @@ export default class Gui {
             ctx,
             x: 20,
             y: 135,
-            text: `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Food: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`,
-            cap: this.app.player.entity.maxFoodPickCapacity * 10,
+            text: pickedBar,
+            cap: pickedCapacity,
             fill: this.app.player.entity.pickedFood * 10,
             fillColor: 'green-red',
             barColor: 'rgba(0,0,0,0.5)',
@@ -292,8 +310,8 @@ export default class Gui {
             ctx,
             x: 20,
             y: 175,
-            text: `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`,
-            cap: 100,
+            text: hungerText,
+            cap: hungerCapacity,
             fill: this.app.player.entity.hunger * 10,
             fillColor: 'red-green',
             barColor: 'rgba(0,0,0,0.5)',

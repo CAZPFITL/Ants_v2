@@ -26,10 +26,21 @@ export default class Anthill {
     }
 
     #createAnt() {
-        const x = Array(this.ants).fill(0);
+        const x = Array(1).fill(0);
 
         x.forEach(() => {
-            this.addAnt();
+            // this.addAnt();
+            this.population.push(this.app.factory.create(
+                Ant,
+                {
+                    id: this.#id(),
+                    app: this.app,
+                    x: 0,
+                    y: 0,
+                    angle: this.app.tools.random(-3.6, 3.6, false),
+                    anthill: this
+                }
+            ))
         });
     }
 
