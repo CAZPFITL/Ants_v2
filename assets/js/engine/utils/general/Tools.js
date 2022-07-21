@@ -12,6 +12,10 @@ export default class Tools {
         return floor ? Math.floor(r) : r;
     }
 
+    xDecimals(n, x = 2) {
+        return Math.round(n * Math.pow(10, x)) / Math.pow(10, x);
+    }
+
     getIntersection(A, B, C, D) {
         const tTop = (D.x - C.x) * (A.y - C.y) - (D.y - C.y) * (A.x - C.x);
         const uTop = (C.y - A.y) * (A.x - B.x) - (C.x - A.x) * (A.y - B.y);

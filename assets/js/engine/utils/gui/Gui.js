@@ -12,7 +12,7 @@ export default class Gui {
     // TODO move this to controls
     #updateControlsData() {
         const font = "16px Mouse"
-        this.movementControls =  {
+        this.movementControls = {
             'forward': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 120,
@@ -43,6 +43,32 @@ export default class Gui {
                 width: 50,
                 height: 50,
                 text: '→️',
+                font
+            }
+        }
+        this.anthillControls = {
+            'createAnt': {
+                x: this.controlsCtx.canvas.width - 60,
+                y: 10,
+                width: 50,
+                height: 50,
+                text: '🐜',
+                font
+            },
+            'pick': {
+                x: this.controlsCtx.canvas.width - 60,
+                y: 70,
+                width: 50,
+                height: 50,
+                text: '🚚',
+                font
+            },
+            'eat': {
+                x: this.controlsCtx.canvas.width - 60,
+                y: 130,
+                width: 50,
+                height: 50,
+                text: '🍏',
                 font
             }
         }
@@ -91,15 +117,15 @@ export default class Gui {
     }
 
     /**
-     * Screen
+     * Screen instantiable objects
      */
     button({ctx, font, x, y, width, height, text}) {
         // create a button to be used in the canvas
         this.square({ctx, x, y, width, height, color: '#ffa600', stroke: '#000'});
-        this.text({ctx, font, color: '#000', text, x, y, width, height});
+        this.text({ctx, font, color: '#000', text, x, y, width, height, center: true});
     }
 
-    square({ctx, x, y, width, height, color, stroke}) {
+    square({ctx, x, y, width, height, color = '#FFF', stroke = false}) {
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.fillStyle = color;
@@ -108,54 +134,96 @@ export default class Gui {
         stroke && ctx.stroke();
     }
 
-    text({ctx, font, color, text, x, y, width, height}) {
+    text({ctx, font, color, text, x, y, width, height, center = false}) {
         ctx.font = font;
         ctx.fillStyle = color;
         const xText = x + width / 2 - ctx.measureText(text).width / 2;
         const yText = y + height / 2 + 5;
-        ctx.fillText(text, xText, yText);
+        ctx.fillText(text, center ? xText : x, center ? yText : y);
     }
 
+    bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke}, negative = false) {
+        const normalizedProgress = fill / (cap / 255);
+        const progress = negative ? (cap - fill) : fill
+
+        ctx.fillStyle = barColor;
+        ctx.fillRect(x, y, cap, height);
+        stroke && (ctx.strokeStyle = stroke);
+        stroke && (ctx.strokeRect(x, y, cap, height));
+
+        ctx.fillStyle = fillColor === 'green-red' ?
+            `rgb(${normalizedProgress}, ${255 - normalizedProgress}, 0)` :
+            'red-green' ? `rgb(${255 - normalizedProgress}, ${normalizedProgress}, 0)` : fillColor;
+        ctx.fillRect(x, y, progress, height);
+
+
+        text && (this.text({ctx, font: '12px Mouse', color: '#000', text, x, y: y - height}));
+    }
+
+    /**
+     * Listeners
+     */
     addListeners(e) {
         const onMouseDown = (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
-            const controlAnt = this.movementControls;
-
-            Object.keys(controlAnt).forEach(key => {
+            const controls = {
+                ...this.movementControls,
+                pick: this.anthillControls.pick
+            };
+            Object.keys(controls).forEach(key => {
                 if (
-                    x > controlAnt[key].x &&
-                    x < controlAnt[key].x + controlAnt[key].width &&
-                    y > controlAnt[key].y &&
-                    y < controlAnt[key].y + controlAnt[key].height
+                    x > controls[key].x &&
+                    x < controls[key].x + controls[key].width &&
+                    y > controls[key].y &&
+                    y < controls[key].y + controls[key].height
                 ) {
-                    this.app.player.controls[key] = true;
+                    this.app.player.controls[key] = 1;
                 }
             });
         }
 
         const onMouseUp = (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
-            const controlAnt = this.movementControls;
+            const controls = {
+                ...this.movementControls,
+                pick: this.anthillControls.pick
+            };
 
-            Object.keys(controlAnt).forEach(key => {
+            Object.keys(controls).forEach(key => {
                 if (
-                    x > controlAnt[key].x &&
-                    x < controlAnt[key].x + controlAnt[key].width &&
-                    y > controlAnt[key].y &&
-                    y < controlAnt[key].y + controlAnt[key].height
+                    x > controls[key].x &&
+                    x < controls[key].x + controls[key].width &&
+                    y > controls[key].y &&
+                    y < controls[key].y + controls[key].height
                 ) {
-                    this.app.player.controls[key] = false;
+                    this.app.player.controls[key] = 0;
                 }
             });
         }
 
+        const onClick = (e) => {
+            const {x, y} = {x: e.offsetX, y: e.offsetY};
+
+            if (
+                x > this.anthillControls.createAnt.x &&
+                x < this.anthillControls.createAnt.x + this.anthillControls.createAnt.width &&
+                y > this.anthillControls.createAnt.y &&
+                y < this.anthillControls.createAnt.y + this.anthillControls.createAnt.height
+            ) {
+                this.app.anthill.addAnt();
+            }
+
+        }
 
         return {
             onmousedown: [
-                onMouseDown,
+                onMouseDown
             ],
             onmouseup: [
-                onMouseUp,
+                onMouseUp
+            ],
+            onclick: [
+                onClick
             ]
         }
     }
@@ -167,24 +235,63 @@ export default class Gui {
         const width = ctx.canvas.width;
         const height = ctx.canvas.height;
 
-        const controlAnt = {
+        const looper = {
             forward: {ctx, ...this.movementControls.forward,},
             reverse: {ctx, ...this.movementControls.reverse,},
             left: {ctx, ...this.movementControls.left,},
-            right: {ctx, ...this.movementControls.right,},
+            right: {ctx, ...this.movementControls.right},
+            createAnt: {ctx, ...this.anthillControls.createAnt},
+            pick: {ctx, ...this.anthillControls.pick},
+            eat: {ctx, ...this.anthillControls.eat},
         }
 
-        Object.keys(controlAnt).forEach(key => {
-            this.button(controlAnt[key]);
+        Object.keys(looper).forEach(key => {
+            this.button(looper[key]);
         });
     }
 
     drawGameData(ctx = this.controlsCtx) {
-        ctx.font = "20px Mouse";
-        ctx.fillStyle = '#000000';
-        ctx.fillText(`Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`, 10, 30);
-        ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 60);
-        ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 90);
+        this.square( {
+            ctx: this.controlsCtx,
+            x: 5,
+            y: 10,
+            width: this.app.player.entity.maxFoodPickCapacity * 10 + 30,
+            height: 190,
+            color: 'rgba(255, 255, 255, 0.2)',
+            stroke: '#000'
+        });
+        this.text({
+            ctx,
+            font: "20px Mouse",
+            color: "#000",
+            text: `Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`,
+            x: 20,
+            y: 40
+        });
+        this.text({ctx, font: "20px Mouse", color: "#000", text: `Ants: ${this.app.anthill.ants}`, x: 20, y: 70});
+        this.text({ctx, font: "20px Mouse", color: "#000", text: `Food: ${this.app.tools.xDecimals(this.app.anthill.food, 0)}`, x: 20, y: 100});
+        this.bar({
+            ctx,
+            x: 20,
+            y: 135,
+            text: `Food Pick Capacity: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`,
+            cap: this.app.player.entity.maxFoodPickCapacity * 10,
+            fill: this.app.player.entity.pickedFood * 10,
+            fillColor: 'green-red',
+            barColor: 'rgba(0,0,0,0.5)',
+            stroke: '#000'
+        }, false);
+        this.bar({
+            ctx,
+            x: 20,
+            y: 175,
+            text: `Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`,
+            cap: 100,
+            fill: this.app.player.entity.hunger * 10,
+            fillColor: 'red-green',
+            barColor: 'rgba(0,0,0,0.5)',
+            stroke: '#000'
+        }, false);
     }
 
     update() {

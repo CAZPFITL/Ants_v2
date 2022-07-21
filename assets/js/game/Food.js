@@ -3,14 +3,16 @@ export default class Food {
         this.app = app;
         this.#getFoodData(bounds);
     }
+
     /**
      * Private
      */
-    #getFoodData({ width, height }) {
+    #getFoodData({width, height}) {
         const size = this.app.tools.random(50, 100);
         this.polygons = [];
-        this.width = size;
-        this.height = size;
+        this.width = this.app.tools.random(50, 100);
+        this.height = this.app.tools.random(50, 100);
+        this.initialSize = size;
         this.amount = size;
         // TODO Make a better random initial place generator (avoid appear near the anthill)
         this.x = this.app.tools.random(-(width - size), (width - size));
@@ -70,13 +72,22 @@ export default class Food {
     }
 
     update() {
-        (this.amount >= 20) && (this.width = this.amount);
-        (this.amount >= 20) && (this.height = this.amount);
+        (this.amount >= 10) && (this.width = this.amount);
+        (this.amount >= 10) && (this.height = this.amount);
         (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
         this.app.gui.createPolygon(this);
     }
 
     draw() {
         this.app.gui.drawPolygon(this.app.gui.ctx, this);
+        (this.amount < this.initialSize) &&
+        this.app.gui.bar({
+            ctx: this.app.gui.ctx,
+            x: this.x - this.width / 2,
+            y: this.y - this.height,
+            fillColor: 'red-green',
+            cap: this.initialSize,
+            fill: this.amount,
+        }, false);
     }
 }

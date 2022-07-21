@@ -34,6 +34,7 @@ export default class Controls {
             'click': [
                 ...player.onclick,
                 ...gui.onmouseup,
+                ...gui.onclick,
             ],
             'mousedown': [
                 ...gui.onmousedown,

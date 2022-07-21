@@ -1,7 +1,7 @@
 export default class Player {
     constructor(app) {
         this.app = app;
-        this.entity;
+        this.entity = null;
         this.controls = {
             forward: 0,
             reverse: 0,
@@ -44,7 +44,7 @@ export default class Player {
                     this.controls.left = 1;
                     break;
                 case ' ':
-                    this.controls.eat = 1;
+                    this.controls.pick = 1;
                     break;
             }
         }
@@ -64,8 +64,11 @@ export default class Player {
                     this.controls.left = 0;
                     break;
                 case ' ':
-                    this.controls.eat = 0;
+                    this.controls.pick = 0;
                     break;
+                case '+':
+                    console.log(event.key);
+                    this.app.anthill.addAnt();
             }
         }
 
