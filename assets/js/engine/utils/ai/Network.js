@@ -9,7 +9,7 @@ export default class NeuralNetwork {
         for (let i = 0; i < neuronCount.length - 1; i++) {
             this.levels.push(new Level(
                 neuronCount[i],
-                neuronCount[i+1]
+                neuronCount[i + 1]
             ));
         }
     }

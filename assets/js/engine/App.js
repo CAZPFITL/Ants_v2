@@ -1,5 +1,5 @@
-import AppMethods from './utils/AppMethods.js';
-
+import AppMethods from './utils/general/AppMethods.js';
+import Ants from '../game/Game.js';
 export default class App extends AppMethods {
     constructor(onWindow) {
         super();
@@ -7,7 +7,7 @@ export default class App extends AppMethods {
     }
 
     loadGame(onWindow) {
-        this.loadEngine(this);
+        this.loadEngine(this, Ants);
         (onWindow) && (window.app = this);
     }
 }

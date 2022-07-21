@@ -1,15 +1,7 @@
 export default class Player {
     constructor(app) {
         this.app = app;
-        this.entity = null;
-        this.app.inits.push(this.#init.bind(this));
-    }
-
-    /**
-     * Private
-     */
-    #init() {
-        this.entity = this.app.anthill.population[this.app.anthill.population.length - 1];
+        this.entity;
         this.controls = {
             forward: 0,
             reverse: 0,

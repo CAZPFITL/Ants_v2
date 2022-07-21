@@ -5,7 +5,6 @@ export default class Sensor {
         this.rayCount = 2;
         this.rayLength = 8;
         this.raySpread = Math.PI * 0.5;
-
         this.rays = [];
         this.readings = [];
     }

@@ -1,10 +1,6 @@
 export default class Gui {
     constructor(app) {
         this.app = app;
-        app.inits.push(this.init.bind(this));
-    }
-
-    init() {
         this.ctx = this.#createCanvas('gameCanvas');
         this.controlsCtx = this.#createCanvas('controlsCanvas');
         this.#updateControlsData();
@@ -13,6 +9,7 @@ export default class Gui {
     /**
      * Private
      */
+    // TODO move this to controls
     #updateControlsData() {
         const font = "16px Mouse"
         this.movementControls =  {
@@ -185,7 +182,7 @@ export default class Gui {
     drawGameData(ctx = this.controlsCtx) {
         ctx.font = "20px Mouse";
         ctx.fillStyle = '#000000';
-        ctx.fillText(`Player: ${this.app.player.entity.name}`, 10, 30);
+        ctx.fillText(`Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`, 10, 30);
         ctx.fillText(`Ants: ${this.app.anthill.ants}`, 10, 60);
         ctx.fillText(`Food: ${this.app.anthill.food}`, 10, 90);
     }
@@ -195,7 +192,10 @@ export default class Gui {
     }
 
     draw() {
-        this.drawControls();
-        this.drawGameData();
+        // TODO add the state pattern
+        if (this.app.state.state === 'play') {
+            this.drawControls();
+            this.drawGameData();
+        }
     }
 }

@@ -1,5 +1,5 @@
 import Shape from './Shape.js';
-import NeuralNetwork from "./Network.js";
+import NeuralNetwork from "../engine/utils/ai/Network.js";
 import Sensor from "../engine/utils/Sensor.js";
 
 export default class Ant {
@@ -14,7 +14,7 @@ export default class Ant {
     #getModelData({id, x = 0, y = 0, color = '#000', angle = 0}) {
         this.name = 'Ant #' + id;
         const size = this.app.tools.random(4, 16);
-        this.eatRate = this.app.tools.random(size * 0.005, size * 0.01);
+        this.eatRate = this.app.tools.random(size * 0.5, size * 0.8) * 0.005;
 
         this.x = x;
         this.y = y;
@@ -61,15 +61,16 @@ export default class Ant {
         this.controls.pick = outputs[4];
     }
 
-    #tasteFood() {
+    #smell() {
         this.mouth = {
             x: this.polygons[1].x,
             y: this.polygons[1].y
         }
         this.onFood = Boolean(this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Food));
-        // Read if AI or user are eating the food
-        const pick = this.app.controls.getControls(this).eat;
-        (this.onFood && Boolean(pick)) && this.#eatFood();
+
+        const picker = this.app.controls.getControls(this).eat;
+        this.onFood && Boolean(picker) && this.#eatFood();
+
     }
 
     #eatFood() {
@@ -117,7 +118,7 @@ export default class Ant {
         this.app.controls.readMovement(this);
         this.app.physics.walk(this);
         this.#neuralProcess();
-        this.#tasteFood();
+        this.#smell();
     }
 
     draw(ctx) {

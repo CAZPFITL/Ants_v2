@@ -1,13 +1,6 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.app.inits.push(this.#init.bind(this));
-    }
-
-    /**
-     * Private
-     */
-    #init() {
         this.addListeners();
     }
 

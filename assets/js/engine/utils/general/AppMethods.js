@@ -1,11 +1,12 @@
 import Tools from "./Tools.js";
-import Factory from "./Factory.js";
-import Gui from "../inits/Gui.js";
-import Physics from "./Physics.js";
-import Camera from "../inits/Camera.js";
-import Controls from "../../game/Controls.js";
-import Player from "../inits/Player.js";
-import GameLevel from "../../game/GameLevel.js";
+import State from "../State.js";
+import Factory from "../Factory.js";
+import Gui from "../gui/Gui.js";
+import Physics from "../Physics.js";
+import Camera from "../gui/Camera.js";
+import Controls from "../../inits/Controls.js";
+import Player from "../../inits/Player.js";
+import GameLevel from "../../inits/GameLevel.js";
 
 export default class AppMethods {
     show() {
@@ -14,6 +15,7 @@ export default class AppMethods {
 
     loadVariables() {
         this.showSensors = true;
+        // Change this for states
         this.gameOver = false;
         this.entities = [];
         this.inits = [
@@ -26,16 +28,20 @@ export default class AppMethods {
         ];
     }
 
-    loadEngine(app) {
+    loadEngine(app, Game) {
         this.loadVariables();
-        this.gui = new Gui(this);
+        this.state = new State(this);
         this.tools = new Tools(this);
-        this.physics = new Physics(this);
         this.factory = new Factory(this);
+        this.physics = new Physics(this);
+
+        this.gui = new Gui(this);
         this.camera = new Camera(this);
         this.player = new Player(this);
         this.controls = new Controls(this);
+
         this.loadInits(app);
+        this.game = new Game(this);
     }
 
     loadInits(app) {

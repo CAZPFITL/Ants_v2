@@ -2,12 +2,6 @@ export default class Camera {
     constructor(app) {
         this.app = app;
         this.fieldOfView = Math.PI / 4.0;
-        this.app.inits.push(this.#init.bind(this));
-    }
-    /**
-     * Private
-     */
-    #init() {
         this.lookAt = [0, 0];
         this.viewport = {
             left: 0,
@@ -24,6 +18,9 @@ export default class Camera {
         this.#updateViewportData();
     }
 
+    /**
+     * Private
+     */
     #scaleAndTranslate() {
         this.app.gui.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
         this.app.gui.ctx.translate(-this.viewport.left, -this.viewport.top);
