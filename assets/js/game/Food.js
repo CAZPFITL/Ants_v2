@@ -19,7 +19,7 @@ export default class Food {
         this.x = this.app.tools.random(-(width - size), (width - size));
         this.y = this.app.tools.random(-(height - size), (height - size));
         this.angle = this.app.tools.random(0, 3.6);
-        this.color = '#ff6600';
+        this.color = '#33211c';
     }
 
     /**

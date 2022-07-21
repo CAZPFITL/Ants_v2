@@ -306,7 +306,6 @@ export default class Gui {
     }
 
     draw() {
-        // TODO add the state pattern
         if (this.app.state.state === 'play') {
             this.drawControls();
             this.drawGameData();

@@ -3,7 +3,8 @@ import NeuralNetwork from "../engine/utils/ai/Network.js";
 import Sensor from "../engine/utils/Sensor.js";
 
 export default class Ant {
-    constructor({app, id, x = 0, y = 0, color = '#000', angle = 0}) {
+    constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
+        this.home = anthill
         this.app = app;
         this.name = 'Ant #' + id;
         const size = app.tools.random(8, 16);
@@ -100,9 +101,7 @@ export default class Ant {
     #metabolism() {
         this.hunger -= this.metabolismSpeed;
         if (this.hunger <= 0) {
-            const clearedAnts = this.app.factory.binnacle.Ant.filter(ant => ant !== this);
-            this.app.anthill.population = clearedAnts;
-            this.app.factory.binnacle.Ant = clearedAnts;
+            this.home.removeAnt(this);
             this.hunger = 0;
         }
     }

@@ -14,7 +14,7 @@ export default class Anthill {
         this.coords = { x: 0 / 2, y: 0 };
         this.angle = 0;
         this.food = 50;
-        this.color = '#70e503';
+        this.color = '#381801';
         this.antCoste = 10;
     }
 
@@ -29,16 +29,7 @@ export default class Anthill {
         const x = Array(this.ants).fill(0);
 
         x.forEach(() => {
-            this.population.push(this.app.factory.create(
-                Ant,
-                {
-                    id: this.#id(),
-                    app: this.app,
-                    x: this.app.tools.random(-0,0, false),
-                    y: this.app.tools.random(-0,0, false),
-                    angle: this.app.tools.random(-3.6,3.6, false),
-                }
-            ))
+            this.addAnt();
         });
     }
 
@@ -52,10 +43,17 @@ export default class Anthill {
                     x: 0,
                     y: 0,
                     angle: this.app.tools.random(-3.6, 3.6, false),
+                    anthill: this
                 }
             ))
             this.food -= this.antCoste;
         }
+    }
+
+    removeAnt(ant) {
+        const cleared = this.population.filter(ant => ant !== ant);
+        this.population = cleared;
+        this.app.factory.binnacle.Ant = cleared;
     }
 
     fillPopulation() {
