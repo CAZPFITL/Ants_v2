@@ -216,7 +216,7 @@ export default class Gui {
                 y > this.anthillControls.createAnt.y &&
                 y < this.anthillControls.createAnt.y + this.anthillControls.createAnt.height
             ) {
-                this.app.anthill.addAnt();
+                this.game.anthill.addAnt();
             }
 
         }

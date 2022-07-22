@@ -1,5 +1,5 @@
-import Anthill from "./Anthill.js";
-import Food from "./Food.js";
+import Anthill from "../entities/Anthill.js";
+import Food from "../entities/Food.js";
 
 export default class GameLevel {
     constructor({app, game, id = 0, width, height}) {

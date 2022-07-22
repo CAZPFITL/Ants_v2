@@ -64,8 +64,8 @@ export default class Tools {
     }
 
     getClickCoords = (e) => ({
-        x: e.clientX / this.app.camera.viewport.scale[0] + this.app.camera.viewport.left,
-        y: e.clientY / this.app.camera.viewport.scale[1] + this.app.camera.viewport.top
+        x: e.clientX / this.app.gui.camera.viewport.scale[0] + this.app.gui.camera.viewport.left,
+        y: e.clientY / this.app.gui.camera.viewport.scale[1] + this.app.gui.camera.viewport.top
     })
 
     isPointInsidePolygon = (point, polygon) => {

@@ -4,6 +4,7 @@ export default class Physics {
         this.stopRange = 0.03;
     }
 
+    // TODO remove entity and create methods for calculations
     walk(entity) {
         // limit the speed to maxSpeed
         (entity.speed > entity.maxSpeed) && (entity.speed = entity.maxSpeed);

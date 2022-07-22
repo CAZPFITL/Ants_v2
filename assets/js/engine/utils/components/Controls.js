@@ -24,7 +24,7 @@ export default class Controls {
 
     addListeners() {
         // TODO Make this accessible from outside
-        const camera = this.app.camera.addListeners();
+        const camera = this.app.gui.camera.addListeners();
         const player = this.app.player.addListeners();
         const gui = this.app.game.gui.addListeners();
         const listeners = {

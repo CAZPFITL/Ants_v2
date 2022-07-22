@@ -2,7 +2,6 @@ export default class Factory {
     constructor(app) {
         this.app = app;
         this.binnacle = {};
-        this.verbose = false;
     }
 
     create(object, props) {
@@ -14,15 +13,6 @@ export default class Factory {
         const instanceFromType = new object({id, ...props})
         // Object registration in factory binnacle
         this.binnacle[object.name].push(instanceFromType);
-        // Object registration in app entities
-        this.app.entities.push(instanceFromType);
-        // verbose creation to debun on develop
-        // TODO remove this
-        this.verbose && console.log(
-            `%c${instanceFromType.prefix ?? ''}%c${instanceFromType.name} - Created.`,
-            'font-weight: bold; color: #AA9922;',
-            'font-weight: light;'
-        );
         // Return the object
         return instanceFromType;
     }

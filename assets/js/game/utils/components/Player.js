@@ -20,7 +20,7 @@ export default class Player {
     }
 
     /**
-     * Listeners
+     * Listeners TODO: move to separate class (Controls from the game)
      */
     addListeners() {
         const changeControlledEntity = (event) => {

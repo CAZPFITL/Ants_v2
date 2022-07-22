@@ -1,8 +1,9 @@
 import Food from './utils/entities/Food.js';
 import Anthill from "./utils/entities/Anthill.js";
-import GameLevel from "./utils/entities/GameLevel.js";
+import GameLevel from "./utils/components/GameLevel.js";
 import Gui from "./utils/gui/Gui.js";
 import States from "../engine/utils/patterns/State.js";
+import Player from "./utils/components/Player.js";
 
 const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
 const GAME_DATA_LOADED = 'GAME_DATA_LOADED';
@@ -19,6 +20,9 @@ export default class Game {
     }
     // TODO IMPROVE THIS LOADING SCRIPT
     #loadData() {
+        // Load Player Controls
+        this.app.player = new Player(this.app);
+
         this.level = this.app.factory.create(GameLevel, {
             app,
             game: this,

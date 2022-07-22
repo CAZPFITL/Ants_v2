@@ -109,6 +109,6 @@ export default class Camera {
     end(animate) {
         this.app.gui.ctx.restore();
         this.app.gui.controlsCtx.restore();
-        this.app.request = requestAnimationFrame(animate);
+        this.app.gui.request = requestAnimationFrame(animate);
     }
 };
