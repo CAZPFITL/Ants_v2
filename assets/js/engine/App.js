@@ -1,14 +1,8 @@
-import AppMethods from './utils/general/AppMethods.js';
-import Ants from '../game/Game.js';
-export default class App extends AppMethods {
-    constructor(onWindow) {
-        super();
-        this.loadGame(onWindow);
-    }
+import AppMethods from './utils/AppMethods.js';
 
-    loadGame(onWindow) {
-        this.loadEngine(this, Ants);
-        (onWindow) && (window.app = this);
+export default class App extends AppMethods {
+    constructor(onWindow, game) {
+        super(game);
+        onWindow && (window.app = this);
     }
 }
-// TODO make a state pattern for the engine

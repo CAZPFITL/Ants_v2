@@ -1,7 +1,6 @@
 export default class Controls {
     constructor(app) {
         this.app = app;
-        this.addListeners();
     }
 
     /**
@@ -23,13 +22,11 @@ export default class Controls {
             : entity.controls;
     }
 
-    /**
-     * Listeners
-     */
     addListeners() {
+        // TODO Make this accessible from outside
         const camera = this.app.camera.addListeners();
         const player = this.app.player.addListeners();
-        const gui = this.app.gui.addListeners();
+        const gui = this.app.game.gui.addListeners();
         const listeners = {
             'click': [
                 ...player.onclick,

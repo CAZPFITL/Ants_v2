@@ -16,6 +16,7 @@ export default class Anthill {
         this.food = 50;
         this.color = '#381801';
         this.antCoste = 10;
+        this.fillPopulation();
     }
 
     /**
@@ -25,7 +26,7 @@ export default class Anthill {
         return this.population.length + 1;
     }
 
-    #createAnt() {
+    #createAnt(ants) {
         const x = Array(1).fill(0);
 
         x.forEach(() => {
@@ -40,6 +41,7 @@ export default class Anthill {
                     anthill: this
                 }
             ))
+            this.app.player.updateEntity(this.population[this.population.length - 1]);
         });
     }
 
@@ -67,7 +69,7 @@ export default class Anthill {
     }
 
     fillPopulation() {
-        this.#createAnt();
+        this.#createAnt(this.ants);
     }
     /**
      * In game draw section
@@ -122,10 +124,8 @@ export default class Anthill {
     update() {
         this.population = [...this.app.factory.binnacle.Ant]
         this.ants = this.population.length;
-        // TODO: delegate this to the state management
-        if (this.population.length === 0) {
-            this.app.gameOver = true;
-        }
+        // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
+        (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
         this.app.gui.createPolygon(this);
     }
 

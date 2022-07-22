@@ -1,3 +1,4 @@
 import App from './engine/App.js';
+import Ants from './game/Game.js';
 
-new App(true);
+new App(true, Ants);

@@ -1,26 +1,41 @@
-import Food from './Food.js';
-import Anthill from "./Anthill.js";
+import Food from './utils/entities/Food.js';
+import Anthill from "./utils/entities/Anthill.js";
+import GameLevel from "./utils/entities/GameLevel.js";
+import Gui from "./utils/gui/Gui.js";
+import States from "../engine/utils/patterns/State.js";
+
+const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
+const GAME_DATA_LOADED = 'GAME_DATA_LOADED';
+const PLAY = 'PLAY';
 
 export default class Game {
-    constructor(app) {
+    constructor(app, loadCallback) {
         this.app = app;
-        this.#loadEntities();
-        this.app.player.entity = this.app.anthill.population[0];
-        this.app.state.setState('play');
+        this.loadCallback = loadCallback;
+        this.gui = new Gui(this.app, this);
+        this.app.factory.addGameEntity(this.gui);
+        this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, PLAY], 'Game');
+        this.app.factory.addGameEntity(this);
+    }
+    // TODO IMPROVE THIS LOADING SCRIPT
+    #loadData() {
+        this.level = this.app.factory.create(GameLevel, {
+            app,
+            game: this,
+            width: 2000,
+            height: 1200
+        })
+
+        this.app.controls.addListeners();
+
+        this.loadCallback();
+
+        this.state.setState(GAME_DATA_LOADED, 'Game');
     }
 
-    // TODO move this to the state "play"
-    #loadEntities(width = 1000, height = 1000) {        // this creates the anthill and the ants
-        this.app.anthill = this.app.factory.create(Anthill, {
-            app: this.app,
-            ants: 1
-        });
-        for (let i = 0; i < 2; i++) {
-            this.app.factory.create(Food, {
-                app: this.app,
-                bounds: { width: width / 2, height: height / 2 }
-            });
-        }
-        this.app.anthill.fillPopulation();
+    update() {
+        (this.state.state === LOAD_GAME_DATA) && this.#loadData();
+        (this.state.state === GAME_DATA_LOADED) && this.state.setState(PLAY, 'Game');
     }
+
 }

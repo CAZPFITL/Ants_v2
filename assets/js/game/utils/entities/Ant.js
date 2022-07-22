@@ -1,6 +1,6 @@
-import Shape from './Shape.js';
-import NeuralNetwork from "../engine/utils/ai/Network.js";
-import Sensor from "../engine/utils/Sensor.js";
+import Shape from '../gui/Shape.js';
+import NeuralNetwork from "../../../engine/utils/helpers/Network.js";
+import Sensor from "../../../engine/utils/helpers/Sensor.js";
 
 export default class Ant {
     constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
@@ -151,7 +151,7 @@ export default class Ant {
 
     draw(ctx) {
         this.app.gui.drawPolygon(ctx, this);
-        // this.app.showSensors && this.sensor.draw(ctx);
+        this.sensor.draw(ctx);
     }
 }
 
