@@ -3,7 +3,8 @@ import Screen from './Screen.js';
 export default class Gui {
     constructor(app, game) {
         this.app = app
-        this.game = game
+        this.no_update = false;
+        this.no_draw = false;
         this.screen = new Screen(app, this);
         // Ctx
         this.controlsCtx = this.app.gui.controlsCtx
@@ -54,7 +55,7 @@ export default class Gui {
         }
     }
 
-    drawControls(ctx = this.controlsCtx) {
+    drawGameLevelControls(ctx = this.controlsCtx) {
         const width = ctx.canvas.width;
         const height = ctx.canvas.height;
 
@@ -73,7 +74,7 @@ export default class Gui {
         });
     }
 
-    drawGameData(ctx = this.controlsCtx) {
+    drawGameLevelData(ctx = this.controlsCtx) {
         const {
             color,
             font,
@@ -104,6 +105,7 @@ export default class Gui {
             color: 'rgba(255, 255, 255, 0.2)',
             stroke: '#000'
         });
+
         // PLAYER ENTITY
         this.app.gui.text({
             ctx, font, color, text: antSelected, x: 20, y: 40
@@ -173,7 +175,7 @@ export default class Gui {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
 
             if (x > this.anthillControls.createAnt.x && x < this.anthillControls.createAnt.x + this.anthillControls.createAnt.width && y > this.anthillControls.createAnt.y && y < this.anthillControls.createAnt.y + this.anthillControls.createAnt.height) {
-                this.game.anthill.addAnt();
+                this.app.player.anthill.addAnt();
             }
 
         }
@@ -184,11 +186,15 @@ export default class Gui {
     }
 
     update() {
-        this.#updateControlsData();
-        this.screen.update();
+        if (!this.no_update) {
+            this.#updateControlsData();
+            this.screen.update();
+        }
     }
 
     draw() {
-        this.screen.draw();
+        if (!this.no_draw) {
+            this.screen.draw();
+        }
     }
 }

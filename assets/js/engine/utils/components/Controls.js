@@ -17,7 +17,7 @@ export default class Controls {
     }
 
     getControls(entity) {
-        return this.app.player.entity === entity
+        return this.app.player.ant === entity
             ? this.app.player.controls
             : entity.controls;
     }

@@ -38,7 +38,7 @@ export default class GameLevel {
     gameLevelDataStrings() {
         // TODO consider to make multiple anthills
         const antHill = this.app.factory.binnacle['Anthill'][0]
-        const entity = this.app.player.entity
+        const entity = this.app.player.ant
 
         if (!antHill || !entity) return
 
@@ -58,7 +58,7 @@ export default class GameLevel {
             anthillAnts: `Anthill Ants: ${ants}`,
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
-            pickedBarText: `Player: ${player.name}} Food: ${this.app.tools.xDecimals(player.pickedFood, 0)} / ${this.app.tools.xDecimals(player.maxFoodPickCapacity, 0)}`,
+            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDecimals(player.pickedFood, 0)} / ${this.app.tools.xDecimals(player.maxFoodPickCapacity, 0)}`,
             hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
             entity
         }

@@ -21,7 +21,13 @@ export default class Screen {
     }
 
     draw() {
-        (this.app.game.state.state === 'PLAY') && this.gui.drawControls();
-        (this.app.game.state.state === 'PLAY') && this.gui.drawGameData();
+        // MAIN MENU SCREEN ELEMENTS
+        // TODO Add some main menu screen elements
+
+        // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
+        if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
+            this.gui.drawGameLevelControls();
+            this.gui.drawGameLevelData();
+        }
     }
 }

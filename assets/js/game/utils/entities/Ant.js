@@ -7,6 +7,8 @@ export default class Ant {
         this.home = anthill
         this.app = app;
         this.name = 'Ant #' + id;
+        this.no_update = false;
+        this.no_draw = false;
         const size = app.tools.random(8, 16);
         this.carryRate = app.tools.random(size * 0.8, size * 1.2) * 0.005;
 
@@ -77,7 +79,7 @@ export default class Ant {
     }
 
     #carryFood() {
-        const food = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Food);
+        const food = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle['Food']);
         const capacityAvailable = this.maxFoodPickCapacity >= this.pickedFood;
 
         food && capacityAvailable && (food.amount -= this.carryRate);
@@ -85,7 +87,7 @@ export default class Ant {
     }
 
     #dropFood() {
-        const anthill = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Anthill);
+        const anthill = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle['Anthill']);
         const capacityAvailable = this.pickedFood >= 0;
 
 
@@ -93,7 +95,7 @@ export default class Ant {
         anthill && capacityAvailable && (this.pickedFood -= this.carryRate);
 
         if (this.pickedFood < this.carryRate) {
-            this.app.factory.binnacle.Anthill[0].food += this.pickedFood;
+            this.app.factory.binnacle['Anthill'][0].food += this.pickedFood;
             this.pickedFood = 0;
         }
     }
@@ -118,8 +120,8 @@ export default class Ant {
                 y: this.y - Math.cos(this.angle - alpha) * rad
             },
             {
-                x: this.x - Math.sin(this.angle + 0) * rad * 0.9,
-                y: this.y - Math.cos(this.angle + 0) * rad * 0.9
+                x: this.x - Math.sin(this.angle) * rad * 0.9,
+                y: this.y - Math.cos(this.angle) * rad * 0.9
             },
             {
                 x: this.x - Math.sin(this.angle + alpha) * rad,
@@ -137,21 +139,25 @@ export default class Ant {
     }
 
     update() {
-        this.sensor.update([
-            ...this.app.factory.binnacle.Food,
-            ...this.app.factory.binnacle.Ant
-        ]);
-        this.app.gui.createPolygon(this);
-        this.app.controls.readMovement(this);
-        this.app.physics.walk(this);
-        this.#neuralProcess();
-        this.#smell();
-        this.#metabolism();
+        if (!this.no_update) {
+            this.sensor.update([
+                ...this.app.factory.binnacle.Food,
+                ...this.app.factory.binnacle.Ant
+            ]);
+            this.app.gui.createPolygon(this);
+            this.app.controls.readMovement(this);
+            this.app.physics.walk(this);
+            this.#neuralProcess();
+            this.#smell();
+            this.#metabolism();
+        }
     }
 
     draw(ctx) {
-        this.app.gui.drawPolygon(ctx, this);
-        this.sensor.draw(ctx);
+        if (!this.no_draw) {
+            this.app.gui.drawPolygon(ctx, this);
+            this.sensor.draw(ctx);
+        }
     }
 }
 

@@ -1,7 +1,8 @@
 export default class Player {
     constructor(app) {
         this.app = app;
-        this.entity = null;
+        this.ant = null;
+        this.anthill = null;
         this.controls = {
             forward: 0,
             reverse: 0,
@@ -14,9 +15,9 @@ export default class Player {
     /**
      * Callback
      */
-    updateEntity(entity) {
-        this.entity !== entity &&
-        (this.entity = entity);
+    updateAnt(ant) {
+        this.ant !== ant &&
+        (this.ant = ant);
     }
 
     /**
@@ -26,7 +27,7 @@ export default class Player {
         const changeControlledEntity = (event) => {
             const coords = this.app.tools.getClickCoords(event);
             const entity = this.app.tools.getEntityAt(coords, this.app.factory.binnacle.Ant);
-            entity && this.app.player.updateEntity(entity);
+            entity && this.app.player.updateAnt(entity);
         }
 
         const movePlayerKD = (event) => {
@@ -67,8 +68,7 @@ export default class Player {
                     this.controls.pick = 0;
                     break;
                 case '+':
-                    console.log(event.key);
-                    this.app.anthill.addAnt();
+                    this.app.player.anthill.addAnt();
             }
         }
 

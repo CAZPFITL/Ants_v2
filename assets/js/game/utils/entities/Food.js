@@ -1,6 +1,8 @@
 export default class Food {
     constructor({app, bounds}) {
         this.app = app;
+        this.no_update = false;
+        this.no_draw = false;
         this.#getFoodData(bounds);
     }
 
@@ -73,22 +75,26 @@ export default class Food {
     }
 
     update() {
-        (this.amount >= this.minSize) && (this.width = this.amount);
-        (this.amount >= this.minSize) && (this.height = this.amount);
-        (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
-        this.app.gui.createPolygon(this);
+        if (!this.no_update) {
+            (this.amount >= this.minSize) && (this.width = this.amount);
+            (this.amount >= this.minSize) && (this.height = this.amount);
+            (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
+            this.app.gui.createPolygon(this);
+        }
     }
 
     draw() {
-        this.app.gui.drawPolygon(this.app.gui.ctx, this);
-        (this.amount < this.initialSize) && this.app.gui.bar({
-            ctx: this.app.gui.ctx,
-            x: this.x - this.initialSize / 2,
-            y: this.y - this.height * 1.3,
-            fillColor: 'red-green',
-            barColor: 'rgba(0,0,0,0.5)',
-            cap: this.initialSize,
-            fill: this.amount,
-        }, false);
+        if (!this.no_draw) {
+            this.app.gui.drawPolygon(this.app.gui.ctx, this);
+            (this.amount < this.initialSize) && this.app.gui.bar({
+                ctx: this.app.gui.ctx,
+                x: this.x - this.initialSize / 2,
+                y: this.y - this.height * 1.3,
+                fillColor: 'red-green',
+                barColor: 'rgba(0,0,0,0.5)',
+                cap: this.initialSize,
+                fill: this.amount,
+            }, false);
+        }
     }
 }

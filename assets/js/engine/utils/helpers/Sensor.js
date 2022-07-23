@@ -2,6 +2,8 @@ export default class Sensor {
     constructor(entity) {
         this.entity = entity;
         this.app = entity.app;
+        this.no_update = false;
+        this.no_draw = false;
         this.rayCount = 2;
         this.rayLength = 8;
         this.raySpread = Math.PI * 0.5;
@@ -91,11 +93,15 @@ export default class Sensor {
     }
 
     update(targets) {
-        this.castRays();
-        this.getReadings(targets);
+        if (!this.no_update) {
+            this.castRays();
+            this.getReadings(targets);
+        }
     }
 
     draw(ctx) {
-        this.drawRays(ctx)
+        if (!this.no_draw) {
+            this.drawRays(ctx);
+        }
     }
 }

@@ -4,6 +4,8 @@ export default class Anthill {
     constructor({app, id = 0, ants = 1 }) {
         const width = app.tools.random(50,150)
         const height = app.tools.random(50,150)
+        this.no_update = false;
+        this.no_draw = false;
 
         this.app = app;
         this.name = 'Anthill';
@@ -16,6 +18,7 @@ export default class Anthill {
         this.food = 50;
         this.color = '#381801';
         this.antCoste = 10;
+        this.app.player.anthill = this;
         this.fillPopulation();
     }
 
@@ -41,7 +44,7 @@ export default class Anthill {
                     anthill: this
                 }
             ))
-            this.app.player.updateEntity(this.population[this.population.length - 1]);
+            this.app.player.updateAnt(this.population[this.population.length - 1]);
         });
     }
 
@@ -122,14 +125,18 @@ export default class Anthill {
     }
 
     update() {
-        this.population = [...this.app.factory.binnacle.Ant]
-        this.ants = this.population.length;
-        // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
-        (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
-        this.app.gui.createPolygon(this);
+        if (!this.no_update) {
+            this.population = [...this.app.factory.binnacle.Ant]
+            this.ants = this.population.length;
+            // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
+            (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
+            this.app.gui.createPolygon(this);
+        }
     }
 
     draw() {
-        this.app.gui.drawPolygon(this.app.gui.ctx, this);
+        if (!this.no_draw) {
+            this.app.gui.drawPolygon(this.app.gui.ctx, this);
+        }
     }
 }
