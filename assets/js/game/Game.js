@@ -5,6 +5,7 @@ import Gui from "./utils/gui/Gui.js";
 import States from "../engine/utils/patterns/State.js";
 import Player from "./utils/components/Player.js";
 
+const MAIN_MENU = 'MAIN_MENU';
 const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
 const GAME_DATA_LOADED = 'GAME_DATA_LOADED';
 const PLAY = 'PLAY';
@@ -15,7 +16,7 @@ export default class Game {
         this.loadCallback = loadCallback;
         this.gui = new Gui(this.app, this);
         this.app.factory.addGameEntity(this.gui);
-        this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, PLAY], 'Game');
+        this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, PLAY, MAIN_MENU], 'Game');
         this.app.factory.addGameEntity(this);
     }
     // TODO IMPROVE THIS LOADING SCRIPT
@@ -39,6 +40,7 @@ export default class Game {
 
     update() {
         (this.state.state === LOAD_GAME_DATA) && this.#loadData();
+        // (this.state.state === GAME_DATA_LOADED) && this.state.setState(MAIN_MENU, 'Game');
         (this.state.state === GAME_DATA_LOADED) && this.state.setState(PLAY, 'Game');
     }
 

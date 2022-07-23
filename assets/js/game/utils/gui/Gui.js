@@ -1,10 +1,13 @@
+import Screen from './Screen.js';
+
 export default class Gui {
     constructor(app, game) {
         this.app = app
         this.game = game
+        this.screen = new Screen(app, this);
+        // Ctx
         this.controlsCtx = this.app.gui.controlsCtx
         this.ctx = this.app.gui.ctx
-        this.#updateControlsData();
     }
 
     #updateControlsData() {
@@ -17,24 +20,21 @@ export default class Gui {
                 height: 50,
                 text: '↑',
                 font
-            },
-            'reverse': {
+            }, 'reverse': {
                 x: this.controlsCtx.canvas.width - 120,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
                 text: '↓️',
                 font
-            },
-            'left': {
+            }, 'left': {
                 x: this.controlsCtx.canvas.width - 180,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
                 height: 50,
                 text: '←',
                 font
-            },
-            'right': {
+            }, 'right': {
                 x: this.controlsCtx.canvas.width - 60,
                 y: this.controlsCtx.canvas.height - 60,
                 width: 50,
@@ -45,28 +45,11 @@ export default class Gui {
         }
         this.anthillControls = {
             'createAnt': {
-                x: this.controlsCtx.canvas.width - 60,
-                y: 10,
-                width: 50,
-                height: 50,
-                text: '🐜',
-                font
-            },
-            'pick': {
-                x: this.controlsCtx.canvas.width - 60,
-                y: 70,
-                width: 50,
-                height: 50,
-                text: '🚚',
-                font
-            },
-            'eat': {
-                x: this.controlsCtx.canvas.width - 60,
-                y: 130,
-                width: 50,
-                height: 50,
-                text: '🍏',
-                font
+                x: this.controlsCtx.canvas.width - 60, y: 10, width: 50, height: 50, text: '🐜', font
+            }, 'pick': {
+                x: this.controlsCtx.canvas.width - 60, y: 70, width: 50, height: 50, text: '🚚', font
+            }, 'eat': {
+                x: this.controlsCtx.canvas.width - 60, y: 130, width: 50, height: 50, text: '🍏', font
             }
         }
     }
@@ -91,31 +74,27 @@ export default class Gui {
     }
 
     drawGameData(ctx = this.controlsCtx) {
-        // TODO create and update screen data variable carring all this consts
-        const player = `Player: ${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'}`;
-        const anthillFood = `Anthill Food: ${this.app.tools.xDecimals(this.game.anthill.food, 0)}`;
-        const anthillAnts = `Anthill Ants: ${this.game.anthill.ants}`;
-        const pickedBar = `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Food: ${this.app.tools.xDecimals(this.app.player.entity.pickedFood, 0)} / ${this.app.tools.xDecimals(this.app.player.entity.maxFoodPickCapacity, 0)}`
-        const pickedCapacity = this.app.player.entity.maxFoodPickCapacity * 10;
-        const hungerText = `${this.app.player.entity ? this.app.player.entity.name : 'No Ant Selected'} Hunger: ${this.app.tools.xDecimals(this.app.player.entity.hunger * 10, 2)} / ${100}`
-        const hungerCapacity = 100;
-        const sample = [
-            ctx.measureText(player).width,
+        const {
+            color,
+            font,
+            anthillAnts,
+            anthillFood,
+            antSelected,
+            pickedBarText,
+            hungerText,
+            entity
+        } = this.app.game.level.gameLevelDataStrings();
+
+        // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
+        const width = this.app.tools.max([
+            ctx.measureText(antSelected).width,
             ctx.measureText(anthillFood).width,
             ctx.measureText(anthillAnts).width,
-            ctx.measureText(pickedBar).width,
-            pickedCapacity,
-            hungerCapacity
-        ];
-
-        let maxByFor = sample[0];
-        for (let index = 1; index < sample.length; index++) {
-            if (sample[index] > maxByFor) {
-                maxByFor = sample[index];
-            }
-        }
-        const width = maxByFor;
-
+            ctx.measureText(pickedBarText).width,
+            entity.maxFoodPickCapacity * 10,
+            100
+        ]);
+        // DATA BACKGROUND
         this.app.gui.square({
             ctx: this.controlsCtx,
             x: 5,
@@ -125,41 +104,36 @@ export default class Gui {
             color: 'rgba(255, 255, 255, 0.2)',
             stroke: '#000'
         });
+        // PLAYER ENTITY
         this.app.gui.text({
-            ctx,
-            font: "20px Mouse",
-            color: "#000",
-            text: player,
-            x: 20,
-            y: 40
+            ctx, font, color, text: antSelected, x: 20, y: 40
         });
-        this.app.gui.text({ctx, font: "20px Mouse", color: "#000", text: anthillAnts, x: 20, y: 70});
+        // ANTHILL DATA
+        this.app.gui.text({ctx, font, color, text: anthillAnts, x: 20, y: 70});
+        // FOOD DATA
         this.app.gui.text({
-            ctx,
-            font: "20px Mouse",
-            color: "#000",
-            text: anthillFood,
-            x: 20,
-            y: 100
+            ctx, font, color, text: anthillFood, x: 20, y: 100
         });
+        // FOOD BAR
         this.app.gui.bar({
             ctx,
             x: 20,
             y: 135,
-            text: pickedBar,
-            cap: pickedCapacity,
-            fill: this.app.player.entity.pickedFood * 10,
+            text: pickedBarText,
+            cap: entity.maxFoodPickCapacity * 10,
+            fill: entity.pickedFood * 10,
             fillColor: 'green-red',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
+        // HUNGER BAR
         this.app.gui.bar({
             ctx,
             x: 20,
             y: 175,
             text: hungerText,
-            cap: hungerCapacity,
-            fill: this.app.player.entity.hunger * 10,
+            cap: 100,
+            fill: entity.hunger * 10,
             fillColor: 'red-green',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
@@ -173,16 +147,10 @@ export default class Gui {
         const onMouseDown = (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
             const controls = {
-                ...this.movementControls,
-                pick: this.anthillControls.pick
+                ...this.movementControls, pick: this.anthillControls.pick
             };
             Object.keys(controls).forEach(key => {
-                if (
-                    x > controls[key].x &&
-                    x < controls[key].x + controls[key].width &&
-                    y > controls[key].y &&
-                    y < controls[key].y + controls[key].height
-                ) {
+                if (x > controls[key].x && x < controls[key].x + controls[key].width && y > controls[key].y && y < controls[key].y + controls[key].height) {
                     this.app.player.controls[key] = 1;
                 }
             });
@@ -191,17 +159,11 @@ export default class Gui {
         const onMouseUp = (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
             const controls = {
-                ...this.movementControls,
-                pick: this.anthillControls.pick
+                ...this.movementControls, pick: this.anthillControls.pick
             };
 
             Object.keys(controls).forEach(key => {
-                if (
-                    x > controls[key].x &&
-                    x < controls[key].x + controls[key].width &&
-                    y > controls[key].y &&
-                    y < controls[key].y + controls[key].height
-                ) {
+                if (x > controls[key].x && x < controls[key].x + controls[key].width && y > controls[key].y && y < controls[key].y + controls[key].height) {
                     this.app.player.controls[key] = 0;
                 }
             });
@@ -210,33 +172,23 @@ export default class Gui {
         const onClick = (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
 
-            if (
-                x > this.anthillControls.createAnt.x &&
-                x < this.anthillControls.createAnt.x + this.anthillControls.createAnt.width &&
-                y > this.anthillControls.createAnt.y &&
-                y < this.anthillControls.createAnt.y + this.anthillControls.createAnt.height
-            ) {
+            if (x > this.anthillControls.createAnt.x && x < this.anthillControls.createAnt.x + this.anthillControls.createAnt.width && y > this.anthillControls.createAnt.y && y < this.anthillControls.createAnt.y + this.anthillControls.createAnt.height) {
                 this.game.anthill.addAnt();
             }
 
         }
 
         return {
-            onmousedown: [
-                onMouseDown
-            ],
-            onmouseup: [
-                onMouseUp
-            ],
-            onclick: [
-                onClick
-            ]
+            onmousedown: [onMouseDown], onmouseup: [onMouseUp], onclick: [onClick]
         }
     }
 
     update() {
-        (this.game.state.state === 'PLAY') && this.drawControls();
-        (this.game.state.state === 'PLAY') && this.drawGameData();
-        (this.game.state.state === 'PLAY') && this.#updateControlsData();
+        this.#updateControlsData();
+        this.screen.update();
+    }
+
+    draw() {
+        this.screen.draw();
     }
 }

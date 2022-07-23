@@ -20,9 +20,9 @@ export default class GameLevel {
     }
 
     loadAnthill(ants = 1) {
-        this.game.anthill = this.app.factory.create(Anthill, {
+        this.app.factory.create(Anthill, {
             app: this.app,
-            ants: 1
+            ants
         });
     }
 
@@ -32,6 +32,35 @@ export default class GameLevel {
                 app: this.app,
                 bounds: { width: width / 2, height: height / 2 }
             });
+        }
+    }
+
+    gameLevelDataStrings() {
+        // TODO consider to make multiple anthills
+        const antHill = this.app.factory.binnacle['Anthill'][0]
+        const entity = this.app.player.entity
+
+        if (!antHill || !entity) return
+
+        const {ants, food, player} = {
+            ants: antHill.ants ?? "n/a", food: this.app.tools.xDecimals(antHill.food, 0), player: {
+                name: entity.name ?? "No Ant Selected",
+                hunger: this.app.tools.xDecimals(entity.hunger * 10, 2) ?? "n/a",
+                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
+                maxPickedFood: entity.maxPickedFood ?? "n/a",
+                pickedFood: entity.pickedFood ?? "n/a",
+            }
+        }
+
+        return {
+            color: '#000000',
+            font: "20px Mouse",
+            anthillAnts: `Anthill Ants: ${ants}`,
+            anthillFood: `Anthill Food: ${food}`,
+            antSelected: `Player: ${player.name}`,
+            pickedBarText: `Player: ${player.name}} Food: ${this.app.tools.xDecimals(player.pickedFood, 0)} / ${this.app.tools.xDecimals(player.maxFoodPickCapacity, 0)}`,
+            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
+            entity
         }
     }
 

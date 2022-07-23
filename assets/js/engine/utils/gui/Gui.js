@@ -1,8 +1,8 @@
 export default class Gui {
     constructor(app) {
         this.app = app;
-        this.ctx = this.#createCanvas('gameCanvas');
-        this.controlsCtx = this.#createCanvas('controlsCanvas');
+        this.ctx = Gui.createCanvas('gameCanvas');
+        this.controlsCtx = Gui.createCanvas('controlsCanvas');
         this.app.factory.addGameEntity(this);
     }
 
@@ -10,7 +10,7 @@ export default class Gui {
      * Private
      */
 
-    #createCanvas(id) {
+    static createCanvas(id) {
         const canvas = document.getElementById(id);
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -45,17 +45,6 @@ export default class Gui {
 
         ctx.fillStyle = entity.color ?? '#000';
         ctx.fill();
-    }
-
-    createCustomShape(entity, points) {
-        if (entity.polygons.length < 1) return;
-
-        const unit = 10
-        // we need to rotate the polygon around the center of the car so we add 90 degrees to the angle
-        entity.polygons = points.map(point => ({
-            x: entity.x - Math.sin(entity.angle - point.lambda) * unit * point.radius,
-            y: entity.y - Math.cos(entity.angle - point.lambda) * unit * point.radius
-        }))
     }
 
     /**
