@@ -1,10 +1,10 @@
 export default class State {
-    constructor(app, initialState, states, caller) {
-        this.app = app;
+    constructor(caller, initialState, states) {
+        this.caller = caller;
         this.states = [];
         this.state = '';
         this.addStates(states);
-        this.setState(initialState, caller);
+        this.setState(initialState);
     }
 
     addStates(states) {
@@ -13,7 +13,7 @@ export default class State {
         }
     }
 
-    setState(state, caller) {
+    setState(state) {
         // console.log('New', caller,'State:', state);
         this.state = state;
     }

@@ -1,6 +1,6 @@
 import Shape from '../gui/Shape.js';
-import NeuralNetwork from "../../../engine/utils/helpers/Network.js";
-import Sensor from "../../../engine/utils/helpers/Sensor.js";
+import NeuralNetwork from "../../../engine/utils/components/Network.js";
+import Sensor from "../../../engine/utils/components/Sensor.js";
 
 export default class Ant {
     constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
@@ -71,15 +71,15 @@ export default class Ant {
             y: this.polygons[1].y
         }
 
-        this.foodFound = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Food || false);
-        this.anthillFound = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle.Anthill || false);
+        this.foodFound = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle.Food || false);
+        this.anthillFound = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle.Anthill || false);
         const action = this.app.controls.getControls(this).pick;
         this.foodFound && Boolean(action) && this.#carryFood();
         this.anthillFound && this.pickedFood > 0 && Boolean(action) && this.#dropFood();
     }
 
     #carryFood() {
-        const food = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle['Food']);
+        const food = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle['Food']);
         const capacityAvailable = this.maxFoodPickCapacity >= this.pickedFood;
 
         food && capacityAvailable && (food.amount -= this.carryRate);
@@ -87,7 +87,7 @@ export default class Ant {
     }
 
     #dropFood() {
-        const anthill = this.app.tools.getEntityAt(this.mouth, this.app.factory.binnacle['Anthill']);
+        const anthill = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle['Anthill']);
         const capacityAvailable = this.pickedFood >= 0;
 
 
@@ -106,6 +106,15 @@ export default class Ant {
             this.home.removeAnt(this);
             this.hunger = 0;
         }
+    }
+
+    #readMovement() {
+        const controls = this.app.controls.getControls(this);
+
+        controls.forward && this.app.physics.speedup(this);
+        controls.reverse && this.app.physics.slowdown(this);
+        controls.left && this.app.physics.turnLeft(this);
+        controls.right && this.app.physics.turnRight(this);
     }
 
     /**
@@ -140,22 +149,22 @@ export default class Ant {
 
     update() {
         if (!this.no_update) {
+            this.app.gui.get.createPolygon(this);
             this.sensor.update([
                 ...this.app.factory.binnacle.Food,
                 ...this.app.factory.binnacle.Ant
             ]);
-            this.app.gui.createPolygon(this);
-            this.app.controls.readMovement(this);
-            this.app.physics.walk(this);
             this.#neuralProcess();
             this.#smell();
             this.#metabolism();
+            this.#readMovement();
+            this.app.physics.move(this);
         }
     }
 
     draw(ctx) {
         if (!this.no_draw) {
-            this.app.gui.drawPolygon(ctx, this);
+            this.app.gui.get.drawPolygon(ctx, this);
             this.sensor.draw(ctx);
         }
     }

@@ -79,14 +79,14 @@ export default class Food {
             (this.amount >= this.minSize) && (this.width = this.amount);
             (this.amount >= this.minSize) && (this.height = this.amount);
             (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
-            this.app.gui.createPolygon(this);
+            this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
         if (!this.no_draw) {
-            this.app.gui.drawPolygon(this.app.gui.ctx, this);
-            (this.amount < this.initialSize) && this.app.gui.bar({
+            this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
+            (this.amount < this.initialSize) && this.app.gui.get.bar({
                 ctx: this.app.gui.ctx,
                 x: this.x - this.initialSize / 2,
                 y: this.y - this.height * 1.3,

@@ -130,13 +130,13 @@ export default class Anthill {
             this.ants = this.population.length;
             // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
             (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
-            this.app.gui.createPolygon(this);
+            this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
         if (!this.no_draw) {
-            this.app.gui.drawPolygon(this.app.gui.ctx, this);
+            this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
         }
     }
 }

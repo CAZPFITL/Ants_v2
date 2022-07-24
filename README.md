@@ -8,9 +8,9 @@ Related Docs:
 - https://www.youtube.com/watch?v=MsRROjQJxuo&ab_channel=TheCodingTrain
 - https://thecodest.co/blog/tricks-to-speed-up-javascript-application
 - https://www.smashingmagazine.com/2012/11/writing-fast-memory-efficient-javascript/
-
+- https://dobrian.github.io/cmp/topics/sample-recording-and-playback-with-web-audio-api/1.loading-and-playing-sound-files.html
 
 NOTES:
 
-the game entities get draw from app main draw function
+the game entities get get from app main get function
 if some entities need to be not drawn update the not_draw flag in the entity

@@ -3,9 +3,25 @@ export default class Physics {
         this.app = app;
         this.stopRange = 0.03;
     }
+    // calculate acceleration with physics and not from the ant
+    speedup(entity) {
+        entity.speed += entity.acceleration;
+    }
+
+    slowdown(entity) {
+        entity.speed -= entity.acceleration;
+    }
+
+    turnLeft(entity) {
+        entity.angle += entity.turnSpeed;
+    }
+
+    turnRight(entity) {
+        entity.angle -= entity.turnSpeed;
+    }
 
     // TODO remove entity and create methods for calculations
-    walk(entity) {
+    move(entity) {
         // limit the speed to maxSpeed
         (entity.speed > entity.maxSpeed) && (entity.speed = entity.maxSpeed);
         (entity.speed < -entity.maxSpeed) && (entity.speed = -entity.maxSpeed);

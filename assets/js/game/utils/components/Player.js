@@ -1,6 +1,7 @@
 export default class Player {
-    constructor(app) {
+    constructor(app, game) {
         this.app = app;
+        this.game = game;
         this.ant = null;
         this.anthill = null;
         this.controls = {
@@ -10,27 +11,21 @@ export default class Player {
             left: 0,
             pick: 0,
         }
+        this.#addListeners();
     }
 
     /**
-     * Callback
+     * Private
      */
-    updateAnt(ant) {
-        this.ant !== ant &&
-        (this.ant = ant);
-    }
-
-    /**
-     * Listeners TODO: move to separate class (Controls from the game)
-     */
-    addListeners() {
-        const changeControlledEntity = (event) => {
-            const coords = this.app.tools.getClickCoords(event);
-            const entity = this.app.tools.getEntityAt(coords, this.app.factory.binnacle.Ant);
+    #addListeners() {
+        // Change Controlled Entity
+        this.app.controls.pushListener('click', (event) => {
+            const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
+            const entity = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
             entity && this.app.player.updateAnt(entity);
-        }
-
-        const movePlayerKD = (event) => {
+        });
+        // Move Player Down events
+        this.app.controls.pushListener('keydown', (event) => {
             switch (event.key) {
                 case 'ArrowUp':
                     this.controls.forward = 1;
@@ -44,13 +39,28 @@ export default class Player {
                 case 'ArrowLeft':
                     this.controls.left = 1;
                     break;
-                case ' ':
-                    this.controls.pick = 1;
-                    break;
             }
-        }
+        });
+        this.app.controls.pushListener('mousedown', (event) => {
+            const {x, y} = {x: event.offsetX, y: event.offsetY};
+            const controls = this.game.gui.screen.movementControls;
 
-        const movePlayerKU = (event) => {
+            this.app.gui.get.isClicked(
+                this.game.gui.screen.anthillControls.createAnt,
+                {x, y},
+                () => this.game.gui.screen.redux = true
+            )
+
+            Object.keys(controls).forEach(key => {
+                this.app.gui.get.isClicked(
+                    controls[key],
+                    {x, y},
+                    ()=> this.app.player.controls[key] = 1
+                )
+            });
+        });
+        // Move Player Up Events
+        this.app.controls.pushListener('keyup', (event) => {
             switch (event.key) {
                 case 'ArrowUp':
                     this.controls.forward = 0;
@@ -65,23 +75,37 @@ export default class Player {
                     this.controls.left = 0;
                     break;
                 case ' ':
-                    this.controls.pick = 0;
+                    this.controls.pick = Number(!this.controls.pick);
                     break;
                 case '+':
                     this.app.player.anthill.addAnt();
             }
-        }
+        });
+        this.app.controls.pushListener('mouseup', (e) => {
+            const {x, y} = {x: e.offsetX, y: e.offsetY};
+            const controls = this.game.gui.screen.movementControls;
 
-        return {
-            onclick: [
-                changeControlledEntity,
-            ],
-            onkeydown: [
-                movePlayerKD,
-            ],
-            onkeyup: [
-                movePlayerKU,
-            ],
-        }
+            this.app.gui.get.isClicked(
+                this.game.gui.screen.anthillControls.createAnt,
+                {x, y},
+                () => this.game.gui.screen.redux = false
+            )
+
+            Object.keys(controls).forEach(key => {
+                this.app.gui.get.isClicked(
+                    controls[key],
+                    {x, y},
+                    ()=> this.app.player.controls[key] = 0
+                )
+            });
+        });
+    }
+
+    /**
+     * Callback
+     */
+    updateAnt(ant) {
+        this.ant !== ant &&
+        (this.ant = ant);
     }
 }

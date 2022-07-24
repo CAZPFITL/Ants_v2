@@ -15,7 +15,7 @@ export default class Camera {
         this.maxZoom = 2000;
         this.minZoom = 800;
         this.zoom = this.maxZoom;
-        this.#updateViewportData();
+        this.#addListeners();
     }
 
     /**
@@ -50,11 +50,8 @@ export default class Camera {
         ];
     }
 
-    /**
-     * Listeners
-     */
-    addListeners() {
-        const zoomCamera = (event) => {
+    #addListeners() {
+        this.app.controls.pushListener('wheel', (event) => {
             if (event.ctrlKey) {
                 let zoomLevel = this.zoom + Math.floor(event.deltaY);
                 this.#zoomTo(
@@ -65,31 +62,19 @@ export default class Camera {
                             zoomLevel
                 );
             }
-        }
-
-        const moveCamera = (event) => {
+        });
+        this.app.controls.pushListener('wheel', (event) => {
             this.#moveTo([
                 this.lookAt[0] + Math.floor(event.deltaX),
                 this.lookAt[1] + Math.floor(event.deltaY)
             ]);
-        }
-
-        const resetCamera = (event) => {
+        });
+        this.app.controls.pushListener('keydown', (event) => {
             if (event.key === 'r') {
                 this.#zoomTo(this.maxZoom);
                 this.#moveTo([0, 0]);
             }
-        }
-
-        return {
-            onwheel: [
-                zoomCamera,
-                moveCamera,
-            ],
-            onkeydown: [
-                resetCamera,
-            ]
-        }
+        });
     };
 
     /**
@@ -100,15 +85,18 @@ export default class Camera {
         this.app.gui.ctx.canvas.height = window.innerHeight;
         this.app.gui.ctx.canvas.width = window.innerWidth;
         this.app.gui.ctx.save();
-        this.app.gui.controlsCtx.canvas.height = window.innerHeight;
-        this.app.gui.controlsCtx.canvas.width = window.innerWidth;
-        this.app.gui.controlsCtx.save();
         this.#scaleAndTranslate();
     }
 
-    end(animate) {
+    end() {
         this.app.gui.ctx.restore();
-        this.app.gui.controlsCtx.restore();
-        this.app.gui.request = requestAnimationFrame(animate);
+        this.app.request = requestAnimationFrame(this.loop);
+    }
+
+    loop = () => {
+        this.begin();
+        this.app.update();
+        this.app.draw();
+        this.end();
     }
 };

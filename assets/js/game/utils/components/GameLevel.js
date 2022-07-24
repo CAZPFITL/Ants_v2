@@ -43,9 +43,9 @@ export default class GameLevel {
         if (!antHill || !entity) return
 
         const {ants, food, player} = {
-            ants: antHill.ants ?? "n/a", food: this.app.tools.xDecimals(antHill.food, 0), player: {
+            ants: antHill.ants ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
                 name: entity.name ?? "No Ant Selected",
-                hunger: this.app.tools.xDecimals(entity.hunger * 10, 2) ?? "n/a",
+                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
                 maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
                 maxPickedFood: entity.maxPickedFood ?? "n/a",
                 pickedFood: entity.pickedFood ?? "n/a",
@@ -58,7 +58,7 @@ export default class GameLevel {
             anthillAnts: `Anthill Ants: ${ants}`,
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
-            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDecimals(player.pickedFood, 0)} / ${this.app.tools.xDecimals(player.maxFoodPickCapacity, 0)}`,
+            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
             hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
             entity
         }
@@ -68,7 +68,7 @@ export default class GameLevel {
      * In game draw section
      */
     draw() {
-        // TODO change this to draw the level
+        // TODO change this to get the level
         this.app.gui.ctx.fillStyle = this.color;
         this.app.gui.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
     }
