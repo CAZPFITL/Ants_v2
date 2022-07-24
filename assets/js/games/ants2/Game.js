@@ -1,6 +1,6 @@
 import GameLevel from "./utils/components/GameLevel.js";
 import Gui from "./utils/gui/Gui.js";
-import States from "../engine/utils/patterns/State.js";
+import States from "../../engine/utils/patterns/State.js";
 import Player from "./utils/components/Player.js";
 
 const MAIN_MENU = 'MAIN_MENU';
@@ -38,7 +38,7 @@ export default class Game {
     }
 
     #loadGameLevel() {
-        this.level = this.app.factory.create(GameLevel, {
+        this.level = new GameLevel({
             app,
             game: this,
             width: 2000,
@@ -54,6 +54,8 @@ export default class Game {
         (this.state.state === LOAD_GAME_LEVEL) && this.#loadGameLevel();
 
         (this.state.state === GAME_DATA_LOADED) && this.state.setState(PLAY);
+
+        (this.app.factory.binnacle['Anthill'][0].ants === 0) && this.app.game.state.setState('GAME_OVER');
     }
 
 }

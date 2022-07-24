@@ -1,12 +1,11 @@
-import Shape from '../gui/Shape.js';
-import NeuralNetwork from "../../../engine/utils/components/Network.js";
-import Sensor from "../../../engine/utils/components/Sensor.js";
+import NeuralNetwork from "../../../../engine/utils/components/Network.js";
+import Sensor from "../../../../engine/utils/components/Sensor.js";
 
 export default class Ant {
     constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
-        this.home = anthill
+        this.home = anthill;
         this.app = app;
-        this.name = 'Ant #' + id;
+        this.id = id;
         this.no_update = false;
         this.no_draw = false;
         const size = app.tools.random(8, 16);
@@ -20,7 +19,7 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.pickedFood = 0;
         this.hunger = 10;
-        this.metabolismSpeed = 0.0001;
+        this.metabolismSpeed = 0.1;
 
         this.speed = 0;
         this.angle = angle;
@@ -102,10 +101,7 @@ export default class Ant {
 
     #metabolism() {
         this.hunger -= this.metabolismSpeed;
-        if (this.hunger <= 0) {
-            this.home.removeAnt(this);
-            this.hunger = 0;
-        }
+        if (this.hunger <= 0) this.home.removeAnt(this);
     }
 
     #readMovement() {
@@ -118,7 +114,7 @@ export default class Ant {
     }
 
     /**
-     * In game draw section
+     * In games draw section
      */
     shape() {
         const rad = Math.hypot(this.width, this.height) / 2;

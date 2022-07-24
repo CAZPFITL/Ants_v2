@@ -1,4 +1,4 @@
-import AppMethods from './utils/helpers/AppMethods.js';
+import AppMethods from './utils/AppMethods.js';
 
 export default class App extends AppMethods {
     constructor(onWindow, game) {

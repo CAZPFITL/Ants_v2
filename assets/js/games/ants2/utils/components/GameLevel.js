@@ -20,9 +20,12 @@ export default class GameLevel {
     }
 
     loadAnthill(ants = 1) {
+        let collection = this.app.factory.binnacle['Anthill'] ?? [];
+        collection = collection.length
         this.app.factory.create(Anthill, {
             app: this.app,
-            ants
+            ants,
+            id: collection + 1,
         });
     }
 
@@ -65,7 +68,7 @@ export default class GameLevel {
     }
 
     /**
-     * In game draw section
+     * In games draw section
      */
     draw() {
         // TODO change this to get the level

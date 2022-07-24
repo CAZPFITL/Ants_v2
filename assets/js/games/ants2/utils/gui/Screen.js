@@ -1,4 +1,4 @@
-import {PLAY} from "../../../engine/utils/components/MusicBox.js";
+import {PLAY} from "../../../../engine/utils/components/MusicBox.js";
 
 export default class Screen {
     constructor(app, gui) {

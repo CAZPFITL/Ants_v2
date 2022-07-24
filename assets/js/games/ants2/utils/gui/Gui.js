@@ -1,4 +1,4 @@
-import AppGui from '../../../engine/utils/gui/Gui.js';
+import AppGui from '../../../../engine/utils/gui/Gui.js';
 import Screen from './Screen.js';
 
 export default class Gui {

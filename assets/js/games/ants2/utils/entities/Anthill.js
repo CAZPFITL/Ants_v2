@@ -2,13 +2,12 @@ import Ant from './Ant.js';
 
 export default class Anthill {
     constructor({app, id = 0, ants = 1 }) {
+        this.app = app;
+        this.id = id;
+        this.no_draw = false;
+        this.no_update = false;
         const width = app.tools.random(50,150)
         const height = app.tools.random(50,150)
-        this.no_update = false;
-        this.no_draw = false;
-
-        this.app = app;
-        this.name = 'Anthill';
         this.population = [];
         this.polygons = [];
         this.ants = ants;
@@ -55,27 +54,28 @@ export default class Anthill {
                 {
                     id: this.#id(),
                     app: this.app,
-                    x: 0,
-                    y: 0,
                     angle: this.app.tools.random(-3.6, 3.6, false),
                     anthill: this
                 }
             ))
             this.food -= this.antCoste;
+            ++this.ants;
         }
     }
 
     removeAnt(ant) {
-        const cleared = this.population.filter(ant => ant !== ant);
-        this.population = cleared;
-        this.app.factory.binnacle.Ant = cleared;
+        if (this.population.includes(ant)) {
+            this.population = this.population.filter(a => a !== ant);
+            this.app.factory.remove(ant);
+            --this.ants;
+        }
     }
 
     fillPopulation() {
         this.#createAnt(this.ants);
     }
     /**
-     * In game draw section
+     * In games draw section
      */
     shape() {
         const rad = Math.hypot(this.size.width, this.size.height) / 2;
@@ -126,10 +126,6 @@ export default class Anthill {
 
     update() {
         if (!this.no_update) {
-            this.population = [...this.app.factory.binnacle.Ant]
-            this.ants = this.population.length;
-            // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
-            (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
             this.app.gui.get.createPolygon(this);
         }
     }

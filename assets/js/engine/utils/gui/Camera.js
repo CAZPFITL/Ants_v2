@@ -78,7 +78,7 @@ export default class Camera {
     };
 
     /**
-     * In game draw section
+     * In games draw section
      */
     begin() {
         this.#updateViewportData()

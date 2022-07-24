@@ -25,7 +25,7 @@ export default class Food {
     }
 
     /**
-     * In game draw section
+     * In games draw section
      */
     shape() {
         const rad = Math.hypot(this.width, this.height) / 2;

@@ -1,11 +1,11 @@
-import Tools from "./Tools.js";
-import Gui from "../gui/Gui.js";
-import Camera from "../gui/Camera.js";
-import States from "../patterns/State.js";
-import Factory from "../patterns/Factory.js";
-import Physics from "../components/Physics.js";
-import Controls from "../components/Controls.js";
-import MusicBox from "../components/MusicBox.js";
+import Tools from "./helpers/Tools.js";
+import Gui from "./gui/Gui.js";
+import Camera from "./gui/Camera.js";
+import States from "./patterns/State.js";
+import Factory from "./patterns/Factory.js";
+import Physics from "./components/Physics.js";
+import Controls from "./components/Controls.js";
+import MusicBox from "./components/MusicBox.js";
 
 export const LOAD_ENGINE = 'LOAD_ENGINE';
 export const LOAD_INITS = 'LOAD_INITS';
