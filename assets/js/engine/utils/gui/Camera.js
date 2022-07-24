@@ -2,10 +2,6 @@ export default class Camera {
     constructor(app) {
         this.app = app;
         this.fieldOfView = Math.PI / 4.0;
-        this.app.inits.push(this.init.bind(this));
-    }
-
-    init() {
         this.lookAt = [0, 0];
         this.viewport = {
             left: 0,
@@ -17,14 +13,17 @@ export default class Camera {
             scale: [1.0, 1.0]
         };
         this.maxZoom = 2000;
-        this.minZoom = 50;
+        this.minZoom = 800;
         this.zoom = this.maxZoom;
-        this.#updateViewportData();
+        this.#addListeners();
     }
 
+    /**
+     * Private
+     */
     #scaleAndTranslate() {
-        this.app.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
-        this.app.ctx.translate(-this.viewport.left, -this.viewport.top);
+        this.app.gui.ctx.scale(this.viewport.scale[0], this.viewport.scale[1]);
+        this.app.gui.ctx.translate(-this.viewport.left, -this.viewport.top);
     }
 
     #zoomTo(z) {
@@ -38,7 +37,7 @@ export default class Camera {
     }
 
     #updateViewportData() {
-        this.aspectRatio = this.app.ctx.canvas.width / this.app.ctx.canvas.height;
+        this.aspectRatio = this.app.gui.ctx.canvas.width / this.app.gui.ctx.canvas.height;
         this.viewport.width = this.zoom * Math.tan(this.fieldOfView);
         this.viewport.height = this.viewport.width / this.aspectRatio;
         this.viewport.left = this.lookAt[0] - (this.viewport.width / 2.0);
@@ -46,15 +45,15 @@ export default class Camera {
         this.viewport.right = this.viewport.left + this.viewport.width;
         this.viewport.bottom = this.viewport.top + this.viewport.height;
         this.viewport.scale = [
-            this.app.ctx.canvas.width / this.viewport.width,
-            this.app.ctx.canvas.height / this.viewport.height
+            this.app.gui.ctx.canvas.width / this.viewport.width,
+            this.app.gui.ctx.canvas.height / this.viewport.height
         ];
     }
 
-    addListeners() {
-        window.onwheel = e => {
-            if (e.ctrlKey) {
-                let zoomLevel = this.zoom + Math.floor(e.deltaY);
+    #addListeners() {
+        this.app.controls.pushListener('wheel', (event) => {
+            if (event.ctrlKey) {
+                let zoomLevel = this.zoom + Math.floor(event.deltaY);
                 this.#zoomTo(
                     (zoomLevel <= this.minZoom) ?
                         this.minZoom :
@@ -62,31 +61,42 @@ export default class Camera {
                             this.maxZoom :
                             zoomLevel
                 );
-            } else {
-                this.#moveTo([
-                    this.lookAt[0] + Math.floor(e.deltaX),
-                    this.lookAt[1] + Math.floor(e.deltaY)
-                ]);
             }
-        };
-
-        window.addEventListener('keydown', e => {
-            if (e.key === 'r') {
+        });
+        this.app.controls.pushListener('wheel', (event) => {
+            this.#moveTo([
+                this.lookAt[0] + Math.floor(event.deltaX),
+                this.lookAt[1] + Math.floor(event.deltaY)
+            ]);
+        });
+        this.app.controls.pushListener('keydown', (event) => {
+            if (event.key === 'r') {
                 this.#zoomTo(this.maxZoom);
                 this.#moveTo([0, 0]);
             }
         });
-    }
+    };
 
+    /**
+     * In game draw section
+     */
     begin() {
         this.#updateViewportData()
-        this.app.ctx.canvas.height = window.innerHeight;
-        this.app.ctx.save();
+        this.app.gui.ctx.canvas.height = window.innerHeight;
+        this.app.gui.ctx.canvas.width = window.innerWidth;
+        this.app.gui.ctx.save();
         this.#scaleAndTranslate();
     }
 
-    end(animate) {
-        this.app.ctx.restore();
-        this.app.request = requestAnimationFrame(animate);
+    end() {
+        this.app.gui.ctx.restore();
+        this.app.request = requestAnimationFrame(this.loop);
+    }
+
+    loop = () => {
+        this.begin();
+        this.app.update();
+        this.app.draw();
+        this.end();
     }
 };

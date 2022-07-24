@@ -2,15 +2,16 @@ export default class Sensor {
     constructor(entity) {
         this.entity = entity;
         this.app = entity.app;
+        this.no_update = false;
+        this.no_draw = false;
         this.rayCount = 2;
         this.rayLength = 8;
         this.raySpread = Math.PI * 0.5;
-
         this.rays = [];
         this.readings = [];
     }
 
-    #castRays() {
+    castRays() {
         this.rays = [];
         // loop to get all the rayCount iterations of the rays
         for (let i = 0; i < this.rayCount; i++) {
@@ -32,7 +33,7 @@ export default class Sensor {
         }
     }
 
-    #getReading(ray, targets) {
+    getReading(ray, targets) {
         let touches = [];
         for (let i = 0; i < targets.length; i++) {
             const poly = targets[i].polygons;
@@ -60,14 +61,14 @@ export default class Sensor {
         }
     }
 
-    #getReadings(targets) {
+    getReadings(targets) {
         this.readings = [];
         for (let i = 0; i < this.rays.length; i++) {
-            this.readings.push(this.#getReading(this.rays[i], targets));
+            this.readings.push(this.getReading(this.rays[i], targets));
         }
     }
 
-    #drawRay(ctx, ray, i, color, n) {
+    drawRay(ctx, ray, i, color, n) {
         let end = this.readings[i] ?? ray[1];
 
         ctx.beginPath();
@@ -84,19 +85,23 @@ export default class Sensor {
         ctx.stroke();
     }
 
-    #drawRays(ctx) {
+    drawRays(ctx) {
         for (let i = 0; i < this.rays.length; i++) {
-            this.#drawRay(ctx, this.rays[i], i, '#000000', 0);
-            this.#drawRay(ctx, this.rays[i], i, '#818181', 1);
+            this.drawRay(ctx, this.rays[i], i, '#000000', 0);
+            this.drawRay(ctx, this.rays[i], i, '#818181', 1);
         }
     }
 
     update(targets) {
-        this.#castRays();
-        this.#getReadings(targets);
+        if (!this.no_update) {
+            this.castRays();
+            this.getReadings(targets);
+        }
     }
 
     draw(ctx) {
-        this.#drawRays(ctx)
+        if (!this.no_draw) {
+            this.drawRays(ctx);
+        }
     }
 }
