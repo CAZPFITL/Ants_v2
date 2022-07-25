@@ -41,18 +41,22 @@ export default class AppMethods {
 
     update() {
         for (let key in this.factory.binnacle) {
-            for (let i = 0; i < this.factory.binnacle[key].length; i++) {
-                (Boolean(this.factory.binnacle[key][i].update)) &&
-                this.factory.binnacle[key][i].update();
+            if (this.factory.binnacle[key] instanceof Array) {
+                for (let i = 0; i < this.factory.binnacle[key].length; i++) {
+                    (Boolean(this.factory.binnacle[key][i].update)) &&
+                    this.factory.binnacle[key][i].update();
+                }
             }
         }
     }
 
     draw() {
         for (let key in this.factory.binnacle) {
-            for (let i = 0; i < this.factory.binnacle[key].length; i++) {
-                (Boolean(this.factory.binnacle[key][i].draw)) &&
-                this.factory.binnacle[key][i].draw(this.gui.ctx);
+            if (this.factory.binnacle[key] instanceof Array) {
+                for (let i = 0; i < this.factory.binnacle[key].length; i++) {
+                    (Boolean(this.factory.binnacle[key][i].draw)) &&
+                    this.factory.binnacle[key][i].draw(this.gui.ctx);
+                }
             }
         }
     }

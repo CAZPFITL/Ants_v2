@@ -10,11 +10,14 @@ export default class GameLevel {
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height}
         this.color = '#523f32';
-        this.#loadEntities();
+        this.loadEntities();
         this.app.factory.addGameEntity(this);
     }
 
-    #loadEntities(width = 1000, height = 1000) {
+    /**
+     * Load methods
+     */
+    loadEntities(width = 1000, height = 1000) {
         this.loadFood(2, {width, height});
         this.loadAnthill(1);
     }
@@ -47,7 +50,7 @@ export default class GameLevel {
 
         const {ants, food, player} = {
             ants: antHill.ants ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
-                name: entity.name ?? "No Ant Selected",
+                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
                 hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
                 maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
                 maxPickedFood: entity.maxPickedFood ?? "n/a",

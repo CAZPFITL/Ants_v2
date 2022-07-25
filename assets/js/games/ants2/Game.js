@@ -7,6 +7,7 @@ const MAIN_MENU = 'MAIN_MENU';
 const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
 const LOAD_GAME_LEVEL = 'LOAD_GAME_LEVEL';
 const GAME_DATA_LOADED = 'GAME_DATA_LOADED';
+const GAME_OVER = 'GAME_OVER';
 const PLAY = 'PLAY';
 export const STOP = 'STOP';
 
@@ -47,15 +48,21 @@ export default class Game {
         this.state.setState(PLAY);
     }
 
+    #gameOver() {
+        this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
+    }
 
     update() {
         (this.state.state === LOAD_GAME_DATA) && this.#loadData();
-
         (this.state.state === LOAD_GAME_LEVEL) && this.#loadGameLevel();
-
         (this.state.state === GAME_DATA_LOADED) && this.state.setState(PLAY);
+        // TODO CHANGE THIS - this monster is temporal
+        (this.app.factory.binnacle['Anthill'] &&
+            this.app.factory.binnacle['Anthill'][0] &&
+                this.app.factory.binnacle['Anthill'][0].ants === 0 &&
+                    this.state.state !== GAME_OVER) && this.app.game.state.setState('GAME_OVER');
 
-        (this.app.factory.binnacle['Anthill'][0].ants === 0) && this.app.game.state.setState('GAME_OVER');
+        (this.state.state === GAME_OVER) && this.#gameOver();
     }
 
 }
