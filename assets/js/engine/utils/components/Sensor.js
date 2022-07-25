@@ -68,6 +68,9 @@ export default class Sensor {
         }
     }
 
+    /**
+     * Draw and Update methods
+     */
     drawRay(ctx, ray, i, color, n) {
         let end = this.readings[i] ?? ray[1];
 

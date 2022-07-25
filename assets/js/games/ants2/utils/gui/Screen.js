@@ -1,41 +1,136 @@
-import {PLAY} from "../../../../engine/utils/components/MusicBox.js";
+const PLAY = 'PLAY';
 
 export default class Screen {
     constructor(app, gui) {
         this.app = app;
         this.gui = gui;
-        this.redux = false;
+        this.buttons = {
+            play: {
+                picking: false,
+                creatingAnt: false
+            },
+            main_menu: {
+                start: false
+            }
+        }
+        this.buttonsCollection = {
+            main_menu: {
+                mainMenuControls: {
+                    'start': {}
+                }
+            },
+            play: {
+                movementControls: {
+                    'forward': {},
+                    'reverse': {},
+                    'left': {},
+                    'right': {}
+                },
+                anthillControls: {
+                    'createAnt': {}
+                },
+                antControls: {
+                    'pick': {},
+                    'eat': {}
+                },
+                gameControls: {
+                    'sound': {}
+                }
+            }
+        }
         this.#updatePlayControlsData();
+        this.#updateMainMenuData();
         this.#addListeners();
     }
     /**
-     * Private
+     * Private methods
      */
     #addListeners() {
         this.app.controls.pushListener('click', (e) => {
-            const {x, y} = {x: e.offsetX, y: e.offsetY};
+            // Create Ant
             this.app.gui.get.isClicked(
-                this.anthillControls.createAnt,
-                {x, y},
+                this.buttonsCollection.play.anthillControls.createAnt,
+                {x: e.offsetX, y: e.offsetY},
                 ()=> this.app.player.anthill.addAnt()
             )
+            // Picking on/off
             this.app.gui.get.isClicked(
-                this.antControls.pick,
-                {x, y},
-                ()=> this.app.player.controls.pick = !this.app.player.controls.pick
+                this.buttonsCollection.play.antControls.pick,
+                {x: e.offsetX, y: e.offsetY},
+                ()=> {
+                    this.app.player.controls.pick = !this.app.player.controls.pick
+                    this.buttons.play.picking = !this.buttons.play.picking
+                }
             )
+            // Sound on/off
             this.app.gui.get.isClicked(
-                this.gameControls.sound,
-                {x, y},
+                this.buttonsCollection.play.gameControls.sound,
+                {x: e.offsetX, y: e.offsetY},
                 ()=> this.app.musicBox.toggle()
+            )
+        });
+        this.app.controls.pushListener('mouseup', (e) => {
+            // Start Game
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.main_menu.mainMenuControls.start,
+                this.app.gui.get.clickCoords(e, this.app.camera.viewport),
+                () => {
+                    this.buttons.main_menu.start = false;
+                    this.app.game.state.setState(PLAY);
+                }
+            );
+            // Create ant up
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.play.anthillControls.createAnt,
+                {x: e.offsetX, y: e.offsetY},
+                () => this.buttons.play.creatingAnt = false
+            )
+        });
+        this.app.controls.pushListener('mousedown', (e) => {;
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.main_menu.mainMenuControls.start,
+                this.app.gui.get.clickCoords(e, this.app.camera.viewport),
+                () => this.buttons.main_menu.start = true
+            );
+            // Create ant down
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.play.anthillControls.createAnt,
+                {x: e.offsetX, y: e.offsetY},
+                () => this.buttons.main_menu.start = true
             )
         });
     }
 
+    #updateMainMenuData() {
+        const font = "16px Mouse";
+        // console.log(this.buttonsCollection.main_menu.mainMenuControls?.start)
+        // console.log(this.buttons.main_menu.start)
+        this.buttonsCollection.main_menu.mainMenuControls = {
+            'start': {
+                x: -150,
+                y: -20,
+                width: 300,
+                height: 50,
+                text: 'Start',
+                font,
+                bg: !this.buttons.main_menu.start ? '#d28b05' : '#ffa600'
+            },
+            'login': {
+                x: -150,
+                y: 50,
+                width: 300,
+                height: 50,
+                text: 'Login',
+                font,
+                bg: '#939393'
+            }
+        }
+
+    }
+
     #updatePlayControlsData() {
         const font = "16px Mouse";
-        const bg = !this.redux ? '#b47607' : '#ffa600'
-        this.movementControls = {
+        this.buttonsCollection.play.movementControls = {
             'forward': {
                 x: this.gui.controlsCtx.canvas.width - 120,
                 y: this.gui.controlsCtx.canvas.height - 120,
@@ -73,7 +168,7 @@ export default class Screen {
                 bg: !this.app.player?.controls.right ? '#b47607' : '#ffa600'
             }
         }
-        this.anthillControls = {
+        this.buttonsCollection.play.anthillControls = {
             'createAnt': {
                 x: this.gui.controlsCtx.canvas.width - 60,
                 y: 10,
@@ -81,10 +176,10 @@ export default class Screen {
                 height: 50,
                 text: '🐜',
                 font,
-                bg
+                bg: !this.buttons.play.creatingAnt ? '#b47607' : '#ffa600'
             }
         }
-        this.antControls = {
+        this.buttonsCollection.play.antControls = {
             'pick': {
                 x: this.gui.controlsCtx.canvas.width - 60,
                 y: 70,
@@ -92,7 +187,7 @@ export default class Screen {
                 height: 50,
                 text: '🚚',
                 font,
-                bg: !this.app.player?.controls.pick ? '#b47607' : '#ffa600'
+                bg: !this.buttons.play.picking ? '#b47607' : '#ffa600'
             },
             'eat': {
                 x: this.gui.controlsCtx.canvas.width - 60,
@@ -104,7 +199,7 @@ export default class Screen {
                 bg: !this.app.player?.controls.eat ? '#b47607' : '#ffa600'
             }
         }
-        this.gameControls = {
+        this.buttonsCollection.play.gameControls = {
             'sound': {
                 x: this.gui.controlsCtx.canvas.width - 60,
                 y: 190,
@@ -115,24 +210,88 @@ export default class Screen {
                 bg: this.app.musicBox.state.state !== PLAY ? '#b47607' : '#ffa600'
             }
         }
+    }
+
+    #getPlayDataStrings() {
+        // TODO consider to make multiple anthills
+        const antHill = this.app.factory.binnacle['Anthill'][0]
+        const entity = this.app.player.ant
+
+        if (!antHill || !entity) return
+
+        const {ants, food, player} = {
+            ants: antHill.antCounter ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
+                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
+                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
+                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
+                maxPickedFood: entity.maxPickedFood ?? "n/a",
+                pickedFood: entity.pickedFood ?? "n/a",
+            }
+        }
+
+        return {
+            color: '#000000',
+            font: "20px Mouse",
+            anthillAnts: `Anthill Ants: ${ants}`,
+            anthillFood: `Anthill Food: ${food}`,
+            antSelected: `Player: ${player.name}`,
+            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
+            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
+            entity
+        }
+    }
+
+
+    /**
+     * Draw screens
+     */
+    drawMainMenuScreen() {
+        this.drawMainMenuDecoration();
+        this.drawMainMenuControls();
+    }
+
+    drawPlayScreen() {
+        this.drawPlayDecoration();
+        this.drawPlayControls();
+    }
+
+    drawPauseScreen() {
 
     }
 
     /**
-     * Draw and update section
+     * Draw Decoration / Controls
      */
-    drawGameLevelControls() {
-        const ctx = this.app.game.gui.controlsCtx;
+    drawMainMenuDecoration() {
+        this.app.gui.get.square({
+            ctx: this.app.gui.ctx,
+            x: -300,
+            y: -200,
+            width: 600,
+            height: 400,
+            color: '#72604e',
+            stroke: '#000000',
+        });
+        this.app.gui.get.text({
+            ctx: this.app.gui.ctx,
+            font: "72px Mouse",
+            text: 'Ants',
+            x: 0,
+            y: -100,
+            color: '#ffffff',
+            width: this.app.gui.ctx.measureText('Ants').width,
+            height: 30,
+            center: true
+        });
+        this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(130,169,30)';
+    }
+
+    drawMainMenuControls() {
+        const ctx = this.app.gui.ctx;
 
         const looper = {
-            forward: {ctx, ...this.movementControls.forward,},
-            reverse: {ctx, ...this.movementControls.reverse,},
-            left: {ctx, ...this.movementControls.left,},
-            right: {ctx, ...this.movementControls.right},
-            pick: {ctx, ...this.antControls.pick},
-            eat: {ctx, ...this.antControls.eat},
-            createAnt: {ctx, ...this.anthillControls.createAnt},
-            sound: {ctx, ...this.gameControls.sound},
+            start: {ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start},
+            login: {ctx, ...this.buttonsCollection.main_menu.mainMenuControls.login}
         }
 
         Object.keys(looper).forEach(key => {
@@ -140,7 +299,7 @@ export default class Screen {
         });
     }
 
-    drawGameLevelData() {
+    drawPlayDecoration() {
         const ctx = this.app.game.gui.controlsCtx;
         const {
             color,
@@ -151,7 +310,7 @@ export default class Screen {
             pickedBarText,
             hungerText,
             entity
-        } = this.app.game.level.gameLevelDataStrings();
+        } = this.#getPlayDataStrings();
 
         // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
         const width = this.app.tools.max([
@@ -207,22 +366,51 @@ export default class Screen {
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
+
+        this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(130,169,30)';
     }
 
+    drawPlayControls() {
+        const ctx = this.app.game.gui.controlsCtx;
+
+        const looper = {
+            forward: {ctx, ...this.buttonsCollection.play.movementControls.forward,},
+            reverse: {ctx, ...this.buttonsCollection.play.movementControls.reverse,},
+            left: {ctx, ...this.buttonsCollection.play.movementControls.left,},
+            right: {ctx, ...this.buttonsCollection.play.movementControls.right},
+            pick: {ctx, ...this.buttonsCollection.play.antControls.pick},
+            eat: {ctx, ...this.buttonsCollection.play.antControls.eat},
+            createAnt: {ctx, ...this.buttonsCollection.play.anthillControls.createAnt},
+            sound: {ctx, ...this.buttonsCollection.play.gameControls.sound},
+        }
+
+        Object.keys(looper).forEach(key => {
+            this.app.gui.get.button(looper[key]);
+        });
+    }
+
+    /**
+     * Draw and Update methods
+     */
     update() {
         if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
             this.#updatePlayControlsData();
+        }
+        if (this.app.game.state.state === 'MAIN_MENU') {
+            this.#updateMainMenuData();
         }
     }
 
     draw() {
         // MAIN MENU SCREEN ELEMENTS
-        // TODO Add some main menu screen elements
+        if (this.app.game.state.state === 'MAIN_MENU') {
+            this.drawMainMenuScreen();
+        }
 
-        // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
+
+            // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
         if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
-            this.drawGameLevelControls();
-            this.drawGameLevelData();
+            this.drawPlayScreen();
         }
     }
 }

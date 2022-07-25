@@ -10,12 +10,12 @@ export default class Player {
             right: 0,
             left: 0,
             pick: 0,
+            eat: 0,
         }
         this.#addListeners();
     }
-
     /**
-     * Private
+     * Private methods
      */
     #addListeners() {
         // Change Controlled Entity
@@ -43,13 +43,7 @@ export default class Player {
         });
         this.app.controls.pushListener('mousedown', (event) => {
             const {x, y} = {x: event.offsetX, y: event.offsetY};
-            const controls = this.game.gui.screen.movementControls;
-
-            this.app.gui.get.isClicked(
-                this.game.gui.screen.anthillControls.createAnt,
-                {x, y},
-                () => this.game.gui.screen.redux = true
-            )
+            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
 
             Object.keys(controls).forEach(key => {
                 this.app.gui.get.isClicked(
@@ -83,13 +77,7 @@ export default class Player {
         });
         this.app.controls.pushListener('mouseup', (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
-            const controls = this.game.gui.screen.movementControls;
-
-            this.app.gui.get.isClicked(
-                this.game.gui.screen.anthillControls.createAnt,
-                {x, y},
-                () => this.game.gui.screen.redux = false
-            )
+            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
 
             Object.keys(controls).forEach(key => {
                 this.app.gui.get.isClicked(
@@ -102,7 +90,7 @@ export default class Player {
     }
 
     /**
-     * Callback
+     * Draw and Update methods
      */
     updateAnt(ant) {
         this.ant !== ant &&

@@ -5,9 +5,8 @@ export default class Food {
         this.no_draw = false;
         this.#getFoodData(bounds);
     }
-
     /**
-     * Private
+     * Private methods
      */
     #getFoodData({width, height}) {
         const size = this.app.tools.random(50, 100);
@@ -25,7 +24,7 @@ export default class Food {
     }
 
     /**
-     * In games draw section
+     * Draw and Update methods
      */
     shape() {
         const rad = Math.hypot(this.width, this.height) / 2;
@@ -75,7 +74,7 @@ export default class Food {
     }
 
     update() {
-        if (!this.no_update) {
+        if (!this.no_update && this.app.game.state.state === 'PLAY') {
             (this.amount >= this.minSize) && (this.width = this.amount);
             (this.amount >= this.minSize) && (this.height = this.amount);
             (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
@@ -84,7 +83,7 @@ export default class Food {
     }
 
     draw() {
-        if (!this.no_draw) {
+        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
             (this.amount < this.initialSize) && this.app.gui.get.bar({
                 ctx: this.app.gui.ctx,

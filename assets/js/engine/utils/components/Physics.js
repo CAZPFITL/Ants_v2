@@ -3,6 +3,9 @@ export default class Physics {
         this.app = app;
         this.stopRange = 0.03;
     }
+    /**
+     * Class methods
+     */
     // calculate acceleration with physics and not from the ant
     speedup(entity) {
         entity.speed += entity.acceleration;

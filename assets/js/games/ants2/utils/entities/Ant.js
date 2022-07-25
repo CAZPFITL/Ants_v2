@@ -39,6 +39,7 @@ export default class Ant {
             right: 0,
             left: 0,
             pick: 0,
+            eat: 0
         }
 
         this.sensor = new Sensor(this);
@@ -46,12 +47,11 @@ export default class Ant {
             this.sensor.rayCount + 1, // #inputs
             6, // first layer
             4, // second layer
-            4 + 1  // outputs
+            4 + 2  // outputs
         ]);
     }
-
     /**
-     * Private
+     * Private methods
      */
     #neuralProcess() {
         const offsets = this.sensor.readings.map(sensor => sensor == null ? 0 : 1 - sensor.offset);
@@ -101,7 +101,10 @@ export default class Ant {
 
     #metabolism() {
         this.hunger -= this.metabolismSpeed;
-        if (this.hunger <= 0) this.home.removeAnt(this);
+        if (this.hunger <= 0) {
+            this.home.removeAnt(this);
+            this.hunger = 0;
+        }
     }
 
     #readMovement() {
@@ -144,7 +147,7 @@ export default class Ant {
     }
 
     update() {
-        if (!this.no_update) {
+        if (!this.no_update && this.app.game.state.state === 'PLAY') {
             this.app.gui.get.createPolygon(this);
             this.sensor.update([
                 ...this.app.factory.binnacle.Food,
@@ -159,7 +162,7 @@ export default class Ant {
     }
 
     draw(ctx) {
-        if (!this.no_draw) {
+        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
             this.app.gui.get.drawPolygon(ctx, this);
             this.sensor.draw(ctx);
         }

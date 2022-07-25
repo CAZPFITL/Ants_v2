@@ -10,8 +10,8 @@ export default class Anthill {
         const height = app.tools.random(50,150)
         this.population = [];
         this.polygons = [];
-        this.ants = ants;
-        this.antCounter = 0;
+        this.antCounter = ants;
+        this.antCounterHistory = 1;
         this.size = { width, height }
         this.coords = { x: 0 / 2, y: 0 };
         this.angle = 0;
@@ -21,9 +21,8 @@ export default class Anthill {
         this.app.player.anthill = this;
         this.addAnt();
     }
-
     /**
-     * Private
+     * Class methods
      */
     addAnt() {
         if (this.food >= this.antCoste) {
@@ -31,7 +30,7 @@ export default class Anthill {
             this.population.push(this.app.factory.create(
                 Ant,
                 {
-                    id: this.antCounter,
+                    id: this.antCounterHistory,
                     app: this.app,
                     angle: this.app.tools.random(-3.6, 3.6, false),
                     anthill: this
@@ -42,8 +41,8 @@ export default class Anthill {
             // update food
             this.food -= this.antCoste;
             // update ant counter
-            this.ants = this.population.length;
-            ++this.antCounter;
+            this.antCounter = this.population.length;
+            ++this.antCounterHistory;
         }
     }
 
@@ -53,15 +52,15 @@ export default class Anthill {
             this.population = this.population.filter(a => a !== ant);
             // remove it from factory
             this.app.factory.remove(ant);
-            // update ants value
-            this.ants = this.population.length;
+            // update antCounter value
+            this.antCounter = this.population.length;
             // Update players ant
             this.population.length > 0 && this.app.player.updateAnt(this.population[this.population.length - 1]);
         }
     }
 
     /**
-     * In games draw section
+     * Draw and Update methods
      */
     shape() {
         const rad = Math.hypot(this.size.width, this.size.height) / 2;
@@ -111,13 +110,13 @@ export default class Anthill {
     }
 
     update() {
-        if (!this.no_update) {
+        if (!this.no_update && this.app.game.state.state === 'PLAY') {
             this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
-        if (!this.no_draw) {
+        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
         }
     }

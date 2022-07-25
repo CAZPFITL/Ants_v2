@@ -3,11 +3,10 @@ import Gui from "./utils/gui/Gui.js";
 import States from "../../engine/utils/patterns/State.js";
 import Player from "./utils/components/Player.js";
 
-const MAIN_MENU = 'MAIN_MENU';
 const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
 const LOAD_GAME_LEVEL = 'LOAD_GAME_LEVEL';
-const GAME_DATA_LOADED = 'GAME_DATA_LOADED';
 const GAME_OVER = 'GAME_OVER';
+const MAIN_MENU = 'MAIN_MENU';
 const PLAY = 'PLAY';
 export const STOP = 'STOP';
 
@@ -20,7 +19,9 @@ export default class Game {
         this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU]);
         this.app.factory.addGameEntity(this);
     }
-
+    /**
+     * Private methods
+     */
     #loadData() {
         // Load Player Controls
         this.app.player = new Player(this.app, this);
@@ -29,6 +30,7 @@ export default class Game {
             name: 'test',
             file: 'assets/audio/001.mp3'
         });
+        // Load Main song
         this.app.musicBox.changeSong('test');
         // load Controls listeners
         this.app.controls.addListeners();
@@ -45,24 +47,25 @@ export default class Game {
             width: 2000,
             height: 1200
         })
-        this.state.setState(PLAY);
+        this.state.setState(MAIN_MENU);
+        // this.state.setState(PLAY);
     }
 
     #gameOver() {
         this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
     }
 
+    /**
+     * Draw and Update methods
+     */
     update() {
         (this.state.state === LOAD_GAME_DATA) && this.#loadData();
         (this.state.state === LOAD_GAME_LEVEL) && this.#loadGameLevel();
-        (this.state.state === GAME_DATA_LOADED) && this.state.setState(PLAY);
         // TODO CHANGE THIS - this monster is temporal
-        (this.app.factory.binnacle['Anthill'] &&
-            this.app.factory.binnacle['Anthill'][0] &&
-                this.app.factory.binnacle['Anthill'][0].ants === 0 &&
+        (this.app.game.state.state === 'PLAY' &&
+            this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
                     this.state.state !== GAME_OVER) && this.app.game.state.setState('GAME_OVER');
 
         (this.state.state === GAME_OVER) && this.#gameOver();
     }
-
 }

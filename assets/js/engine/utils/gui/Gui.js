@@ -1,4 +1,5 @@
 import Camera from "./Camera.js";
+import Tools from "./../helpers/Tools.js";
 
 export default class Gui {
     constructor(app) {
@@ -92,7 +93,7 @@ export default class Gui {
     static polysIntersect(poly1, poly2) {
         for (let i = 0; i < poly1.length; i++) {
             for (let j = 0; j < poly2.length; j++) {
-                const touch = this.getIntersection(
+                const touch = Tools.getIntersection(
                     poly1[i],
                     poly1[(i + 1) % poly1.length],
                     poly2[j],

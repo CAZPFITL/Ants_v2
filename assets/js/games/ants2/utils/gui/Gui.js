@@ -10,6 +10,9 @@ export default class Gui {
         this.screen = new Screen(app, this);
     }
 
+    /**
+     * Draw and Update methods
+     */
     update() {
         if (!this.no_update) {
             this.screen.update();

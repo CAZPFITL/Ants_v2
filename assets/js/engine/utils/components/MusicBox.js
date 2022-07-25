@@ -14,6 +14,9 @@ export default class MusicBox {
         app.factory.addGameEntity(this);
     }
 
+    /**
+     * Class methods
+     */
     addSong({name, file}) {
         const song = new Audio(file);
         song.loop = true;
@@ -34,6 +37,9 @@ export default class MusicBox {
         this.state.state === PLAY ? this.song.play() : this.song.pause();
     }
 
+    /**
+     * Draw and Update methods
+     */
     update() {
         this.song.volume = this.volume <= 1 && this.volume >= 0 ? this.volume : 1;
     }

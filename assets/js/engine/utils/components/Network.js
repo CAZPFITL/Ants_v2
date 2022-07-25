@@ -3,7 +3,10 @@ export default class NeuralNetwork {
         this.app = app;
         this.getNetworkData({neuronCount});
     }
-
+    /**
+     * Class methods
+     */
+    // Crossover script for the network
     getNetworkData({neuronCount}) {
         this.levels = [];
         for (let i = 0; i < neuronCount.length - 1; i++) {
@@ -13,7 +16,9 @@ export default class NeuralNetwork {
             ));
         }
     }
-
+    /**
+     * Static methods
+     */
     // feed forward propagation of the network
     static feedForward(givenInputs, network) {
         // get the level outputs

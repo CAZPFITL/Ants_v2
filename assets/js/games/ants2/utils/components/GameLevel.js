@@ -13,7 +13,6 @@ export default class GameLevel {
         this.loadEntities();
         this.app.factory.addGameEntity(this);
     }
-
     /**
      * Load methods
      */
@@ -40,42 +39,14 @@ export default class GameLevel {
             });
         }
     }
-
-    gameLevelDataStrings() {
-        // TODO consider to make multiple anthills
-        const antHill = this.app.factory.binnacle['Anthill'][0]
-        const entity = this.app.player.ant
-
-        if (!antHill || !entity) return
-
-        const {ants, food, player} = {
-            ants: antHill.ants ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
-                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
-                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
-                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
-                maxPickedFood: entity.maxPickedFood ?? "n/a",
-                pickedFood: entity.pickedFood ?? "n/a",
-            }
-        }
-
-        return {
-            color: '#000000',
-            font: "20px Mouse",
-            anthillAnts: `Anthill Ants: ${ants}`,
-            anthillFood: `Anthill Food: ${food}`,
-            antSelected: `Player: ${player.name}`,
-            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
-            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
-            entity
-        }
-    }
-
     /**
-     * In games draw section
+     * Draw and Update methods
      */
     draw() {
-        // TODO change this to get the level
-        this.app.gui.ctx.fillStyle = this.color;
-        this.app.gui.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
+        if (this.app.game.state.state === 'PLAY') {
+            // TODO change this to get the level
+            this.app.gui.ctx.fillStyle = this.color;
+            this.app.gui.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);
+        }
     }
 }
