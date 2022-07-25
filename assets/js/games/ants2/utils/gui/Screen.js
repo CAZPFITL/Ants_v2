@@ -86,7 +86,19 @@ export default class Screen {
                 () => this.buttons.play.creatingAnt = false
             )
         });
-        this.app.controls.pushListener('mousedown', (e) => {;
+        this.app.controls.pushListener('mousedown', (e) => {
+
+            (e.which === 2) && this.app.gui.get.isClicked(
+                {
+                    x: 0,
+                    y: 0,
+                    width: this.app.gui.ctx.canvas.width,
+                    height: this.app.gui.ctx.canvas.height
+                },
+                {x: e.offsetX, y: e.offsetY},
+                () => this.app.toggleStats()
+            );
+
             this.app.gui.get.isClicked(
                 this.buttonsCollection.main_menu.mainMenuControls.start,
                 this.app.gui.get.clickCoords(e, this.app.camera.viewport),
@@ -241,7 +253,6 @@ export default class Screen {
         }
     }
 
-
     /**
      * Draw screens
      */
@@ -301,6 +312,11 @@ export default class Screen {
 
     drawPlayDecoration() {
         const ctx = this.app.game.gui.controlsCtx;
+        const cardPosition = {
+            x: 10,
+            y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
+        }
+
         const {
             color,
             font,
@@ -314,18 +330,18 @@ export default class Screen {
 
         // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
         const width = this.app.tools.max([
-            ctx.measureText(antSelected).width,
-            ctx.measureText(anthillFood).width,
-            ctx.measureText(anthillAnts).width,
-            ctx.measureText(pickedBarText).width,
+            ctx.measureText(antSelected).width * 1.4,
+            ctx.measureText(anthillFood).width * 1.4,
+            ctx.measureText(anthillAnts).width * 1.4,
+            ctx.measureText(pickedBarText).width * 1.4,
             entity.maxFoodPickCapacity * 10,
             100
         ]);
         // DATA BACKGROUND
         this.app.gui.get.square({
             ctx: this.app.game.gui.controlsCtx,
-            x: 5,
-            y: 10,
+            x: cardPosition.x,
+            y: cardPosition.y,
             width: width + 35,
             height: 190,
             color: 'rgba(255, 255, 255, 0.2)',
@@ -334,19 +350,21 @@ export default class Screen {
 
         // PLAYER ENTITY
         this.app.gui.get.text({
-            ctx, font, color, text: antSelected, x: 20, y: 40
+            ctx, font, color, text: antSelected, x: cardPosition.x + 15, y: cardPosition.y + 30,
         });
         // ANTHILL DATA
-        this.app.gui.get.text({ctx, font, color, text: anthillAnts, x: 20, y: 70});
+        this.app.gui.get.text({
+            ctx, font, color, text: anthillAnts, x: cardPosition.x + 15, y: cardPosition.y + 60,
+        });
         // FOOD DATA
         this.app.gui.get.text({
-            ctx, font, color, text: anthillFood, x: 20, y: 100
+            ctx, font, color, text: anthillFood, x: cardPosition.x + 15, y: cardPosition.y + 90,
         });
         // FOOD BAR
         this.app.gui.get.bar({
             ctx,
-            x: 20,
-            y: 135,
+            x: cardPosition.x + 15,
+            y: cardPosition.y + 125,
             text: pickedBarText,
             cap: entity.maxFoodPickCapacity * 10,
             fill: entity.pickedFood * 10,
@@ -357,8 +375,8 @@ export default class Screen {
         // HUNGER BAR
         this.app.gui.get.bar({
             ctx,
-            x: 20,
-            y: 175,
+            x: cardPosition.x + 15,
+            y: cardPosition.y + 165,
             text: hungerText,
             cap: 100,
             fill: entity.hunger * 10,
