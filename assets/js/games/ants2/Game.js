@@ -28,7 +28,7 @@ export default class Game {
         // Load Music Box
         this.app.musicBox.addSong({
             name: 'test',
-            file: 'assets/audio/001.mp3'
+            file: 'assets/audio/002.mp3'
         });
         // Load Main song
         this.app.musicBox.changeSong('test');
