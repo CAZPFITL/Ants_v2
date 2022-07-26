@@ -1,8 +1,5 @@
 import States from "../patterns/State.js";
-
-export const PLAY = 'PLAY';
-export const PAUSE = 'PAUSE';
-export const STOP = 'STOP';
+import {STOP, PLAY, PAUSE} from "../../env.js";
 
 export default class MusicBox {
     constructor(app) {

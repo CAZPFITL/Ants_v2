@@ -7,15 +7,15 @@ import Factory from "./patterns/Factory.js";
 import Physics from "./components/Physics.js";
 import Controls from "./components/Controls.js";
 import MusicBox from "./components/MusicBox.js";
-
-export const LOAD_ENGINE = 'LOAD_ENGINE';
-export const LOAD_INITS = 'LOAD_INITS';
-export const LOAD_GAME = 'LOAD_GAME';
-export const GAME_LOADED = 'GAME_LOADED';
+import {
+    LOAD_ENGINE,
+    LOAD_GAME,
+    PLAY_GAME
+} from "../env.js";
 
 export default class AppMethods {
     constructor(Game) {
-        this.state = new States(this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, GAME_LOADED]);
+        this.state = new States(this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, PLAY_GAME]);
         this.loadEngine(this, Game);
     }
 
@@ -48,7 +48,7 @@ export default class AppMethods {
 
     loadGame(Game) {
         this.state.setState(LOAD_GAME);
-        this.game = new Game(this, () => this.state.setState(GAME_LOADED));
+        this.game = new Game(this, () => this.state.setState(PLAY_GAME));
     }
 
     update() {

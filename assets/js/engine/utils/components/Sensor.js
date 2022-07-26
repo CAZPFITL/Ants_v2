@@ -19,7 +19,7 @@ export default class Sensor {
             const rayAngle = this.app.tools.lerp(
                 this.raySpread / 2,
                 -this.raySpread / 2,
-                this.rayCount == 1 ? 0.5 : i / (this.rayCount - 1)
+                this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
             ) + this.entity.angle;
             // get start drawing point
             const start = {x: this.entity.x, y: this.entity.y};
