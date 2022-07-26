@@ -1,5 +1,6 @@
 import NeuralNetwork from "../../../../engine/utils/components/Network.js";
 import Sensor from "../../../../engine/utils/components/Sensor.js";
+import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class Ant {
     constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
@@ -19,7 +20,7 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.pickedFood = 0;
         this.hunger = 10;
-        this.metabolismSpeed = 0.0001;
+        this.metabolismSpeed = 0.1;
 
         this.speed = 0;
         this.angle = angle;
@@ -147,7 +148,9 @@ export default class Ant {
     }
 
     update() {
-        if (!this.no_update && this.app.game.state.state === 'PLAY') {
+        if (!this.no_update &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.createPolygon(this);
             this.sensor.update([
                 ...this.app.factory.binnacle.Food,
@@ -162,9 +165,9 @@ export default class Ant {
     }
 
     draw(ctx) {
-        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
+        if (!this.no_draw && this.app.game.state.state === PLAY) {
             this.app.gui.get.drawPolygon(ctx, this);
-            this.sensor.draw(ctx);
+            // this.sensor.draw(ctx);
         }
     }
 }

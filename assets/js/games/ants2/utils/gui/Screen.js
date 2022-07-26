@@ -1,4 +1,4 @@
-const PLAY = 'PLAY';
+import {PLAY, MAIN_MENU, GAME_OVER} from "../../env.js";
 
 export default class Screen {
     constructor(app, gui) {
@@ -115,8 +115,6 @@ export default class Screen {
 
     #updateMainMenuData() {
         const font = "16px Mouse";
-        // console.log(this.buttonsCollection.main_menu.mainMenuControls?.start)
-        // console.log(this.buttons.main_menu.start)
         this.buttonsCollection.main_menu.mainMenuControls = {
             'start': {
                 x: -150,
@@ -411,23 +409,23 @@ export default class Screen {
      * Draw and Update methods
      */
     update() {
-        if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
+        if (this.app.game.state.state === PLAY && this.app.game.level) {
             this.#updatePlayControlsData();
         }
-        if (this.app.game.state.state === 'MAIN_MENU') {
+        if (this.app.game.state.state === MAIN_MENU) {
             this.#updateMainMenuData();
         }
     }
 
     draw() {
         // MAIN MENU SCREEN ELEMENTS
-        if (this.app.game.state.state === 'MAIN_MENU') {
+        if (this.app.game.state.state === MAIN_MENU) {
             this.drawMainMenuScreen();
         }
 
 
             // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
-        if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
+        if (this.app.game.state.state === (PLAY || GAME_OVER) && this.app.game.level) {
             this.drawPlayScreen();
         }
     }

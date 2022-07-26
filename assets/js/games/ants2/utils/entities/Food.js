@@ -1,3 +1,5 @@
+import {GAME_OVER, PLAY} from "../../env.js";
+
 export default class Food {
     constructor({app, bounds}) {
         this.app = app;
@@ -74,7 +76,9 @@ export default class Food {
     }
 
     update() {
-        if (!this.no_update && this.app.game.state.state === 'PLAY') {
+        if (!this.no_update &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             (this.amount >= this.minSize) && (this.width = this.amount);
             (this.amount >= this.minSize) && (this.height = this.amount);
             (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));
@@ -83,7 +87,9 @@ export default class Food {
     }
 
     draw() {
-        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
+        if (!this.no_draw &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
             (this.amount < this.initialSize) && this.app.gui.get.bar({
                 ctx: this.app.gui.ctx,

@@ -1,4 +1,5 @@
 import Ant from './Ant.js';
+import { PLAY, GAME_OVER } from "../../env.js";
 
 export default class Anthill {
     constructor({app, id = 0, ants = 1 }) {
@@ -110,13 +111,17 @@ export default class Anthill {
     }
 
     update() {
-        if (!this.no_update && this.app.game.state.state === 'PLAY') {
+        if (!this.no_update &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
-        if (!this.no_draw && this.app.game.state.state === 'PLAY') {
+        if (!this.no_draw &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
         }
     }

@@ -1,5 +1,6 @@
 import Anthill from "../entities/Anthill.js";
 import Food from "../entities/Food.js";
+import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class GameLevel {
     constructor({app, game, id = 0, width, height}) {
@@ -43,7 +44,8 @@ export default class GameLevel {
      * Draw and Update methods
      */
     draw() {
-        if (this.app.game.state.state === 'PLAY') {
+        if (this.app.game.state.state === PLAY ||
+                this.app.game.state.state === GAME_OVER) {
             // TODO change this to get the level
             this.app.gui.ctx.fillStyle = this.color;
             this.app.gui.ctx.fillRect(this.coords.x, this.coords.y, this.size.width, this.size.height);

@@ -2,13 +2,13 @@ import GameLevel from "./utils/components/GameLevel.js";
 import Gui from "./utils/gui/Gui.js";
 import States from "../../engine/utils/patterns/State.js";
 import Player from "./utils/components/Player.js";
-
-const LOAD_GAME_DATA = 'LOAD_GAME_DATA';
-const LOAD_GAME_LEVEL = 'LOAD_GAME_LEVEL';
-const GAME_OVER = 'GAME_OVER';
-const MAIN_MENU = 'MAIN_MENU';
-const PLAY = 'PLAY';
-export const STOP = 'STOP';
+import {
+    LOAD_GAME_DATA,
+    LOAD_GAME_LEVEL,
+    GAME_OVER,
+    PLAY,
+    MAIN_MENU,
+} from "./env.js";
 
 export default class Game {
     constructor(app, loadCallback) {
@@ -48,10 +48,9 @@ export default class Game {
             height: 1200
         })
         this.state.setState(MAIN_MENU);
-        // this.state.setState(PLAY);
     }
 
-    #gameOver() {
+    #restart() {
         this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
     }
 
@@ -64,8 +63,6 @@ export default class Game {
         // TODO CHANGE THIS - this monster is temporal
         (this.app.game.state.state === 'PLAY' &&
             this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
-                    this.state.state !== GAME_OVER) && this.app.game.state.setState('GAME_OVER');
-
-        (this.state.state === GAME_OVER) && this.#gameOver();
+                    this.state.state !== GAME_OVER) && this.app.game.state.setState(GAME_OVER);
     }
 }
