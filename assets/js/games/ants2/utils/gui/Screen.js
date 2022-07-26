@@ -77,6 +77,7 @@ export default class Screen {
                 () => {
                     this.buttons.main_menu.start = false;
                     this.app.game.state.setState(PLAY);
+                    this.app.musicBox.toggle();
                 }
             );
             // Create ant up
