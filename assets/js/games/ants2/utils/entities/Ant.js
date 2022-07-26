@@ -20,7 +20,7 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.pickedFood = 0;
         this.hunger = 10;
-        this.metabolismSpeed = 0.1;
+        this.metabolismSpeed = 0.0005;
 
         this.speed = 0;
         this.angle = angle;
