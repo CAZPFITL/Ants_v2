@@ -110,11 +110,27 @@ export default class Ant {
 
     #readMovement() {
         const controls = this.app.controls.getControls(this);
-
-        controls.forward && this.app.physics.speedup(this);
-        controls.reverse && this.app.physics.slowdown(this);
-        controls.left && this.app.physics.turnLeft(this);
-        controls.right && this.app.physics.turnRight(this);
+        this.app.game.gui.screen.buttons.play.pick = controls.pick;
+        if (controls.forward) {
+            this.app.physics.speedup(this);
+            controls.pick = 0;
+            this.app.game.gui.screen.buttons.play.pick = 0;
+        }
+        if (controls.reverse) {
+            this.app.physics.slowdown(this);
+            controls.pick = 0;
+            this.app.game.gui.screen.buttons.play.pick = 0;
+        }
+        if (controls.left) {
+            this.app.physics.turnLeft(this);
+            controls.pick = 0;
+            this.app.game.gui.screen.buttons.play.pick = 0;
+        }
+        if (controls.right) {
+            this.app.physics.turnRight(this);
+            controls.pick = 0;
+            this.app.game.gui.screen.buttons.play.pick = 0;
+        }
     }
 
     /**

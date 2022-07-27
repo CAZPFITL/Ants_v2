@@ -6,7 +6,7 @@ export default class Screen {
         this.gui = gui;
         this.buttons = {
             play: {
-                picking: false,
+                pick: false,
                 creatingAnt: false,
                 sound: false
             },
@@ -60,7 +60,7 @@ export default class Screen {
                 {x: e.offsetX, y: e.offsetY},
                 ()=> {
                     this.app.player.controls.pick = !this.app.player.controls.pick
-                    this.buttons.play.picking = !this.buttons.play.picking
+                    this.buttons.play.pick = !this.buttons.play.pick
                 }
             )
             // Sound on/off
@@ -231,7 +231,7 @@ export default class Screen {
                 height: 50,
                 text: '🚚',
                 font,
-                bg: !this.buttons.play.picking ? '#b47607' : '#ffa600'
+                bg: !this.buttons.play.pick ? '#b47607' : '#ffa600'
             },
             'eat': {
                 x: this.gui.controlsCtx.canvas.width - 60,
@@ -257,8 +257,8 @@ export default class Screen {
     }
 
     #updatePlayCamera() {
-        const anyKey = Object.values(this.app.player.controls).some(value => value === 1)
-        this.app.player.followCamera && anyKey &&
+        this.app.player.followCamera &&
+            this.app.player.ant.speed !== 0 &&
                 this.app.camera.follow(this.app.player.ant);
     }
 
