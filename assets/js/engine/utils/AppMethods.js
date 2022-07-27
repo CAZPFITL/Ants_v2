@@ -19,7 +19,9 @@ export default class AppMethods {
         this.loadEngine(this, Game);
     }
 
-    loadEngine(app, Game) {
+    loadEngine(app, Game, verbose = false) {
+        this.verbose = verbose;
+
         this.tools = Tools;
 
         this.controls = new Controls(this);
@@ -31,9 +33,10 @@ export default class AppMethods {
         this.camera = new Camera(app);
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
-        this.stats = new Stats()
-        this.stats.showPanel( 0 )
-        this.stats.isShowing = true;
+        this.stats = new Stats();
+
+        !verbose && this.toggleStats();
+
         document.body.appendChild( this.stats.dom );
 
         this.request = requestAnimationFrame(this.camera.loop);

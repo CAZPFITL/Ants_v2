@@ -5,28 +5,75 @@ export default class MusicBox {
     constructor(app) {
         this.app = app;
         this.state = new States(this, STOP, [PLAY, PAUSE, STOP]);
-        this.song = { volume: 1 };
+        this.song = null;
         this.volume = 1;
-        this.songs = []
+        this.songs = [];
         app.factory.addGameEntity(this);
     }
 
     /**
      * Class methods
      */
-    addSong({name, file}) {
-        const song = new Audio(file);
-        song.loop = true;
+    addSong(listOfSongs) {
+        for (let song of listOfSongs) {
+            if (this.songs.find(element => element.name === song.name)) {
+                console.warn(`Song ${song.name} already exists`);
+                continue;
+            }
 
-        this.songs[name] = song;
+            this.songs.push({
+                name: song.name,
+                song: new Audio(song.file)
+            });
+
+            this.songs[this.songs.length - 1].song.volume = 0;
+
+            this.song = this.songs[this.songs.length - 1];
+
+            this.app.verbose && console.log(`Song ${song.name} added`);
+        }
+
+        this.songs[this.songs.length - 1].song.volume = 1;
     }
 
     changeSong(song) {
-        this.song = this.songs[song];
+        this.song = this.songs.find(element => element.name === song || element === song);
     }
 
-    changeVolume(volume) {
-        this.volume = volume;
+    play() {
+        this.song.song.play()
+            .catch(err => {
+                console.error(err);
+            })
+            .then(() => {
+                this.state.setState(PLAY);
+                this.app.verbose && console.log(`Now playing ${this.song.name}`);
+            })
+    }
+
+    pause() {
+        this.song.pause()
+            .catch(err => {
+                console.error(err);
+            })
+            .then(() => {
+                this.state.setState(PAUSE);
+                this.app.verbose && console.log(`Now paused ${this.song.name}`);
+            })
+    }
+
+    playNextSong(index = this.songs.findIndex(element => element === this.song)) {
+        index = this.songs[index + 1] ? index + 1 : 0;
+        this.changeSong(this.songs[index]);
+        this.play();
+    }
+
+    autoplay() {
+        this.song.song.addEventListener('ended', () => {
+            this.playNextSong();
+            this.autoplay();
+            this.app.verbose && console.log('Song ended');
+        });
     }
 
     toggle() {
@@ -38,6 +85,6 @@ export default class MusicBox {
      * Draw and Update methods
      */
     update() {
-        this.song.volume = this.volume <= 1 && this.volume >= 0 ? this.volume : 1;
+
     }
 }

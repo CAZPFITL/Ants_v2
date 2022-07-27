@@ -4,6 +4,7 @@ export default class Player {
         this.game = game;
         this.ant = null;
         this.anthill = null;
+        this.followCamera = true;
         this.controls = {
             forward: 0,
             reverse: 0,
@@ -93,7 +94,6 @@ export default class Player {
      * Draw and Update methods
      */
     updateAnt(ant) {
-        this.ant !== ant &&
-        (this.ant = ant);
+        this.ant !== ant && (this.ant = ant);
     }
 }

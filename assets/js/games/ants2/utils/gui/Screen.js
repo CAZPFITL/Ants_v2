@@ -7,7 +7,8 @@ export default class Screen {
         this.buttons = {
             play: {
                 picking: false,
-                creatingAnt: false
+                creatingAnt: false,
+                sound: false
             },
             main_menu: {
                 start: false
@@ -66,7 +67,10 @@ export default class Screen {
             this.app.gui.get.isClicked(
                 this.buttonsCollection.play.gameControls.sound,
                 {x: e.offsetX, y: e.offsetY},
-                ()=> this.app.musicBox.toggle()
+                (volume = this.app.musicBox.song.song.volume)=> {
+                    this.app.musicBox.song.song.volume = volume === 0 ? 1 : 0
+                    this.buttons.play.sound = !this.buttons.play.sound
+                }
             )
         });
         this.app.controls.pushListener('mouseup', (e) => {
@@ -77,7 +81,7 @@ export default class Screen {
                 () => {
                     this.buttons.main_menu.start = false;
                     this.app.game.state.setState(PLAY);
-                    this.app.musicBox.toggle();
+                    this.app.musicBox.play();
                 }
             );
             // Create ant up
@@ -112,6 +116,35 @@ export default class Screen {
                 () => this.buttons.main_menu.start = true
             )
         });
+    }
+
+    #getPlayDataStrings() {
+        // TODO consider to make multiple anthills
+        const antHill = this.app.factory.binnacle['Anthill'][0]
+        const entity = this.app.player.ant
+
+        if (!antHill || !entity) return
+
+        const {ants, food, player} = {
+            ants: antHill.antCounter ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
+                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
+                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
+                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
+                maxPickedFood: entity.maxPickedFood ?? "n/a",
+                pickedFood: entity.pickedFood ?? "n/a",
+            }
+        }
+
+        return {
+            color: '#000000',
+            font: "20px Mouse",
+            anthillAnts: `Anthill Ants: ${ants}`,
+            anthillFood: `Anthill Food: ${food}`,
+            antSelected: `Player: ${player.name}`,
+            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
+            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
+            entity
+        }
     }
 
     #updateMainMenuData() {
@@ -218,38 +251,15 @@ export default class Screen {
                 height: 50,
                 text: '🔈',
                 font,
-                bg: this.app.musicBox.state.state !== PLAY ? '#b47607' : '#ffa600'
+                bg: this.buttons.play.sound ? '#b47607' : '#ffa600'
             }
         }
     }
 
-    #getPlayDataStrings() {
-        // TODO consider to make multiple anthills
-        const antHill = this.app.factory.binnacle['Anthill'][0]
-        const entity = this.app.player.ant
-
-        if (!antHill || !entity) return
-
-        const {ants, food, player} = {
-            ants: antHill.antCounter ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
-                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
-                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
-                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
-                maxPickedFood: entity.maxPickedFood ?? "n/a",
-                pickedFood: entity.pickedFood ?? "n/a",
-            }
-        }
-
-        return {
-            color: '#000000',
-            font: "20px Mouse",
-            anthillAnts: `Anthill Ants: ${ants}`,
-            anthillFood: `Anthill Food: ${food}`,
-            antSelected: `Player: ${player.name}`,
-            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
-            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
-            entity
-        }
+    #updatePlayCamera() {
+        const anyKey = Object.values(this.app.player.controls).some(value => value === 1)
+        this.app.player.followCamera && anyKey &&
+                this.app.camera.follow(this.app.player.ant);
     }
 
     /**
@@ -412,6 +422,7 @@ export default class Screen {
     update() {
         if (this.app.game.state.state === PLAY && this.app.game.level) {
             this.#updatePlayControlsData();
+            this.#updatePlayCamera();
         }
         if (this.app.game.state.state === MAIN_MENU) {
             this.#updateMainMenuData();
@@ -424,9 +435,10 @@ export default class Screen {
             this.drawMainMenuScreen();
         }
 
-
-            // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
-        if (this.app.game.state.state === (PLAY || GAME_OVER) && this.app.game.level) {
+        // PLAY GAME LEVEL CONTROLS SCREEN ELEMENTS
+        if (this.app.game.state.state === PLAY ||
+                this.app.game.state.state === GAME_OVER &&
+                    this.app.game.level) {
             this.drawPlayScreen();
         }
     }

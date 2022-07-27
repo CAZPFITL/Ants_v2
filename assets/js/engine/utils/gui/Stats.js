@@ -53,6 +53,7 @@ var Stats = function () {
     showPanel( 0 );
 
     return {
+        isShowing: true,
 
         REVISION: 16,
 

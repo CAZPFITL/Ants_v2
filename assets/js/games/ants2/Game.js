@@ -26,12 +26,22 @@ export default class Game {
         // Load Player Controls
         this.app.player = new Player(this.app, this);
         // Load Music Box
-        this.app.musicBox.addSong({
-            name: 'test',
+        this.app.musicBox.addSong([{
+            name: '001',
+            file: 'assets/audio/001.mp3'
+        }, {
+            name: '002',
             file: 'assets/audio/002.mp3'
-        });
+        }, {
+            name: '003',
+            file: 'assets/audio/003.mp3'
+        }, {
+            name: '003',
+            file: 'assets/audio/003.mp3'
+        }]);
         // Load Main song
-        this.app.musicBox.changeSong('test');
+        this.app.musicBox.changeSong('003');
+        this.app.musicBox.autoplay();
         // load Controls listeners
         this.app.controls.addListeners();
         // Run Load Callback From Engine
