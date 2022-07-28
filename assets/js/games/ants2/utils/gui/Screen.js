@@ -141,7 +141,7 @@ export default class Screen {
             anthillAnts: `Anthill Ants: ${ants}`,
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
-            pickedBarText: `Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
+            pickedBarText: `Picked Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
             hungerText: `Hunger: ${this.app.tools.xDec(player.hunger / 10, 0)} / ${100}`,
             entity
         }
