@@ -27,20 +27,20 @@ export default class Game {
         this.app.player = new Player(this.app, this);
         // Load Music Box
         this.app.musicBox.addSong([{
-            name: '001',
-            file: 'assets/audio/001.mp3'
+            name: 'ants_001',
+            file: 'assets/audio/ants_001.mp3'
         }, {
-            name: '002',
-            file: 'assets/audio/002.mp3'
+            name: 'ants_002',
+            file: 'assets/audio/ants_002.mp3'
         }, {
-            name: '003',
-            file: 'assets/audio/003.mp3'
+            name: 'ants_003',
+            file: 'assets/audio/ants_003.mp3'
         }, {
-            name: '003',
-            file: 'assets/audio/003.mp3'
+            name: 'ants_004',
+            file: 'assets/audio/ants_004.mp3'
         }]);
         // Load Main song
-        this.app.musicBox.changeSong('003');
+        this.app.musicBox.changeSong('ants_004');
         this.app.musicBox.autoplay();
         // load Controls listeners
         this.app.controls.addListeners();

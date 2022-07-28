@@ -32,12 +32,12 @@ export default class MusicBox {
 
             this.app.verbose && console.log(`Song ${song.name} added`);
         }
-
-        this.songs[this.songs.length - 1].song.volume = 1;
     }
 
     changeSong(song) {
+        this.song.song.volume = 0;
         this.song = this.songs.find(element => element.name === song || element === song);
+        this.song.song.volume = 1;
     }
 
     play() {
@@ -52,17 +52,11 @@ export default class MusicBox {
     }
 
     pause() {
-        this.song.pause()
-            .catch(err => {
-                console.error(err);
-            })
-            .then(() => {
-                this.state.setState(PAUSE);
-                this.app.verbose && console.log(`Now paused ${this.song.name}`);
-            })
+        this.song.song.pause()
     }
 
     playNextSong(index = this.songs.findIndex(element => element === this.song)) {
+        this.pause();
         index = this.songs[index + 1] ? index + 1 : 0;
         this.changeSong(this.songs[index]);
         this.play();

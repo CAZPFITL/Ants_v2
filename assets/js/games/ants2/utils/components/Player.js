@@ -23,7 +23,7 @@ export default class Player {
         this.app.controls.pushListener('click', (event) => {
             const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
             const entity = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
-            this.app.camera.follow(entity);
+            entity && this.app.camera.follow(entity);
             entity && this.app.player.updateAnt(entity);
         });
         // Move Player Down events
