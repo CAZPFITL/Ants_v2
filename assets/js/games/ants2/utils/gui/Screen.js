@@ -68,7 +68,7 @@ export default class Screen {
                 this.buttonsCollection.play.gameControls.sound,
                 {x: e.offsetX, y: e.offsetY},
                 (volume = this.app.musicBox.song.song.volume)=> {
-                    this.app.musicBox.song.song.volume = volume === 0 ? 1 : 0
+                    this.app.musicBox.song.song.volume = !volume
                     this.buttons.play.sound = !this.buttons.play.sound
                 }
             )

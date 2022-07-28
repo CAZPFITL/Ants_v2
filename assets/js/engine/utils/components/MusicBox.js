@@ -30,14 +30,17 @@ export default class MusicBox {
 
             this.song = this.songs[this.songs.length - 1];
 
+            this.song.song.volume = 1;
+
             this.app.verbose && console.log(`Song ${song.name} added`);
         }
     }
 
     changeSong(song) {
+        const cache = this.song.song.volume ?? 0;
         this.song.song.volume = 0;
-        this.song = this.songs.find(element => element.name === song || element === song);
-        this.song.song.volume = 1;
+        this.song = this.songs.find(element => (element.name === song || element === song));
+        this.song.song.volume = cache;
     }
 
     play() {
@@ -73,12 +76,5 @@ export default class MusicBox {
     toggle() {
         this.state.setState(this.song.paused ? PLAY : PAUSE);
         this.state.state === PLAY ? this.song.play() : this.song.pause();
-    }
-
-    /**
-     * Draw and Update methods
-     */
-    update() {
-
     }
 }
