@@ -36,8 +36,7 @@ export default class MusicBox {
         }
     }
 
-    changeSong(song) {
-        const cache = this.song.song.volume ?? 0;
+    changeSong(song, cache = this.song.song.volume ?? 0) {
         this.song.song.volume = 0;
         this.song = this.songs.find(element => (element.name === song || element === song));
         this.song.song.volume = cache;

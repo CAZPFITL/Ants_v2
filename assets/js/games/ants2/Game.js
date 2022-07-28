@@ -54,8 +54,8 @@ export default class Game {
         this.level = new GameLevel({
             app,
             game: this,
-            width: 2000,
-            height: 1200
+            width: 1000,
+            height: 800
         })
         this.state.setState(MAIN_MENU);
     }

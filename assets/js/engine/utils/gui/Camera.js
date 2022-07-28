@@ -14,9 +14,9 @@ export default class Camera {
             height: 0,
             scale: [1.0, 1.0]
         };
-        this.maxZoom = 2200;
-        this.minZoom = 400;
-        this.zoom = this.maxZoom;
+        this.maxZoom = 2500;
+        this.minZoom = 200;
+        this.zoom = this.maxZoom / 2;
         this.#addListeners();
     }
 

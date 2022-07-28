@@ -141,8 +141,8 @@ export default class Screen {
             anthillAnts: `Anthill Ants: ${ants}`,
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
-            pickedBarText: `Player: ${player.name} / Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
-            hungerText: `${player.name} Hunger: ${player.hunger} / ${100}`,
+            pickedBarText: `Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
+            hungerText: `Hunger: ${this.app.tools.xDec(player.hunger / 10, 0)} / ${100}`,
             entity
         }
     }
@@ -388,7 +388,7 @@ export default class Screen {
             y: cardPosition.y + 165,
             text: hungerText,
             cap: 100,
-            fill: entity.hunger * 10,
+            fill: entity.hunger,
             fillColor: 'red-green',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'

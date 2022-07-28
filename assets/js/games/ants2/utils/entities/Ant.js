@@ -7,32 +7,34 @@ export default class Ant {
         this.home = anthill;
         this.app = app;
         this.id = id;
+        // Booleans
         this.no_update = false;
         this.no_draw = false;
+        this.foodFound = false;
+        this.anthillFound = false;
+        // Measurements
         const size = app.tools.random(8, 16);
-        this.carryRate = app.tools.random(size * 0.8, size * 1.2) * 0.005;
-
         this.x = x;
         this.y = y;
         this.color = color;
-        this.height = size,
-            this.width = size * 0.5,
-            this.maxFoodPickCapacity = size * 2;
+        this.height = size;
+        this.width = size * 0.5;
+        // State and capabilities
+        this.metabolismSpeed = 0.005;
+        this.hunger = 100;
         this.pickedFood = 0;
-        this.hunger = 10;
-        this.metabolismSpeed = 0.0005;
-
+        this.maxFoodPickCapacity = size * 2;
+        this.carryRate = app.tools.random(size * 0.8, size * 1.2) * 0.005;
+        // physics
         this.speed = 0;
         this.angle = angle;
         this.acceleration = 0.3;
         this.friction = 0.040;
         this.maxSpeed = 0.7;
         this.turnSpeed = 0.05;
-
+        // Shape
         this.polygons = [];
         this.mouth = {x, y};
-        this.foodFound = false;
-        this.anthillFound = false;
 
         this.controls = {
             forward: 0,
@@ -65,7 +67,6 @@ export default class Ant {
         this.controls.reverse = outputs[3];
         this.controls.pick = outputs[4];
 
-        this.#thinkMovement();
         this.#smell();
     }
 
@@ -79,35 +80,51 @@ export default class Ant {
         this.anthillFound = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle.Anthill || false);
     }
 
-    #thinkMovement() {
+    // Here lies the carry, drop, eat and any physical restrictions
+    // like pick while move forwards or drop food out of the anthill,
+    // ants don't do that -.-
+    #move() {
+        const limits = this.app.game.level.size;
         const controls = this.app.controls.getControls(this);
+        const {x, y} = this.app.physics.move(this);
+
+        // update picking button
         this.app.game.gui.screen.buttons.play.pick = controls.pick;
+
+        // Trigger Movement
         if (controls.forward) {
             this.app.physics.speedup(this);
             controls.pick = 0;
             this.app.game.gui.screen.buttons.play.pick = 0;
         }
-        if (controls.reverse) this.app.physics.slowdown(this);
-        if (controls.left) this.app.physics.turnLeft(this);
-        if (controls.right) this.app.physics.turnRight(this);
-    }
+        (controls.reverse) && this.app.physics.slowdown(this);
+        (controls.left) && this.app.physics.turnLeft(this);
+        (controls.right) && this.app.physics.turnRight(this);
+        // Limit Movement
+        // TODO improve this (?)
+        (this.x > -limits.width / 2 && this.x < limits.width / 2)
+           ? (this.x -= x)
+              : (this.x -= this.x > 0 ? 0.1 : -0.1);
 
-    // Here lies the carry, drop, eat and any physical restrictions
-    // like pick while move forwards or drop food out of the anthill,
-    // ants don't do that -.-
-    #move() {
-        const action = this.app.controls.getControls(this).pick;
+        (this.y > -limits.height / 2 && this.y < limits.height / 2)
+            ? (this.y -= y)
+                : (this.y -= this.y > 0 ? 0.1 : -0.1);
+
         // avoid to pick the food if it is over the anthill
-        if(this.anthillFound) {
-            this.pickedFood > 0 && Boolean(action) && this.#dropFood();
+        if (this.anthillFound) {
+            this.pickedFood > 0 && Boolean(controls.pick) && this.#dropFood();
         } else {
             if (this.foodFound) {
-                Boolean(action) && this.#carryFood();
+                Boolean(controls.pick) && this.#carryFood();
             } else {
                 // avoid to maintain the pick if user is not over the food
-                this.app.controls.getControls(this).pick = 0
+                controls.pick = 0;
             }
         }
+    }
+
+    #highlight() {
+        this.color = (this.app.player.ant === this) ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.6)';
     }
 
     #carryFood() {
@@ -185,8 +202,8 @@ export default class Ant {
             this.#metabolism();
             // Let's move
             this.#move();
-            // Let's be restricted by the game's physical laws
-            this.app.physics.move(this);
+            // Let's highlight
+            this.#highlight();
         }
     }
 
