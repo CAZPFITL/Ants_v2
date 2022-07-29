@@ -7,7 +7,6 @@ export default class GameLevel {
         this.app = app;
         this.game = game;
         this.name = 'GameLevel #' + id;
-        this.entities = [];
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height}
         this.color = '#523f32';
@@ -17,8 +16,8 @@ export default class GameLevel {
     /**
      * Load methods
      */
-    loadEntities(width = 1000, height = 1000) {
-        this.loadFood(2, {width, height});
+    loadEntities() {
+        this.loadFood(5);
         this.loadAnthill(1);
     }
 
@@ -27,13 +26,14 @@ export default class GameLevel {
         collection = collection.length
         this.app.factory.create(Anthill, {
             app: this.app,
+            game: this.game,
             ants,
             id: collection + 1,
         });
     }
 
-    loadFood(amount = 1, {width, height}) {
-        for (let i = 0; i < 2; i++) {
+    loadFood(amount = 1, {width, height} = this.size) {
+        for (let i = 0; i < amount; i++) {
             this.app.factory.create(Food, {
                 app: this.app,
                 bounds: { width: width / 2, height: height / 2 }

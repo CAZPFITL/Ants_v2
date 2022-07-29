@@ -3,9 +3,10 @@ import Sensor from "../../../../engine/utils/components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class Ant {
-    constructor({app, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
+    constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
         this.home = anthill;
         this.app = app;
+        this.game = game;
         this.id = id;
         // Booleans
         this.no_update = false;
@@ -21,16 +22,18 @@ export default class Ant {
         this.width = size * 0.5;
         // State and capabilities
         this.metabolismSpeed = 0.005;
-        this.hunger = 100;
+        this.energy = 100;
         this.pickedFood = 0;
         this.maxFoodPickCapacity = size * 2;
-        this.carryRate = app.tools.random(size * 0.8, size * 1.2) * 0.005;
+        this.carryRate = app.tools.random(size, size * 2) * 0.008;
+        this.eatingRate = app.tools.random(size, size * 3) * 0.008;
+        this.searchTrace = [];
         // physics
         this.speed = 0;
         this.angle = angle;
         this.acceleration = 0.3;
         this.friction = 0.040;
-        this.maxSpeed = 0.7;
+        this.maxSpeed = 0.6;
         this.turnSpeed = 0.05;
         // Shape
         this.polygons = [];
@@ -42,15 +45,18 @@ export default class Ant {
             right: 0,
             left: 0,
             pick: 0,
-            eat: 0
+            drop: 0,
+            eat: 0,
+            run: 0,
+            mark: 0
         }
 
         this.sensor = new Sensor(this);
         this.brain = new NeuralNetwork(this, [
-            this.sensor.rayCount + 1, // #inputs
+            this.sensor.rayCount + 3, // #inputs (sensor and mouth)
             6, // first layer
             4, // second layer
-            4 + 2  // outputs
+            8  // outputs (forward, left, right, reverse, pick, drop, run, eat)
         ]);
     }
 
@@ -59,13 +65,21 @@ export default class Ant {
      */
     #neuralProcess() {
         const offsets = this.sensor.readings.map(sensor => sensor == null ? 0 : 1 - sensor.offset);
-        const outputs = NeuralNetwork.feedForward([...offsets, Number(this.foodFound), Number(this.anthillFound)], this.brain);
+        const outputs = NeuralNetwork.feedForward([
+            ...offsets,
+            Number(this.foodFound),
+            Number(this.anthillFound),
+            Number(this.energy / 100)
+        ], this.brain);
 
         this.controls.forward = outputs[0];
         this.controls.left = outputs[1];
         this.controls.right = outputs[2];
         this.controls.reverse = outputs[3];
         this.controls.pick = outputs[4];
+        this.controls.drop = outputs[5];
+        this.controls.run = outputs[5];
+        this.controls.eat = outputs[6];
 
         this.#smell();
     }
@@ -76,55 +90,99 @@ export default class Ant {
             y: this.polygons[1].y
         }
 
-        this.foodFound = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle.Food || false);
-        this.anthillFound = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle.Anthill || false);
+        this.foodFound = this.app.gui.get.entityAt(
+            this.mouth,
+            this.app.factory.binnacle.Food || false
+        );
+
+        this.anthillFound = this.app.gui.get.entityAt(
+            this.mouth,
+            this.app.factory.binnacle.Anthill || false
+        );
     }
 
-    // Here lies the carry, drop, eat and any physical restrictions
-    // like pick while move forwards or drop food out of the anthill,
-    // ants don't do that -.-
     #move() {
+        // Here lies the carry, drop, eat and any physical restrictions
+        // like pick while move forwards or drop food out of the anthill,
+        // ants don't do that -.-
         const limits = this.app.game.level.size;
         const controls = this.app.controls.getControls(this);
         const {x, y} = this.app.physics.move(this);
 
-        // update picking button
-        this.app.game.gui.screen.buttons.play.pick = controls.pick;
-
         // Trigger Movement
+        if (controls.reverse) this.app.physics.slowdown(this);
+
+        if (controls.left) this.app.physics.turnLeft(this);
+
+        if (controls.right) this.app.physics.turnRight(this);
+
         if (controls.forward) {
             this.app.physics.speedup(this);
-            controls.pick = 0;
-            this.app.game.gui.screen.buttons.play.pick = 0;
+            this.energy -= 0.003;
         }
-        (controls.reverse) && this.app.physics.slowdown(this);
-        (controls.left) && this.app.physics.turnLeft(this);
-        (controls.right) && this.app.physics.turnRight(this);
+
+        // TODO physics run
+        if (controls.run) {
+            this.maxSpeed = 1.2;
+            this.energy -= 0.006;
+        } else {
+            this.maxSpeed = 0.6;
+        }
+
+        if (controls.mark) this.#mark();
         // Limit Movement
-        // TODO improve this (?)
+        // TODO: Move this to physics as world limits
         (this.x > -limits.width / 2 && this.x < limits.width / 2)
-           ? (this.x -= x)
-              : (this.x -= this.x > 0 ? 0.1 : -0.1);
+            ? (this.x -= x) :
+                (this.x -= this.x > 0 ? 0.1 : -0.1);
 
         (this.y > -limits.height / 2 && this.y < limits.height / 2)
-            ? (this.y -= y)
-                : (this.y -= this.y > 0 ? 0.1 : -0.1);
+            ? (this.y -= y) :
+                (this.y -= this.y > 0 ? 0.1 : -0.1);
 
-        // avoid to pick the food if it is over the anthill
-        if (this.anthillFound) {
-            this.pickedFood > 0 && Boolean(controls.pick) && this.#dropFood();
-        } else {
-            if (this.foodFound) {
-                Boolean(controls.pick) && this.#carryFood();
-            } else {
-                // avoid to maintain the pick if user is not over the food
-                controls.pick = 0;
-            }
+        // Eat Food
+        if (controls.eat && this.pickedFood > 0) {
+            this.#eatFood();
+            controls.pick = 0;
         }
+
+        // Pick Food
+        if (controls.pick && this.foodFound && !controls.forward) {
+            this.#carryFood();
+            controls.eat = 0;
+        }
+
+        // Drop Food
+        if (controls.drop) {
+            this.#dropFood();
+        }
+
+        // Limit Pick
+        this.game.gui.screen.buttons.play.pick = Number(this.foodFound && controls.pick);
+
+        // Burn some calories
+        this.metabolismSpeed = (!controls.forward && !controls.reverse && !controls.left && !controls.right) ? 0.004 : 0.008;
+    }
+
+    #mark() {
+        if (this.app.request - (this.requestFlag ?? 0) > this.app.tools.random(10, 50)) {
+            this.requestFlag = this.app.request;
+            this.searchTrace.push({
+                x: this.app.tools.random(this.x - 2,this.x + 2, false),
+                y: this.app.tools.random(this.y - 2,this.y + 2, false),
+                radius: this.app.tools.random(1,2, false)
+            });
+        }
+
     }
 
     #highlight() {
         this.color = (this.app.player.ant === this) ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.6)';
+    }
+
+    #eatFood() {
+        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * this.app.tools.random(1.5, 2));
+        (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate);
     }
 
     #carryFood() {
@@ -137,23 +195,15 @@ export default class Ant {
 
     #dropFood() {
         const anthill = this.app.gui.get.entityAt(this.mouth, this.app.factory.binnacle['Anthill']);
-        const capacityAvailable = this.pickedFood >= 0;
-
-
-        anthill && capacityAvailable && (anthill.food += this.carryRate);
-        anthill && capacityAvailable && (this.pickedFood -= this.carryRate);
-
-        if (this.pickedFood < this.carryRate) {
-            this.app.factory.binnacle['Anthill'][0].food += this.pickedFood;
-            this.pickedFood = 0;
-        }
+        (anthill && this.pickedFood > 0) && (anthill.food += this.pickedFood);
+        this.pickedFood = 0;
     }
 
     #metabolism() {
-        this.hunger -= this.metabolismSpeed;
-        if (this.hunger <= 0) {
+        this.energy -= this.metabolismSpeed;
+        if (this.energy <= 0) {
             this.home.removeAnt(this);
-            this.hunger = 0;
+            this.energy = 0;
         }
     }
     /**
@@ -186,6 +236,20 @@ export default class Ant {
         ]
     }
 
+    drawTrace() {
+        for (let i = 0; i < this.searchTrace.length; i++) {
+            // draw circle of random radius
+            this.app.gui.ctx.fillStyle = 'rgba(255,207,0,0.34)';
+            this.app.gui.ctx.beginPath();
+            this.app.gui.ctx.arc(
+                this.searchTrace[i].x,
+                this.searchTrace[i].y,
+                this.searchTrace[i].radius,
+                0,
+                2 * Math.PI);
+            this.app.gui.ctx.fill()
+        }
+    }
     update() {
         if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             // Draw me
@@ -208,6 +272,7 @@ export default class Ant {
     }
 
     draw(ctx) {
+        this.drawTrace();
         if (!this.no_draw && this.app.game.state.state === PLAY) {
             this.app.gui.get.drawPolygon(ctx, this);
             // this.sensor.draw(ctx);

@@ -11,7 +11,10 @@ export default class Player {
             right: 0,
             left: 0,
             pick: 0,
+            drop: 0,
             eat: 0,
+            run: 0,
+            mark: 0
         }
         this.#addListeners();
     }
@@ -23,23 +26,38 @@ export default class Player {
         this.app.controls.pushListener('click', (event) => {
             const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
             const entity = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
-            entity && this.app.camera.follow(entity);
+            entity && this.followCamera && this.app.camera.follow(entity);
             entity && this.app.player.updateAnt(entity);
         });
         // Move Player Down events
         this.app.controls.pushListener('keydown', (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
+            switch (true) {
+                case event.key === 'ArrowUp':
                     this.controls.forward = 1;
                     break;
-                case 'ArrowDown':
+                case event.key === 'ArrowDown':
                     this.controls.reverse = 1;
                     break;
-                case 'ArrowRight':
+                case event.key === 'ArrowRight':
                     this.controls.right = 1;
                     break;
-                case 'ArrowLeft':
+                case event.key === 'ArrowLeft':
                     this.controls.left = 1;
+                    break;
+                case event.key === 'Shift':
+                    this.controls.run = 1;
+                    break;
+                case event.key === 'w':
+                    this.controls.mark = 1;
+                    break;
+                case event.key === 'q':
+                    this.controls.drop = 1;
+                    break;
+                case event.key === 'e':
+                    this.controls.eat = 1;
+                    break;
+                case event.key === ' ':
+                    this.controls.pick = 1;
                     break;
             }
         });
@@ -57,25 +75,44 @@ export default class Player {
         });
         // Move Player Up Events
         this.app.controls.pushListener('keyup', (event) => {
-            switch (event.key) {
-                case 'ArrowUp':
+            switch (true) {
+                case event.key === 'ArrowUp':
                     this.controls.forward = 0;
                     break;
-                case 'ArrowDown':
+                case event.key === 'ArrowDown':
                     this.controls.reverse = 0;
                     break;
-                case 'ArrowRight':
+                case event.key === 'ArrowRight':
                     this.controls.right = 0;
                     break;
-                case 'ArrowLeft':
+                case event.key === 'ArrowLeft':
                     this.controls.left = 0;
                     break;
-                case ' ':
-                    this.controls.pick = Number(!this.controls.pick);
-                    this.game.gui.screen.buttons.play.pick = Boolean(this.controls.pick);
+                case event.key === 'Shift':
+                    this.controls.run = 0;
                     break;
-                case '+':
+                case event.key === 'w':
+                    this.controls.mark = 0;
+                    break;
+                case event.key === 'q':
+                    this.controls.drop = 0;
+                    break;
+                case event.key === 'e':
+                    this.controls.eat = 0;
+                    break;
+                case event.key === ' ':
+                    this.controls.pick = 0;
+                    break;
+                case event.key === 'f':
+                    this.followCamera = !this.followCamera;
+                    break;
+                case event.key === 'c':
+                    this.nextAnt();
+                    break;
+                case event.key === '+':
+                    // TODO move this to the anthill
                     this.app.player.anthill.addAnt();
+                    break;
             }
         });
         this.app.controls.pushListener('mouseup', (e) => {
@@ -97,5 +134,12 @@ export default class Player {
      */
     updateAnt(ant) {
         this.ant !== ant && (this.ant = ant);
+        this.app.camera.follow(this.ant)
+    }
+
+    nextAnt() {
+        const ants = this.app.factory.binnacle.Ant;
+        const antKey = ants.findIndex(ant => ant.id === this.ant.id);
+        this.updateAnt(ants[antKey + 1] || ants[0]);
     }
 }

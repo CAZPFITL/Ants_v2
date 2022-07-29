@@ -11,16 +11,16 @@ export default class Food {
      * Private methods
      */
     #getFoodData({width, height}) {
-        const size = this.app.tools.random(50, 100);
+        const size = this.app.tools.random(80, 100);
         this.polygons = [];
-        this.width = this.app.tools.random(50, 100);
-        this.height = this.app.tools.random(50, 100);
+        this.width = size;
+        this.height = size;
         this.initialSize = size;
         this.amount = size;
         this.minSize = 30;
         // TODO Make a better random initial place generator (avoid appear near the anthill)
-        this.x = this.app.tools.random(-(width - size), (width - size));
-        this.y = this.app.tools.random(-(height - size), (height - size));
+        this.x = this.app.tools.random(80, (width - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1);
+        this.y = this.app.tools.random(80, (height - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1);
         this.angle = this.app.tools.random(0, 3.6);
         this.color = '#33211c';
     }
@@ -76,9 +76,7 @@ export default class Food {
     }
 
     update() {
-        if (!this.no_update &&
-                this.app.game.state.state === PLAY ||
-                    this.app.game.state.state === GAME_OVER) {
+        if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             (this.amount >= this.minSize) && (this.width = this.amount);
             (this.amount >= this.minSize) && (this.height = this.amount);
             (this.amount <= 0) && (this.app.factory.binnacle.Food = this.app.factory.binnacle.Food.filter(food => food !== this));

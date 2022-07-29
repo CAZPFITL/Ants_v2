@@ -1,7 +1,7 @@
 export default class Physics {
     constructor(app) {
         this.app = app;
-        this.stopRange = 0.03;
+        this.stopRange = 0.05;
     }
     /**
      * Class methods

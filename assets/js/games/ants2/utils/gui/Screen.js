@@ -59,8 +59,7 @@ export default class Screen {
                 this.buttonsCollection.play.antControls.pick,
                 {x: e.offsetX, y: e.offsetY},
                 ()=> {
-                    this.app.player.controls.pick = !this.app.player.controls.pick
-                    this.buttons.play.pick = !this.buttons.play.pick
+                    this.app.player.controls.pick = Number(!this.app.player.controls.pick);
                 }
             )
             // Sound on/off
@@ -92,7 +91,7 @@ export default class Screen {
             )
         });
         this.app.controls.pushListener('mousedown', (e) => {
-
+            // Show fps
             (e.which === 2) && this.app.gui.get.isClicked(
                 {
                     x: 0,
@@ -128,7 +127,7 @@ export default class Screen {
         const {ants, food, player} = {
             ants: antHill.antCounter ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
                 name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
-                hunger: this.app.tools.xDec(entity.hunger * 10, 2) ?? "n/a",
+                energy: this.app.tools.xDec(entity.energy * 10, 2) ?? "n/a",
                 maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
                 maxPickedFood: entity.maxPickedFood ?? "n/a",
                 pickedFood: entity.pickedFood ?? "n/a",
@@ -142,7 +141,7 @@ export default class Screen {
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
             pickedBarText: `Picked Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
-            hungerText: `Hunger: ${this.app.tools.xDec(player.hunger / 10, 0)} / ${100}`,
+            energyText: `Energy: ${this.app.tools.xDec(player.energy / 10, 0)} / ${100}`,
             entity
         }
     }
@@ -333,7 +332,7 @@ export default class Screen {
             anthillFood,
             antSelected,
             pickedBarText,
-            hungerText,
+            energyText,
             entity
         } = this.#getPlayDataStrings();
 
@@ -381,14 +380,14 @@ export default class Screen {
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
-        // HUNGER BAR
+        // ENERGY BAR
         this.app.gui.get.bar({
             ctx,
             x: cardPosition.x + 15,
             y: cardPosition.y + 165,
-            text: hungerText,
+            text: energyText,
             cap: 100,
-            fill: entity.hunger,
+            fill: entity.energy,
             fillColor: 'red-green',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
@@ -401,9 +400,9 @@ export default class Screen {
         const ctx = this.app.game.gui.controlsCtx;
 
         const looper = {
-            forward: {ctx, ...this.buttonsCollection.play.movementControls.forward,},
-            reverse: {ctx, ...this.buttonsCollection.play.movementControls.reverse,},
-            left: {ctx, ...this.buttonsCollection.play.movementControls.left,},
+            forward: {ctx, ...this.buttonsCollection.play.movementControls.forward},
+            reverse: {ctx, ...this.buttonsCollection.play.movementControls.reverse},
+            left: {ctx, ...this.buttonsCollection.play.movementControls.left},
             right: {ctx, ...this.buttonsCollection.play.movementControls.right},
             pick: {ctx, ...this.buttonsCollection.play.antControls.pick},
             eat: {ctx, ...this.buttonsCollection.play.antControls.eat},

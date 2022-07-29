@@ -2,8 +2,9 @@ import Ant from './Ant.js';
 import { PLAY, GAME_OVER } from "../../env.js";
 
 export default class Anthill {
-    constructor({app, id = 0, ants = 1 }) {
+    constructor({app, game, id = 0, ants = 1 }) {
         this.app = app;
+        this.game = game;
         this.id = id;
         this.no_draw = false;
         this.no_update = false;
@@ -20,31 +21,39 @@ export default class Anthill {
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        this.addAnt();
+        for (let i = 0; i < ants; i++) {
+            this.addAnt(true);
+        }
     }
     /**
      * Class methods
      */
-    addAnt() {
-        if (this.food >= this.antCoste) {
-            // push new ant in population
-            this.population.push(this.app.factory.create(
-                Ant,
-                {
-                    id: this.antCounterHistory,
-                    app: this.app,
-                    angle: this.app.tools.random(-3.6, 3.6, false),
-                    anthill: this
-                }
-            ))
-            // Update players ant
-            this.app.player.updateAnt(this.population[this.population.length - 1]);
-            // update food
-            this.food -= this.antCoste;
-            // update ant counter
-            this.antCounter = this.population.length;
-            ++this.antCounterHistory;
+    addAnt(free) {
+        if (!(this.food >= this.antCoste) && !free) {
+            return;
         }
+
+        // push new ant in population
+        this.population.push(this.app.factory.create(
+            Ant,
+            {
+                id: this.antCounterHistory,
+                app: this.app,
+                game: this.game,
+                angle: this.app.tools.random(-3.6, 3.6, false),
+                anthill: this
+            }
+        ))
+        // Update players ant
+        this.app.player.updateAnt(this.population[this.population.length - 1]);
+        // update food
+        (!free) && (this.food -= this.antCoste);
+        // update ant counter
+        this.antCounter = this.population.length;
+        // update ant counter history
+        ++this.antCounterHistory;
+        // follow new ant
+        this.app.camera.follow(this.population[this.population.length - 1]);
     }
 
     removeAnt(ant) {
