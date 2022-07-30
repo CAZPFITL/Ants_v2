@@ -10,10 +10,9 @@ import {
     MAIN_MENU,
 } from "./env.js";
 
-export default class Ants2 {
+export default class Ants2Trainer {
     constructor(app, loadCallback) {
         this.app = app;
-        this.useMusicBox = true;
         this.loadCallback = loadCallback;
         this.gui = new Gui(this.app, this);
         this.app.factory.addGameEntity(this.gui);
@@ -26,23 +25,6 @@ export default class Ants2 {
     #loadData() {
         // Load Player Controls
         this.app.player = new Player(this.app, this);
-        // Load Music Box
-        this.app.musicBox.addSong([{
-            name: 'ants_001',
-            file: 'assets/audio/ants_001.mp3'
-        }, {
-            name: 'ants_002',
-            file: 'assets/audio/ants_002.mp3'
-        }, {
-            name: 'ants_003',
-            file: 'assets/audio/ants_003.mp3'
-        }, {
-            name: 'ants_004',
-            file: 'assets/audio/ants_004.mp3'
-        }]);
-        // Load Main song
-        this.app.musicBox.changeSong('ants_004');
-        this.app.musicBox.autoplay();
         // load Controls listeners
         this.app.controls.addListeners();
         // Run Load Callback From Engine
@@ -55,8 +37,8 @@ export default class Ants2 {
         this.level = new GameLevel({
             app,
             game: this,
-            width: 2000,
-            height: 1800
+            width: 500,
+            height: 500
         })
         this.state.setState(MAIN_MENU);
     }
@@ -77,8 +59,8 @@ export default class Ants2 {
             this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
             this.state.state !== GAME_OVER
         ) {
-            this.app.game.state.setState(GAME_OVER);
-            (this.state.state === GAME_OVER) && this.#restart();
+            // this.app.game.state.setState(GAME_OVER);
+            // (this.state.state === GAME_OVER) && this.#restart();
         }
     }
 }

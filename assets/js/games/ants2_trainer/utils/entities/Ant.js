@@ -86,7 +86,8 @@ export default class Ant {
         this.controls.eat = outputs[6];
 
         // Player Process
-        const controls = this.app.controls.getControls(this);
+        const controls = this.controls;
+        // const controls = this.app.controls.getControls(this);
         this.#move(controls);
         this.#mark(controls);
         this.#smell();

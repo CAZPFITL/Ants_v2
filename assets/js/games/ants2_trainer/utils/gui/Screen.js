@@ -6,9 +6,7 @@ export default class Screen {
         this.gui = gui;
         this.buttons = {
             play: {
-                pick: false,
                 creatingAnt: false,
-                sound: false
             },
             main_menu: {
                 start: false
@@ -21,22 +19,9 @@ export default class Screen {
                 }
             },
             play: {
-                movementControls: {
-                    'forward': {},
-                    'reverse': {},
-                    'left': {},
-                    'right': {}
-                },
                 anthillControls: {
                     'createAnt': {}
                 },
-                antControls: {
-                    'pick': {},
-                    'eat': {}
-                },
-                gameControls: {
-                    'sound': {}
-                }
             }
         }
         this.#updatePlayControlsData();
@@ -54,23 +39,6 @@ export default class Screen {
                 {x: e.offsetX, y: e.offsetY},
                 ()=> this.app.player.anthill.addAnt()
             )
-            // Picking on/off
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.antControls.pick,
-                {x: e.offsetX, y: e.offsetY},
-                ()=> {
-                    this.app.player.controls.pick = Number(!this.app.player.controls.pick);
-                }
-            )
-            // Sound on/off
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.gameControls.sound,
-                {x: e.offsetX, y: e.offsetY},
-                (volume = this.app.musicBox.song.song.volume)=> {
-                    this.app.musicBox.song.song.volume = !volume
-                    this.buttons.play.sound = !this.buttons.play.sound
-                }
-            )
         });
         this.app.controls.pushListener('mouseup', (e) => {
             // Start Game
@@ -80,7 +48,6 @@ export default class Screen {
                 () => {
                     this.buttons.main_menu.start = false;
                     this.app.game.state.setState(PLAY);
-                    this.app.musicBox.play();
                 }
             );
             // Create ant up
@@ -137,9 +104,7 @@ export default class Screen {
         return {
             color: '#000000',
             font: "20px Mouse",
-            anthillAnts: `Anthill Ants: ${ants}`,
-            anthillFood: `Anthill Food: ${food}`,
-            antSelected: `Player: ${player.name}`,
+            antSelected: `${player.name}`,
             pickedBarText: `Picked Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
             energyText: `Energy: ${this.app.tools.xDec(player.energy / 10, 0)} / ${100}`,
             entity
@@ -173,44 +138,6 @@ export default class Screen {
 
     #updatePlayControlsData() {
         const font = "16px Mouse";
-        this.buttonsCollection.play.movementControls = {
-            'forward': {
-                x: this.gui.controlsCtx.canvas.width - 120,
-                y: this.gui.controlsCtx.canvas.height - 120,
-                width: 50,
-                height: 50,
-                text: '↑',
-                font,
-                bg: !this.app.player?.controls.forward ? '#b47607' : '#ffa600'
-            },
-            'reverse': {
-                x: this.gui.controlsCtx.canvas.width - 120,
-                y: this.gui.controlsCtx.canvas.height - 60,
-                width: 50,
-                height: 50,
-                text: '↓️',
-                font,
-                bg: !this.app.player?.controls.reverse ? '#b47607' : '#ffa600'
-            },
-            'left': {
-                x: this.gui.controlsCtx.canvas.width - 180,
-                y: this.gui.controlsCtx.canvas.height - 60,
-                width: 50,
-                height: 50,
-                text: '←',
-                font,
-                bg: !this.app.player?.controls.left ? '#b47607' : '#ffa600'
-            },
-            'right': {
-                x: this.gui.controlsCtx.canvas.width - 60,
-                y: this.gui.controlsCtx.canvas.height - 60,
-                width: 50,
-                height: 50,
-                text: '→️',
-                font,
-                bg: !this.app.player?.controls.right ? '#b47607' : '#ffa600'
-            }
-        }
         this.buttonsCollection.play.anthillControls = {
             'createAnt': {
                 x: this.gui.controlsCtx.canvas.width - 60,
@@ -220,37 +147,6 @@ export default class Screen {
                 text: '🐜',
                 font,
                 bg: !this.buttons.play.creatingAnt ? '#b47607' : '#ffa600'
-            }
-        }
-        this.buttonsCollection.play.antControls = {
-            'pick': {
-                x: this.gui.controlsCtx.canvas.width - 60,
-                y: 70,
-                width: 50,
-                height: 50,
-                text: '🚚',
-                font,
-                bg: !this.buttons.play.pick ? '#b47607' : '#ffa600'
-            },
-            'eat': {
-                x: this.gui.controlsCtx.canvas.width - 60,
-                y: 130,
-                width: 50,
-                height: 50,
-                text: '🍏',
-                font,
-                bg: !this.app.player?.controls.eat ? '#b47607' : '#ffa600'
-            }
-        }
-        this.buttonsCollection.play.gameControls = {
-            'sound': {
-                x: this.gui.controlsCtx.canvas.width - 60,
-                y: 190,
-                width: 50,
-                height: 50,
-                text: '🔈',
-                font,
-                bg: this.buttons.play.sound ? '#b47607' : '#ffa600'
             }
         }
     }
@@ -318,9 +214,8 @@ export default class Screen {
         });
     }
 
-    drawPlayDecoration() {
-        const ctx = this.app.game.gui.controlsCtx;
-        const cardPosition = {
+    drawPlayDecoration(ctx = this.app.game.gui.controlsCtx) {
+        const card = {
             x: 10,
             y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
         }
@@ -348,31 +243,23 @@ export default class Screen {
         // DATA BACKGROUND
         this.app.gui.get.square({
             ctx: this.app.game.gui.controlsCtx,
-            x: cardPosition.x,
-            y: cardPosition.y,
+            x: card.x,
+            y: card.y,
             width: width + 35,
-            height: 190,
+            height: 125,
             color: 'rgba(255, 255, 255, 0.2)',
             stroke: '#000'
         });
 
         // PLAYER ENTITY
         this.app.gui.get.text({
-            ctx, font, color, text: antSelected, x: cardPosition.x + 15, y: cardPosition.y + 30,
-        });
-        // ANTHILL DATA
-        this.app.gui.get.text({
-            ctx, font, color, text: anthillAnts, x: cardPosition.x + 15, y: cardPosition.y + 60,
-        });
-        // FOOD DATA
-        this.app.gui.get.text({
-            ctx, font, color, text: anthillFood, x: cardPosition.x + 15, y: cardPosition.y + 90,
+            ctx, font, color, text: antSelected, x: card.x + 15, y: card.y + 30,
         });
         // FOOD BAR
         this.app.gui.get.bar({
             ctx,
-            x: cardPosition.x + 15,
-            y: cardPosition.y + 125,
+            x: card.x + 15,
+            y: card.y + 60,
             text: pickedBarText,
             cap: entity.maxFoodPickCapacity * 10,
             fill: entity.pickedFood * 10,
@@ -383,8 +270,8 @@ export default class Screen {
         // ENERGY BAR
         this.app.gui.get.bar({
             ctx,
-            x: cardPosition.x + 15,
-            y: cardPosition.y + 165,
+            x: card.x + 15,
+            y: card.y + 100,
             text: energyText,
             cap: 100,
             fill: entity.energy,
@@ -396,18 +283,9 @@ export default class Screen {
         this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(130,169,30)';
     }
 
-    drawPlayControls() {
-        const ctx = this.app.game.gui.controlsCtx;
-
+    drawPlayControls(ctx = this.app.game.gui.controlsCtx) {
         const looper = {
-            forward: {ctx, ...this.buttonsCollection.play.movementControls.forward},
-            reverse: {ctx, ...this.buttonsCollection.play.movementControls.reverse},
-            left: {ctx, ...this.buttonsCollection.play.movementControls.left},
-            right: {ctx, ...this.buttonsCollection.play.movementControls.right},
-            pick: {ctx, ...this.buttonsCollection.play.antControls.pick},
-            eat: {ctx, ...this.buttonsCollection.play.antControls.eat},
-            createAnt: {ctx, ...this.buttonsCollection.play.anthillControls.createAnt},
-            sound: {ctx, ...this.buttonsCollection.play.gameControls.sound},
+            createAnt: {ctx, ...this.buttonsCollection.play.anthillControls.createAnt}
         }
 
         Object.keys(looper).forEach(key => {

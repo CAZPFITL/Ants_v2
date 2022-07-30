@@ -4,8 +4,8 @@ export default class Sensor {
         this.app = entity.app;
         this.no_update = false;
         this.no_draw = false;
-        this.rayCount = 2;
-        this.rayLength = 8;
+        this.rayCount = 8;
+        this.rayLength = 40;
         this.raySpread = Math.PI * 0.5;
         this.rays = [];
         this.readings = [];

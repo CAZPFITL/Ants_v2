@@ -16,7 +16,7 @@ export default class GameLevel {
      * Load methods
      */
     loadEntities() {
-        this.loadFood(5);
+        this.loadFood(1);
         this.loadAnthill(1, true);
         this.app.factory.addGameEntity(this);
     }
