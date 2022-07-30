@@ -1,6 +1,8 @@
 import NeuralNetwork from "../../../../engine/utils/components/Network.js";
 import Sensor from "../../../../engine/utils/components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
+import Food from "./Food.js";
+import Traces from "./Traces.js";
 
 export default class Ant {
     constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
@@ -27,7 +29,6 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.carryRate = app.tools.random(size, size * 2) * 0.008;
         this.eatingRate = app.tools.random(size, size * 3) * 0.008;
-        this.searchTrace = [];
         // physics
         this.speed = 0;
         this.angle = angle;
@@ -160,14 +161,14 @@ export default class Ant {
         // Limit Pick
         this.game.gui.screen.buttons.play.pick = Number(this.foodFound && controls.pick);
 
-        // Burn some calories
+        // Burn some energy
         this.metabolismSpeed = (!controls.forward && !controls.reverse && !controls.left && !controls.right) ? 0.004 : 0.008;
     }
 
     #mark() {
         if (this.app.request - (this.requestFlag ?? 0) > this.app.tools.random(10, 50)) {
             this.requestFlag = this.app.request;
-            this.searchTrace.push({
+            this.app.factory.binnacle.Traces[0].addPoint({
                 x: this.app.tools.random(this.x - 2,this.x + 2, false),
                 y: this.app.tools.random(this.y - 2,this.y + 2, false),
                 radius: this.app.tools.random(1,2, false)
@@ -181,7 +182,7 @@ export default class Ant {
     }
 
     #eatFood() {
-        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * this.app.tools.random(1.5, 2));
+        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5);
         (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate);
     }
 
@@ -236,20 +237,6 @@ export default class Ant {
         ]
     }
 
-    drawTrace() {
-        for (let i = 0; i < this.searchTrace.length; i++) {
-            // draw circle of random radius
-            this.app.gui.ctx.fillStyle = 'rgba(255,207,0,0.34)';
-            this.app.gui.ctx.beginPath();
-            this.app.gui.ctx.arc(
-                this.searchTrace[i].x,
-                this.searchTrace[i].y,
-                this.searchTrace[i].radius,
-                0,
-                2 * Math.PI);
-            this.app.gui.ctx.fill()
-        }
-    }
     update() {
         if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             // Draw me
@@ -272,7 +259,6 @@ export default class Ant {
     }
 
     draw(ctx) {
-        this.drawTrace();
         if (!this.no_draw && this.app.game.state.state === PLAY) {
             this.app.gui.get.drawPolygon(ctx, this);
             // this.sensor.draw(ctx);

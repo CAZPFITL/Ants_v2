@@ -1,5 +1,6 @@
 import Ant from './Ant.js';
 import { PLAY, GAME_OVER } from "../../env.js";
+import Traces from "./Traces.js";
 
 export default class Anthill {
     constructor({app, game, id = 0, ants = 1 }) {
@@ -21,13 +22,26 @@ export default class Anthill {
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        for (let i = 0; i < ants; i++) {
-            this.addAnt(true);
-        }
+        this.loadEntities();
     }
     /**
      * Class methods
      */
+    loadEntities() {
+        // Create new traces repository
+        this.createTraces();
+        // Create new Ants
+        for (let i = 0; i < this.antCounter; i++) {
+            this.addAnt(true);
+        }
+    }
+
+    createTraces() {
+        this.app.factory.create(Traces, {
+            app: this.app,
+        });
+    }
+
     addAnt(free) {
         if (!(this.food >= this.antCoste) && !free) {
             return;

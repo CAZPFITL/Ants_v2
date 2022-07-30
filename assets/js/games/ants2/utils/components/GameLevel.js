@@ -21,6 +21,15 @@ export default class GameLevel {
         this.loadAnthill(1);
     }
 
+    loadFood(amount = 1, {width, height} = this.size) {
+        for (let i = 0; i < amount; i++) {
+            this.app.factory.create(Food, {
+                app: this.app,
+                bounds: { width: width / 2, height: height / 2 }
+            });
+        }
+    }
+
     loadAnthill(ants = 1) {
         let collection = this.app.factory.binnacle['Anthill'] ?? [];
         collection = collection.length
@@ -32,14 +41,6 @@ export default class GameLevel {
         });
     }
 
-    loadFood(amount = 1, {width, height} = this.size) {
-        for (let i = 0; i < amount; i++) {
-            this.app.factory.create(Food, {
-                app: this.app,
-                bounds: { width: width / 2, height: height / 2 }
-            });
-        }
-    }
     /**
      * Draw and Update methods
      */
