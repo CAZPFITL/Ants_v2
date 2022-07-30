@@ -14,12 +14,8 @@ import {
 } from "../env.js";
 
 export default class AppMethods {
-    constructor(Game) {
+    constructor(Game, verbose = false) {
         this.state = new States(this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, PLAY_GAME]);
-        this.loadEngine(this, Game);
-    }
-
-    loadEngine(app, Game, verbose = false) {
         this.verbose = verbose;
 
         this.tools = Tools;
@@ -30,17 +26,17 @@ export default class AppMethods {
         this.musicBox = new MusicBox(this);
 
         this.gui = new Gui(this);
-        this.camera = new Camera(app);
+        this.camera = new Camera(this);
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
         this.stats = new Stats();
+        this.loadEngine(Game);
+    }
 
+    loadEngine(Game, verbose = false) {
         !verbose && this.toggleStats();
-
         document.body.appendChild( this.stats.dom );
-
         this.request = requestAnimationFrame(this.camera.loop);
-
         this.loadGame(Game)
     }
 

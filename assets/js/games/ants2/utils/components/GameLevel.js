@@ -11,7 +11,6 @@ export default class GameLevel {
         this.size = { width, height}
         this.color = '#523f32';
         this.loadEntities();
-        this.app.factory.addGameEntity(this);
     }
     /**
      * Load methods
@@ -19,6 +18,7 @@ export default class GameLevel {
     loadEntities() {
         this.loadFood(5);
         this.loadAnthill(1);
+        this.app.factory.addGameEntity(this);
     }
 
     loadFood(amount = 1, {width, height} = this.size) {

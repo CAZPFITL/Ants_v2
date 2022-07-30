@@ -39,10 +39,22 @@ export default class Physics {
         (entity.speed < 0) && (entity.speed += entity.friction);
 
         // this works under the unit circle logic using sin or cos multiplied by speed to get the translation
-        return ({
+        this.worldLimits({
             x: Math.sin(entity.angle) * entity.speed,
             y: Math.cos(entity.angle) * entity.speed
-        })
+        }, entity);
+    }
 
+    worldLimits({x, y}, entity) {
+        const limits = this.app.game.level.size;
+
+        // Limit Movement
+        (entity.x > -limits.width / 2 && entity.x < limits.width / 2)
+            ? (entity.x -= x) :
+            (entity.x -= entity.x > 0 ? 0.1 : -0.1);
+
+        (entity.y > -limits.height / 2 && entity.y < limits.height / 2)
+            ? (entity.y -= y) :
+            (entity.y -= entity.y > 0 ? 0.1 : -0.1);
     }
 }

@@ -2,6 +2,7 @@ export default class Traces {
     constructor({ app }) {
         this.app = app;
         this.points = [];
+        this.requestFlag = 0;
         console.log(this)
     }
 
@@ -11,6 +12,12 @@ export default class Traces {
 
     removePoint(point) {
         this.points.splice(this.points.indexOf(point), 1);
+    }
+
+    update() {
+        if (this.app.request - (this.requestFlag ?? 0) < 300) return;
+        this.requestFlag = this.app.request;
+        this.points.shift();
     }
 
     draw() {
