@@ -44,6 +44,8 @@ export default class Ants2Trainer {
     }
 
     restart() {
+        this.app.player.ant = null;
+        this.app.player.anthill = null;
         this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
     }
 

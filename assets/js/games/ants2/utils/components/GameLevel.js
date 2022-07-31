@@ -10,9 +10,48 @@ export default class GameLevel {
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height }
         this.color = '#523f32';
+        this.boundTargets = {};
         game.constructor.name === 'Ants2' && this.loadEntities();
         this.app.factory.addGameEntity(this);
     }
+
+    /**
+     * Private Methods
+     */
+    #getBordersEdges() {
+        const [ topLeft, bottomLeft, topRight, bottomRight ] = [
+            { x: (-this.size.width) / 2, y: (-this.size.height) / 2 },
+            { x: (-this.size.width) / 2, y: (this.size.height) / 2 },
+            { x: (this.size.width) / 2, y: (- this.size.height) / 2 },
+            { x: (this.size.width) / 2, y: (this.size.height) / 2 }
+        ];
+        this.boundTargets = {
+            // These are the bounds for the ants sensors
+            polygons: [
+                // Left
+                topLeft,
+                bottomLeft,
+                { x: bottomLeft - 1, ...bottomLeft.y },
+                { x: topLeft - 1, ...topLeft.y },
+                // Right
+                topRight,
+                bottomRight,
+                { x: bottomRight + 1, ...bottomRight.y },
+                { x: topRight + 1, ...topRight.y },
+                // Top
+                topLeft,
+                topRight,
+                { x: topRight.x, y: topRight.y - 1 },
+                { x: topLeft.x, y: topLeft.y - 1 },
+                // Bottom
+                bottomLeft,
+                bottomRight,
+                { x: bottomRight.x, y: bottomRight.y + 1 },
+                { x: bottomLeft.x, y: bottomLeft.y + 1 }
+            ]
+        }
+    }
+
     /**
      * Load methods
      */
@@ -42,6 +81,10 @@ export default class GameLevel {
         });
     }
 
+    update() {
+        // console.log(this.boundTargets)
+        this.#getBordersEdges();
+    }
     /**
      * Draw and Update methods
      */

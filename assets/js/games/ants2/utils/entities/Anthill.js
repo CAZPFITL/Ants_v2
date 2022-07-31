@@ -3,7 +3,7 @@ import { PLAY, GAME_OVER } from "../../env.js";
 import Traces from "./../../../ants2/utils/entities/Traces.js";
 
 export default class Anthill {
-    constructor({app, game, id = 0, ants = 0}) {
+    constructor({app, game, id = 0, ants = 0, free}) {
         this.app = app;
         this.game = game;
         this.id = id;
@@ -22,7 +22,8 @@ export default class Anthill {
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        this.loadEntities(ants, this.app.game.constructor.name === 'Ants2Trainer');
+        this.loadEntities(ants, false);
+
     }
 
     /**
@@ -37,7 +38,8 @@ export default class Anthill {
         }
     }
 
-    addAnt(free) {
+    addAnt(free = this.game.constructor.name === 'Ants2Trainer') {
+        console.log(free)
         if (!(this.food >= this.antCoste) && !free) {
             return;
         }
@@ -63,8 +65,6 @@ export default class Anthill {
         this.antCounter = this.population.length;
         // update ant counter history
         ++this.antCounterHistory;
-        // follow new ant
-        this.app.camera.follow(this.population[this.population.length - 1]);
     }
 
     removeAnt(ant) {

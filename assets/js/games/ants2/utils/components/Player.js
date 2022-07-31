@@ -4,7 +4,7 @@ export default class Player {
         this.game = game;
         this.ant = null;
         this.anthill = null;
-        this.followCamera = true;
+        this.followCamera = this.game.constructor.name === 'Ants2';
         this.controls = this.app.game.constructor.name === 'Ants2'
             ? {
                 forward: 0,
@@ -19,6 +19,7 @@ export default class Player {
             } : null;
         this.#addListeners();
     }
+
     /**
      * Private methods
      */
@@ -73,7 +74,7 @@ export default class Player {
                     this.app.gui.get.isClicked(
                         controls[key],
                         {x, y},
-                        ()=> this.app.player.controls[key] = 1
+                        () => this.app.player.controls[key] = 1
                     )
                 });
             }
@@ -108,6 +109,9 @@ export default class Player {
                 case event.key === ' ' && this.app.game.constructor.name === 'Ants2':
                     this.controls.pick = 0;
                     break;
+                case event.key === 'Delete' && this.app.game.constructor.name === 'Ants2Trainer':
+                    this.app.game.restart();
+                    break;
                 case event.key === 'f':
                     this.followCamera = !this.followCamera;
                     break;
@@ -129,7 +133,7 @@ export default class Player {
                     this.app.gui.get.isClicked(
                         controls[key],
                         {x, y},
-                        ()=> this.app.player.controls[key] = 0
+                        () => this.app.player.controls[key] = 0
                     )
                 });
             }
@@ -141,7 +145,6 @@ export default class Player {
      */
     updateAnt(ant) {
         this.ant !== ant && (this.ant = ant);
-        this.app.camera.follow(this.ant)
     }
 
     updateAnthill(anthill) {
