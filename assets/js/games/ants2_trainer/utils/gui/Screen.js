@@ -9,6 +9,8 @@ export default class Screen {
             play: {
                 creatingAnt: false,
                 creatingAnthill: false,
+                creatingFood: false,
+                creating: false,
                 resizingW: false,
                 resizingH: false
             },
@@ -25,7 +27,8 @@ export default class Screen {
             play: {
                 anthillControls: {
                     'createAnt': {},
-                    'createAnthill': {}
+                    'createAnthill': {},
+                    'createFood': {}
                 },
                 boardControls: {
                     'width': {},
@@ -44,17 +47,20 @@ export default class Screen {
     #addListeners() {
         // mouse move listener
         this.app.controls.pushListener('mousemove', (e) => {
+            // TRANSLATE COORDS
             const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
                 x: e.offsetX,
                 y: e.offsetY
             }, this.app.camera.viewport);
-
             // CREATING ANTHILL PROCESS
-            if (this.buttons.play.creatingAnthill) {
-                this.creation.coords = hoverTranslatedCoords;
-                this.creation.color = 'rgba(56,24,1,0.57)';
+            if (this.buttons.play.creating) {
+                if (this.creation?.coords) {
+                    (this.creation.coords = hoverTranslatedCoords);
+                } else {
+                    this.creation.x = hoverTranslatedCoords.x;
+                    this.creation.y = hoverTranslatedCoords.y;
+                }
             }
-
             // DRAG RESIZE WIDTH
             if (this.buttons.play.resizingW) {
                 this.app.game.level.size.width += e.movementX;
@@ -79,41 +85,59 @@ export default class Screen {
             }
         });
         this.app.controls.pushListener('click', (e) => {
-            const clickTranslatedCoords = this.app.gui.get.viewportCoords({
-                x: e.offsetX,
-                y: e.offsetY
-            }, this.app.camera.viewport);
             // Create Ant
             if (this.app.player.anthill) {
                 this.app.gui.get.isClicked(
                     this.buttonsCollection.play.anthillControls.createAnt,
                     {x: e.offsetX, y: e.offsetY},
-                    () => this.app.player.anthill.addAnt()
+                    () => {
+                        this.app.player.anthill.addAnt();
+
+                    }
                 )
             }
-            // Change Width board size
-            if (!this.buttons.play.creatingAnthill) {
+            // Create Entity - specific
+            if (!this.buttons.play.creating) {
                 this.app.gui.get.isClicked(
                     this.buttonsCollection.play.anthillControls.createAnthill,
                     {x: e.offsetX, y: e.offsetY},
                     () => {
+                        this.buttons.play.creating = true;
                         this.buttons.play.creatingAnthill = true;
                         this.app.game.level.loadAnthill(0, false);
                         this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
                     }
                 )
-            } else {
-                if(this.app.gui.get.isHover({
-                        ...this.app.game.level.coords,
-                        ...this.app.game.level.size,
-                    },
-                    this.app.gui.get.viewportCoords({
-                        x: e.offsetX,
-                        y: e.offsetY
-                    }, this.app.camera.viewport)
-                )) {
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.anthillControls.createFood,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        this.buttons.play.creating = true;
+                        this.buttons.play.creatingFood = true
+                        this.app.game.level.loadFood(1);
+                        this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
+                    }
+                )
+            }
+            // Place Entity - general
+            if (this.buttons.play.creating) {
+                const objX = (this.creation?.size?.width ?? this.creation.width) + 20;
+                const objY = (this.creation?.size?.height ?? this.creation.height) + 20;
+                const entity = {
+                    x: (-this.app.game.level.size.width + objX) / 2,
+                    y: (-this.app.game.level.size.height + objY) / 2,
+                    width: this.app.game.level.size.width - objX,
+                    height: this.app.game.level.size.height - objY
+                }
+                const click = this.app.gui.get.viewportCoords(
+                    {x: e.offsetX, y: e.offsetY},
+                    this.app.camera.viewport
+                );
+                if(this.app.gui.get.isHover(entity, click)) {
+                    this.creation = null;
+                    this.buttons.play.creating = false;
                     this.buttons.play.creatingAnthill = false;
-                    this.creation.color = 'rgba(56,24,1,1)';
+                    this.buttons.play.creatingFood = false;
                 }
             }
         });
@@ -130,7 +154,6 @@ export default class Screen {
             this.buttons.play.resizingW = false
             this.buttons.play.resizingH = false
             this.buttons.play.creatingAnt = false
-            // this.buttons.play.creatingAnthill = false
         });
         this.app.controls.pushListener('mousedown', (e) => {
             // Change Width board size
@@ -154,7 +177,6 @@ export default class Screen {
             )
         });
     }
-
 
     #getPlayDataStrings() {
         // TODO consider to make multiple anthills
@@ -221,6 +243,15 @@ export default class Screen {
                 text: '🐝',
                 font,
                 bg: !this.buttons.play.creatingAnthill ? '#b47607' : '#ffa600'
+            },
+            'createFood': {
+                x: this.gui.controlsCtx.canvas.width - 60,
+                y: 70,
+                width: 50,
+                height: 50,
+                text: '🍏',
+                font,
+                bg: !this.buttons.play.creatingFood ? '#b47607' : '#ffa600'
             }
         }
         this.buttonsCollection.play.boardControls = {
@@ -415,6 +446,7 @@ export default class Screen {
         const looper = {
             createAnt: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createAnt} : {},
             createAnthill: {ctx, ...this.buttonsCollection.play.anthillControls.createAnthill},
+            createFood: {ctx, ...this.buttonsCollection.play.anthillControls.createFood},
             width: {ctx, ...this.buttonsCollection.play.boardControls.width},
             height: {ctx, ...this.buttonsCollection.play.boardControls.height}
         }
