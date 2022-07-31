@@ -12,7 +12,7 @@ export default class Food {
      * Private methods
      */
     #getFoodData({width, height}) {
-        const size = this.app.tools.random(80, 100);
+        const size = this.app.tools.random(30, 30);
         this.polygons = [];
         this.width = size;
         this.height = size;
@@ -21,8 +21,8 @@ export default class Food {
         this.minSize = 30;
         this.requestFlags = {};
         this.maxAge = this.app.tools.random(100, 200);
-        this.x = this.app.tools.random(120, (width - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1);
-        this.y = this.app.tools.random(120, (height - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1);
+        this.x = this.app.tools.random(80, (width - (size))) * (Math.random() >= 0.5 ? 1 : -1);
+        this.y = this.app.tools.random(80, (height - (size))) * (Math.random() >= 0.5 ? 1 : -1);
         this.angle = this.app.tools.random(0, 3.6);
         this.color = '#33211c';
     }

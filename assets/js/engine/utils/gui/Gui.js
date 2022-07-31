@@ -26,12 +26,23 @@ export default class Gui {
         }
     }
 
+    static isHover(entity, click) {
+        const {x, y, width, height} = entity;
+        return (
+            click.x > x &&
+            click.x < x + width &&
+            click.y > y &&
+            click.y < y + height
+        );
+    }
+
     static clickCoords = (e, viewport) => ({
         x: e.clientX / viewport.scale[0] + viewport.left,
         y: e.clientY / viewport.scale[1] + viewport.top
     })
 
     static entityAt(click, collection) {
+        if (!collection) return;
         for (let i = 0; i < collection.length; i++) {
             const entity = collection[i];
 

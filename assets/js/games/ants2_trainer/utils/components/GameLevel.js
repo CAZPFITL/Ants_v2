@@ -37,8 +37,7 @@ export default class GameLevel {
             app: this.app,
             game: this.game,
             id: collection + 1,
-            ants,
-            free
+            ants
         });
     }
 

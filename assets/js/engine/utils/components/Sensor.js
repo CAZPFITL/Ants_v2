@@ -3,7 +3,7 @@ export default class Sensor {
         this.entity = entity;
         this.app = entity.app;
         this.no_update = false;
-        this.no_draw = false;
+        this.no_draw = true;
         this.rayCount = 8;
         this.rayLength = 40;
         this.raySpread = Math.PI * 0.5;

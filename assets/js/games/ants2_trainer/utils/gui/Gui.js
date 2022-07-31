@@ -10,6 +10,18 @@ export default class Gui {
         this.screen = new Screen(app, this);
     }
 
+    hoverStateIn() {
+        if (this.controlsCtx.canvas.style.cursor !== 'pointer') {
+            this.controlsCtx.canvas.style.cursor = 'pointer';
+        }
+    }
+
+    hoverStateOut() {
+        if (this.controlsCtx.canvas.style.cursor === 'pointer') {
+            this.controlsCtx.canvas.style.cursor = 'default';
+        }
+    }
+
     /**
      * Draw and Update methods
      */

@@ -170,8 +170,14 @@ export default class Ant {
     }
 
     #eatFood(controls) {
-        if (!controls.eat || !this.pickedFood > 0) return
+        if (!(controls.eat && this.pickedFood > 1 && this.energy < 100)) {
+            this.game.gui.screen.buttons.play.eat = 0
+            return
+        }
+
+        this.game.gui.screen.buttons.play.eat = 1
         controls.pick = 0;
+
         (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5);
         (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate);
     }
@@ -187,11 +193,13 @@ export default class Ant {
     }
 
     #carryFood(controls) {
-        if (!controls.pick || !this.foodFound || controls.forward) return;
+        if (!(controls.pick && this.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
+            this.game.gui.screen.buttons.play.pick = 0
+            return
+        }
 
+        this.game.gui.screen.buttons.play.pick = 1;
         controls.eat = 0;
-
-        this.game.gui.screen.buttons.play.pick = Number(this.foodFound && controls.pick);
 
         const food = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
         const capacityAvailable = this.maxFoodPickCapacity >= this.pickedFood;

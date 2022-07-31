@@ -3,14 +3,14 @@ import { PLAY, GAME_OVER } from "../../env.js";
 import Traces from "./Traces.js";
 
 export default class Anthill {
-    constructor({app, game, id = 0, ants, free}) {
+    constructor({app, game, id = 0, ants = 0}) {
         this.app = app;
         this.game = game;
         this.id = id;
         this.no_draw = false;
         this.no_update = false;
-        const width = app.tools.random(50,150);
-        const height = app.tools.random(50,150);
+        const width = app.tools.random(50,50);
+        const height = app.tools.random(50,50);
         this.population = [];
         this.polygons = [];
         this.antCounter = 0;
@@ -18,21 +18,20 @@ export default class Anthill {
         this.size = { width, height }
         this.coords = { x: 0 / 2, y: 0 };
         this.angle = 0;
-        this.food = 50;
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        this.loadEntities(ants, free);
+        this.loadEntities(ants);
     }
     /**
      * Class methods
      */
-    loadEntities(ants, free) {
+    loadEntities(ants) {
         // Create new traces repository
         this.createTraces();
         // Create new Ants
         for (let i = 0; i < ants; i++) {
-            this.addAnt(free);
+            // this.addAnt();
         }
     }
 
@@ -42,11 +41,7 @@ export default class Anthill {
         });
     }
 
-    addAnt(free) {
-        if (!(this.food >= this.antCoste) && !free) {
-            return;
-        }
-
+    addAnt() {
         // push new ant in population
         this.population.push(this.app.factory.create(
             Ant,
@@ -60,8 +55,6 @@ export default class Anthill {
         ))
         // Update players ant
         this.app.player.updateAnt(this.population[this.population.length - 1]);
-        // update food
-        (!free) && (this.food -= this.antCoste);
         // update ant counter
         this.antCounter = this.population.length;
         // update ant counter history

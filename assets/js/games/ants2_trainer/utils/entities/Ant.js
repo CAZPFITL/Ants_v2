@@ -101,8 +101,8 @@ export default class Ant {
     #smell() {
         this.sensor.update([
             // What can I find?
-            // ...this.app.factory.binnacle.Food,
-            // ...this.app.factory.binnacle.Ant,
+            // ...this.app.factory.binnacle.Food, // nose already detect this
+            ...this.app.factory.binnacle.Ant,
             ...this.app.factory.binnacle['Traces'][0].collection,
         ]);
 

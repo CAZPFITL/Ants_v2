@@ -23,14 +23,13 @@ export default class AppMethods {
         this.controls = new Controls(this);
         this.physics = new Physics(this);
         this.factory = new Factory(this);
-        Game.useMusicBox && (this.musicBox = new MusicBox(this));
-
         this.gui = new Gui(this);
         this.camera = new Camera(this);
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
         this.stats = new Stats();
         this.loadEngine(Game);
+        this.game.useMusicBox && (this.musicBox = new MusicBox(this));
     }
 
     loadEngine(Game, verbose = false) {

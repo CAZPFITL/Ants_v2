@@ -14,6 +14,7 @@ export default class Screen {
                 start: false
             }
         }
+        this.hoverCollection = {};
         this.buttonsCollection = {
             main_menu: {
                 mainMenuControls: {
@@ -47,6 +48,19 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
+        document.addEventListener('mousemove', (e) => {
+            for (const key in this.hoverCollection) {
+                if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
+                    this.hoverCaller = key;
+                    this.gui.hoverStateIn();
+                } else {
+                    if  (this.hoverCaller === key) {
+                        this.hoverCaller = null;
+                        this.gui.hoverStateOut();
+                    }
+                }
+            }
+        });
         this.app.controls.pushListener('click', (e) => {
             // Create Ant
             this.app.gui.get.isClicked(
@@ -60,6 +74,14 @@ export default class Screen {
                 {x: e.offsetX, y: e.offsetY},
                 ()=> {
                     this.app.player.controls.pick = Number(!this.app.player.controls.pick);
+                }
+            )
+            // Eating on/off
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.play.antControls.eat,
+                {x: e.offsetX, y: e.offsetY},
+                ()=> {
+                    this.app.player.controls.eat = Number(!this.app.player.controls.eat);
                 }
             )
             // Sound on/off
@@ -118,19 +140,20 @@ export default class Screen {
     }
 
     #getPlayDataStrings() {
-        // TODO consider to make multiple anthills
-        const antHill = this.app.factory.binnacle['Anthill'][0]
+        const antHill = this.app.factory.binnacle?.Anthill[0]
         const entity = this.app.player.ant
 
-        if (!antHill || !entity) return
+        const dec = this.app.tools.xDec
 
         const {ants, food, player} = {
-            ants: antHill.antCounter ?? "n/a", food: this.app.tools.xDec(antHill.food, 0), player: {
-                name: `Ant #${entity.id} Anthill #${entity.home.id}` ?? "No Ant Selected",
-                energy: this.app.tools.xDec(entity.energy * 10, 2) ?? "n/a",
-                maxFoodPickCapacity: entity.maxFoodPickCapacity ?? "n/a",
-                maxPickedFood: entity.maxPickedFood ?? "n/a",
-                pickedFood: entity.pickedFood ?? "n/a",
+            ants: antHill.antCounter ?? "n/a",
+            food: dec(antHill.food, 0),
+            player: {
+                name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
+                energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
+                maxFoodPickCapacity: entity?.maxFoodPickCapacity ?? 100,
+                maxPickedFood: entity?.maxPickedFood ?? 0,
+                pickedFood: entity?.pickedFood ?? 0,
             }
         }
 
@@ -140,8 +163,8 @@ export default class Screen {
             anthillAnts: `Anthill Ants: ${ants}`,
             anthillFood: `Anthill Food: ${food}`,
             antSelected: `Player: ${player.name}`,
-            pickedBarText: `Picked Food: ${this.app.tools.xDec(player.pickedFood, 0)} / ${this.app.tools.xDec(player.maxFoodPickCapacity, 0)}`,
-            energyText: `Energy: ${this.app.tools.xDec(player.energy / 10, 0)} / ${100}`,
+            pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
+            energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
             entity
         }
     }
@@ -239,7 +262,7 @@ export default class Screen {
                 height: 50,
                 text: '🍏',
                 font,
-                bg: !this.app.player?.controls.eat ? '#b47607' : '#ffa600'
+                bg: !this.buttons.play.eat ? '#b47607' : '#ffa600'
             }
         }
         this.buttonsCollection.play.gameControls = {
@@ -322,7 +345,7 @@ export default class Screen {
         const ctx = this.app.game.gui.controlsCtx;
         const cardPosition = {
             x: 10,
-            y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
+            y: this.app.stats.isShowing ? app.gui.ctx.canvas1.height - 200 : 10,
         }
 
         const {
@@ -338,13 +361,10 @@ export default class Screen {
 
         // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
         const width = this.app.tools.max([
-            ctx.measureText(antSelected).width * 1.4,
-            ctx.measureText(anthillFood).width * 1.4,
-            ctx.measureText(anthillAnts).width * 1.4,
-            ctx.measureText(pickedBarText).width * 1.4,
-            entity.maxFoodPickCapacity * 10,
-            100
+            ctx.measureText(antSelected).width,
+            240
         ]);
+
         // DATA BACKGROUND
         this.app.gui.get.square({
             ctx: this.app.game.gui.controlsCtx,
@@ -358,36 +378,57 @@ export default class Screen {
 
         // PLAYER ENTITY
         this.app.gui.get.text({
-            ctx, font, color, text: antSelected, x: cardPosition.x + 15, y: cardPosition.y + 30,
+            ctx,
+            font,
+            color,
+            text:
+            antSelected,
+            x: cardPosition.x + 15,
+            y: cardPosition.y + 30,
         });
+
         // ANTHILL DATA
         this.app.gui.get.text({
-            ctx, font, color, text: anthillAnts, x: cardPosition.x + 15, y: cardPosition.y + 60,
+            ctx,
+            font,
+            color,
+            text: anthillAnts,
+            x: cardPosition.x + 15,
+            y: cardPosition.y + 60,
         });
+
         // FOOD DATA
         this.app.gui.get.text({
-            ctx, font, color, text: anthillFood, x: cardPosition.x + 15, y: cardPosition.y + 90,
+            ctx,
+            font,
+            color,
+            text: anthillFood,
+            x: cardPosition.x + 15,
+            y: cardPosition.y + 90,
         });
+
         // FOOD BAR
         this.app.gui.get.bar({
             ctx,
             x: cardPosition.x + 15,
             y: cardPosition.y + 125,
             text: pickedBarText,
-            cap: entity.maxFoodPickCapacity * 10,
-            fill: entity.pickedFood * 10,
+            // cap: (entity?.maxFoodPickCapacity ?? 10) * 10,
+            cap: 245,
+            fill: (entity?.pickedFood ?? 1) / (entity?.maxFoodPickCapacity ?? 10) * 245,
             fillColor: 'green-red',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
+
         // ENERGY BAR
         this.app.gui.get.bar({
             ctx,
             x: cardPosition.x + 15,
             y: cardPosition.y + 165,
             text: energyText,
-            cap: 100,
-            fill: entity.energy,
+            cap: 245,
+            fill: entity?.energy / 100 * 245,
             fillColor: 'red-green',
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
@@ -412,6 +453,13 @@ export default class Screen {
 
         Object.keys(looper).forEach(key => {
             this.app.gui.get.button(looper[key]);
+
+            this.hoverCollection[key] = {
+                x: looper[key].x,
+                y: looper[key].y,
+                width: looper[key].width,
+                height: looper[key].height
+            }
         });
     }
 
