@@ -1,14 +1,14 @@
-import GameLevel from "./utils/components/GameLevel.js";
-import Gui from "./utils/gui/Gui.js";
+import GameLevel from "./../ants2/utils/components/GameLevel.js";
+import Gui from "./../ants2/utils/gui/Gui.js";
 import States from "../../engine/utils/patterns/State.js";
-import Player from "./utils/components/Player.js";
+import Player from "./../ants2/utils/components/Player.js";
 import {
     LOAD_GAME_DATA,
     LOAD_GAME_LEVEL,
     GAME_OVER,
     PLAY,
     MAIN_MENU,
-} from "./env.js";
+} from "./../ants2/env.js";
 
 export default class Ants2Trainer {
     constructor(app, loadCallback) {
@@ -43,7 +43,7 @@ export default class Ants2Trainer {
         this.state.setState(MAIN_MENU);
     }
 
-    #restart() {
+    restart() {
         this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
     }
 

@@ -1,5 +1,6 @@
 import AppGui from '../../../../engine/utils/gui/Gui.js';
-import Screen from './Screen.js';
+import Ants2 from './Screen.js';
+import Ants2Trainer from "./../../../ants2_trainer/utils/gui/Screen.js";
 
 export default class Gui {
     constructor(app, game) {
@@ -7,7 +8,11 @@ export default class Gui {
         this.no_update = false;
         this.no_draw = false;
         this.controlsCtx = AppGui.createCanvas('controlsCanvas');
-        this.screen = new Screen(app, this);
+        this.screens = {
+            Ants2: Ants2,
+            Ants2Trainer: Ants2Trainer
+        }
+        this.screen = new this.screens[game.constructor.name](this.app, this);
     }
 
     hoverStateIn() {

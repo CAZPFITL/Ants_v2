@@ -33,6 +33,7 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.requestFlags = {};
         this.nose = {x, y};
+        this.player = Boolean(this.app.player?.controls);
         // physics
         this.speed = 0;
         this.angle = angle;
@@ -86,7 +87,7 @@ export default class Ant {
         this.controls.eat = outputs[6];
 
         // Player Process
-        const controls = this.app.controls.getControls(this);
+        const controls = this.player ? this.app.controls.getControls(this) : this.controls;
         this.#move(controls);
         this.#mark(controls);
         this.#smell();
@@ -144,29 +145,7 @@ export default class Ant {
         if (!controls.mark)
             return;
 
-        if (!(this.app.request - (this.requestFlags.mark ?? 0) > this.app.tools.random(10, 15)))
-            return;
-
-        this.requestFlags.mark = this.app.request;
-        const spreadMark = 2;
-        this.app.factory.binnacle['Traces'][0].addTrace({
-            x: this.app.tools.random(this.x -  spreadMark,this.x +  spreadMark, false),
-            y: this.app.tools.random(this.y -  spreadMark,this.y +  spreadMark, false),
-            radius: this.app.tools.random(1,3, false),
-            polygons: [{
-                x: this.x -  2,
-                y: this.y -  2,
-            },{
-                x: this.x -  2,
-                y: this.y +  2,
-            },{
-                x: this.x +  2,
-                y: this.y +  2,
-            },{
-                x: this.x +  2,
-                y: this.y -  2,
-            }]
-        });
+        this.app.factory.binnacle.Traces[0].markTrace(this);
     }
 
     #eatFood(controls) {

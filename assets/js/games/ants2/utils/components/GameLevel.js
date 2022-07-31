@@ -10,7 +10,8 @@ export default class GameLevel {
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height }
         this.color = '#523f32';
-        this.loadEntities();
+        game.constructor.name === 'Ants2' && this.loadEntities();
+        this.app.factory.addGameEntity(this);
     }
     /**
      * Load methods
@@ -18,7 +19,6 @@ export default class GameLevel {
     loadEntities() {
         this.loadFood(5);
         this.loadAnthill(1, true);
-        this.app.factory.addGameEntity(this);
     }
 
     loadFood(amount = 1, {width, height} = this.size) {
