@@ -1,17 +1,20 @@
 import Ant from './Ant.js';
+import { PLAY, GAME_OVER } from "../../env.js";
+import Traces from "./Traces.js";
 
 export default class Anthill {
-    constructor({app, id = 0, ants = 1 }) {
-        const width = app.tools.random(50,150)
-        const height = app.tools.random(50,150)
-        this.no_update = false;
-        this.no_draw = false;
-
+    constructor({app, game, id = 0, ants, free}) {
         this.app = app;
-        this.name = 'Anthill';
+        this.game = game;
+        this.id = id;
+        this.no_draw = false;
+        this.no_update = false;
+        const width = app.tools.random(50,150);
+        const height = app.tools.random(50,150);
         this.population = [];
         this.polygons = [];
-        this.ants = ants;
+        this.antCounter = 0;
+        this.antCounterHistory = 1;
         this.size = { width, height }
         this.coords = { x: 0 / 2, y: 0 };
         this.angle = 0;
@@ -19,63 +22,69 @@ export default class Anthill {
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        this.fillPopulation();
+        this.loadEntities(ants, free);
     }
-
     /**
-     * Private
+     * Class methods
      */
-    #id() {
-        return this.population.length + 1;
-    }
-
-    #createAnt(ants) {
-        const x = Array(1).fill(0);
-
-        x.forEach(() => {
-            this.population.push(this.app.factory.create(
-                Ant,
-                {
-                    id: this.#id(),
-                    app: this.app,
-                    x: 0,
-                    y: 0,
-                    angle: this.app.tools.random(-3.6, 3.6, false),
-                    anthill: this
-                }
-            ))
-            this.app.player.updateAnt(this.population[this.population.length - 1]);
-        });
-    }
-
-    addAnt() {
-        if (this.food >= this.antCoste) {
-            this.population.push(this.app.factory.create(
-                Ant,
-                {
-                    id: this.#id(),
-                    app: this.app,
-                    x: 0,
-                    y: 0,
-                    angle: this.app.tools.random(-3.6, 3.6, false),
-                    anthill: this
-                }
-            ))
-            this.food -= this.antCoste;
+    loadEntities(ants, free) {
+        // Create new traces repository
+        this.createTraces();
+        // Create new Ants
+        for (let i = 0; i < ants; i++) {
+            this.addAnt(free);
         }
     }
 
-    removeAnt(ant) {
-        const cleared = this.population.filter(ant => ant !== ant);
-        this.population = cleared;
-        this.app.factory.binnacle.Ant = cleared;
+    createTraces() {
+        this.app.factory.create(Traces, {
+            app: this.app,
+        });
     }
 
-    fillPopulation() {
-        this.#createAnt(this.ants);
+    addAnt(free) {
+        if (!(this.food >= this.antCoste) && !free) {
+            return;
+        }
+
+        // push new ant in population
+        this.population.push(this.app.factory.create(
+            Ant,
+            {
+                id: this.antCounterHistory,
+                app: this.app,
+                game: this.game,
+                angle: this.app.tools.random(-3.6, 3.6, false),
+                anthill: this
+            }
+        ))
+        // Update players ant
+        this.app.player.updateAnt(this.population[this.population.length - 1]);
+        // update food
+        (!free) && (this.food -= this.antCoste);
+        // update ant counter
+        this.antCounter = this.population.length;
+        // update ant counter history
+        ++this.antCounterHistory;
+        // follow new ant
+        this.app.camera.follow(this.population[this.population.length - 1]);
     }
+
+    removeAnt(ant) {
+        if (this.population.includes(ant)) {
+            // filter ant in population
+            this.population = this.population.filter(a => a !== ant);
+            // remove it from factory
+            this.app.factory.remove(ant);
+            // update antCounter value
+            this.antCounter = this.population.length;
+            // Update players ant
+            this.population.length > 0 && this.app.player.updateAnt(this.population[this.population.length - 1]);
+        }
+    }
+
     /**
-     * In game draw section
+     * Draw and Update methods
      */
     shape() {
         const rad = Math.hypot(this.size.width, this.size.height) / 2;
@@ -125,17 +134,17 @@ export default class Anthill {
     }
 
     update() {
-        if (!this.no_update) {
-            this.population = [...this.app.factory.binnacle.Ant]
-            this.ants = this.population.length;
-            // TODO: delegate this to the state management and move it to the main file, in there the rules can be defined as conditions
-            (this.ants === 0) && this.app.game.state.setState('GAME_OVER');
+        if (!this.no_update &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
-        if (!this.no_draw) {
+        if (!this.no_draw &&
+                this.app.game.state.state === PLAY ||
+                    this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
         }
     }

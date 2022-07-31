@@ -1,4 +1,5 @@
 import Camera from "./Camera.js";
+import Tools from "./../helpers/Tools.js";
 
 export default class Gui {
     constructor(app) {
@@ -25,12 +26,28 @@ export default class Gui {
         }
     }
 
+    static isHover(entity, click) {
+        const {x, y, width, height} = entity;
+        return (
+            click.x > x &&
+            click.x < x + width &&
+            click.y > y &&
+            click.y < y + height
+        );
+    }
+
+    static viewportCoords = ({x, y}, viewport)  => ({
+        x: x / viewport.scale[0] + viewport.left,
+        y: y / viewport.scale[1] + viewport.top
+    })
+
     static clickCoords = (e, viewport) => ({
         x: e.clientX / viewport.scale[0] + viewport.left,
         y: e.clientY / viewport.scale[1] + viewport.top
     })
 
     static entityAt(click, collection) {
+        if (!collection) return;
         for (let i = 0; i < collection.length; i++) {
             const entity = collection[i];
 
@@ -92,7 +109,7 @@ export default class Gui {
     static polysIntersect(poly1, poly2) {
         for (let i = 0; i < poly1.length; i++) {
             for (let j = 0; j < poly2.length; j++) {
-                const touch = this.getIntersection(
+                const touch = Tools.getIntersection(
                     poly1[i],
                     poly1[(i + 1) % poly1.length],
                     poly2[j],

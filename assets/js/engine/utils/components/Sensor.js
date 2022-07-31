@@ -3,9 +3,9 @@ export default class Sensor {
         this.entity = entity;
         this.app = entity.app;
         this.no_update = false;
-        this.no_draw = false;
-        this.rayCount = 2;
-        this.rayLength = 8;
+        this.no_draw = true;
+        this.rayCount = 8;
+        this.rayLength = 40;
         this.raySpread = Math.PI * 0.5;
         this.rays = [];
         this.readings = [];
@@ -19,7 +19,7 @@ export default class Sensor {
             const rayAngle = this.app.tools.lerp(
                 this.raySpread / 2,
                 -this.raySpread / 2,
-                this.rayCount == 1 ? 0.5 : i / (this.rayCount - 1)
+                this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
             ) + this.entity.angle;
             // get start drawing point
             const start = {x: this.entity.x, y: this.entity.y};
@@ -68,6 +68,9 @@ export default class Sensor {
         }
     }
 
+    /**
+     * Draw and Update methods
+     */
     drawRay(ctx, ray, i, color, n) {
         let end = this.readings[i] ?? ray[1];
 

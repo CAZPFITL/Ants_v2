@@ -1,40 +1,79 @@
 import States from "../patterns/State.js";
-
-export const PLAY = 'PLAY';
-export const PAUSE = 'PAUSE';
-export const STOP = 'STOP';
+import {STOP, PLAY, PAUSE} from "../../env.js";
 
 export default class MusicBox {
     constructor(app) {
         this.app = app;
         this.state = new States(this, STOP, [PLAY, PAUSE, STOP]);
-        this.song = { volume: 1 };
+        this.song = null;
         this.volume = 1;
-        this.songs = []
+        this.songs = [];
         app.factory.addGameEntity(this);
     }
 
-    addSong({name, file}) {
-        const song = new Audio(file);
-        song.loop = true;
+    /**
+     * Class methods
+     */
+    addSong(listOfSongs) {
+        for (let song of listOfSongs) {
+            if (this.songs.find(element => element.name === song.name)) {
+                console.warn(`Song ${song.name} already exists`);
+                continue;
+            }
 
-        this.songs[name] = song;
+            this.songs.push({
+                name: song.name,
+                song: new Audio(song.file)
+            });
+
+            this.songs[this.songs.length - 1].song.volume = 0;
+
+            this.song = this.songs[this.songs.length - 1];
+
+            this.song.song.volume = 1;
+
+            this.app.verbose && console.log(`Song ${song.name} added`);
+        }
     }
 
-    changeSong(song) {
-        this.song = this.songs[song];
+    changeSong(song, cache = this.song.song.volume ?? 0) {
+        this.song.song.volume = 0;
+        this.song = this.songs.find(element => (element.name === song || element === song));
+        this.song.song.volume = cache;
     }
 
-    changeVolume(volume) {
-        this.volume = volume;
+    play() {
+        this.song.song.play()
+            .catch(err => {
+                console.error(err);
+            })
+            .then(() => {
+                this.state.setState(PLAY);
+                this.app.verbose && console.log(`Now playing ${this.song.name}`);
+            })
+    }
+
+    pause() {
+        this.song.song.pause()
+    }
+
+    playNextSong(index = this.songs.findIndex(element => element === this.song)) {
+        this.pause();
+        index = this.songs[index + 1] ? index + 1 : 0;
+        this.changeSong(this.songs[index]);
+        this.play();
+    }
+
+    autoplay() {
+        this.song.song.addEventListener('ended', () => {
+            this.playNextSong();
+            this.autoplay();
+            this.app.verbose && console.log('Song ended');
+        });
     }
 
     toggle() {
         this.state.setState(this.song.paused ? PLAY : PAUSE);
         this.state.state === PLAY ? this.song.play() : this.song.pause();
-    }
-
-    update() {
-        this.song.volume = this.volume <= 1 && this.volume >= 0 ? this.volume : 1;
     }
 }

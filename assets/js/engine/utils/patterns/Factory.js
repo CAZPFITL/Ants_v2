@@ -17,7 +17,12 @@ export default class Factory {
         return instanceFromType;
     }
 
-    // These objects are used to create instances of objects used in game like game in screen controls.
+    remove(object) {
+        const id = object.constructor.name;
+        this.binnacle[id] = this.binnacle[id].filter(item => item !== object);
+    }
+
+    // These objects are used to create instances of objects used in games like games in screen controls.
     addGameEntity(entity) {
         if (!(this.binnacle.GameObjects instanceof Array)) {
             this.binnacle.GameObjects = [];

@@ -3,7 +3,9 @@ export default class Camera {
         this.app = app;
         this.fieldOfView = Math.PI / 4.0;
         this.lookAt = [0, 0];
+        this.rate = 120;
         this.viewport = {
+            bounds: [-2000, -2000, 2000, 2000], // [left, top, right, bottom]
             left: 0,
             right: 0,
             top: 0,
@@ -12,9 +14,9 @@ export default class Camera {
             height: 0,
             scale: [1.0, 1.0]
         };
-        this.maxZoom = 2000;
-        this.minZoom = 800;
-        this.zoom = this.maxZoom;
+        this.maxZoom = 2500;
+        this.minZoom = 200;
+        this.zoom = this.maxZoom / 2;
         this.#addListeners();
     }
 
@@ -52,8 +54,11 @@ export default class Camera {
 
     #addListeners() {
         this.app.controls.pushListener('wheel', (event) => {
+            const deltaY = Math.max(-this.rate, Math.min(this.rate, event.deltaY));
+            const deltaX = Math.max(-this.rate, Math.min(this.rate, event.deltaX));
+
             if (event.ctrlKey) {
-                let zoomLevel = this.zoom + Math.floor(event.deltaY);
+                let zoomLevel = this.zoom + Math.floor(deltaY);
                 this.#zoomTo(
                     (zoomLevel <= this.minZoom) ?
                         this.minZoom :
@@ -61,13 +66,12 @@ export default class Camera {
                             this.maxZoom :
                             zoomLevel
                 );
+            } else {
+                this.#moveTo([
+                    this.lookAt[0] + Math.floor(deltaX),
+                    this.lookAt[1] + Math.floor(deltaY)
+                ]);
             }
-        });
-        this.app.controls.pushListener('wheel', (event) => {
-            this.#moveTo([
-                this.lookAt[0] + Math.floor(event.deltaX),
-                this.lookAt[1] + Math.floor(event.deltaY)
-            ]);
         });
         this.app.controls.pushListener('keydown', (event) => {
             if (event.key === 'r') {
@@ -75,10 +79,13 @@ export default class Camera {
                 this.#moveTo([0, 0]);
             }
         });
-    };
+    }
 
+    follow(entity) {
+        this.#moveTo([entity.x, entity.y]);
+    }
     /**
-     * In game draw section
+     * Draw and Update methods
      */
     begin() {
         this.#updateViewportData()
@@ -95,8 +102,10 @@ export default class Camera {
 
     loop = () => {
         this.begin();
+        this.app.stats.begin();
         this.app.update();
         this.app.draw();
+        this.app.stats.end();
         this.end();
     }
 };

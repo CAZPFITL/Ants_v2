@@ -1,4 +1,4 @@
-import AppGui from '../../../engine/utils/gui/Gui.js';
+import AppGui from '../../../../engine/utils/gui/Gui.js';
 import Screen from './Screen.js';
 
 export default class Gui {
@@ -10,6 +10,21 @@ export default class Gui {
         this.screen = new Screen(app, this);
     }
 
+    hoverStateIn() {
+        if (this.controlsCtx.canvas.style.cursor !== 'pointer') {
+            this.controlsCtx.canvas.style.cursor = 'pointer';
+        }
+    }
+
+    hoverStateOut() {
+        if (this.controlsCtx.canvas.style.cursor === 'pointer') {
+            this.controlsCtx.canvas.style.cursor = 'default';
+        }
+    }
+
+    /**
+     * Draw and Update methods
+     */
     update() {
         if (!this.no_update) {
             this.screen.update();
