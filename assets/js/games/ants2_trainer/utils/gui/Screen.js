@@ -40,6 +40,9 @@ export default class Screen {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
                     this.gui.hoverStateIn();
+                    this.app.game.level.size[this.hoverCollection[key].name] = this.askNumber(this.hoverCollection[key].name) ?? 200;
+                    this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
+                    this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
                 } else {
                     if  (this.hoverCaller === key) {
                         this.hoverCaller = null;
@@ -166,6 +169,9 @@ export default class Screen {
         this.app.camera.follow(this.app.player.ant);
     }
 
+    askNumber(key) {
+        return prompt(`${key}: `);
+    }
     /**
      * Draw screens
      */
@@ -247,18 +253,23 @@ export default class Screen {
             y: card.y,
             width: width + 35,
             height: 225,
-            color: 'rgba(255, 255, 255, 0.2)',
+            color: 'rgba(148,255,0,0.32)',
             stroke: '#000'
         });
         // PLAYER ENTITY
         this.app.gui.get.text({
-            ctx, font, color, text: antSelected, x: card.x + 15, y: card.y + 30,
+            ctx,
+            font,
+            color,
+            text: antSelected,
+            x: card.x + 15,
+            y: card.y + 30,
         });
         // FOOD BAR
         this.app.gui.get.bar({
             ctx,
             x: card.x + 15,
-            y: card.y + 60,
+            y: card.y + 65,
             text: pickedBarText,
             cap: 220,
             fill: (entity?.pickedFood ?? 0) / 220,
@@ -270,7 +281,7 @@ export default class Screen {
         this.app.gui.get.bar({
             ctx,
             x: card.x + 15,
-            y: card.y + 100,
+            y: card.y + 65 + 40,
             text: energyText,
             cap: 220,
             fill: (entity?.energy ?? 0) / 220,
@@ -281,36 +292,50 @@ export default class Screen {
         // BACKGROUND
         this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(200,200,200)';
 
-        // Width Selector
-        this.hoverCollection.widthSelector = {
-            x: card.x + 100,
+        //SIZE SELECTORS
+        const sizes = {
+            x: card.x + 15,
             y: card.y + 130,
-            width: 40,
-            height: 20,
+            width: 135,
+            height: 70,
         }
 
         this.app.gui.get.square({
             ctx,
-            ...this.hoverCollection.widthSelector,
-            color: 'rgba(150,150,150, 0.5)',
-            stroke: 'rgba(0, 0, 0, 0.5)'
+            ...sizes,
+            color: 'rgba(80,62,50,0.75)',
+            stroke: 'rgb(0,0,0)'
         });
 
+        // Width Selector
+        this.hoverCollection.widthSelector = {
+            name: 'width',
+            x: sizes.x + card.x + 72.5,
+            y: sizes.y + card.y,
+            width: 40,
+            height: 20,
+        }
+
         this.app.gui.get.text({
-            ctx, color, text: `Width: ${this.app.game.level.size.width}`, x: card.x + 25, y: card.y + 145,
+            ctx,
+            color,
+            text: `Width: ${this.app.game.level.size.width}`,
+            x: sizes.x + card.x + 0,
+            y: sizes.y + card.y + 15,
         });
 
         this.app.gui.get.square({
             ctx,
             ...this.hoverCollection.widthSelector,
-            color: 'rgba(255, 255, 255, 0.2)',
-            stroke: '#000'
+            color: 'rgba(255,255,255, 0.8)',
+            stroke: 'rgb(0,0,0)'
         });
 
         // Height Selector
         this.hoverCollection.heightSelector = {
-            x: card.x + 100,
-            y: card.y + 160,
+            name: 'height',
+            x: sizes.x + card.x + 72.5,
+            y: sizes.y + card.y + 30,
             width: 40,
             height: 20
         }
@@ -318,21 +343,17 @@ export default class Screen {
         this.app.gui.get.square({
             ctx,
             ...this.hoverCollection.heightSelector,
-            color: 'rgba(150,150,150, 0.5)',
-            stroke: 'rgba(0, 0, 0, 0.5)'
+            color: 'rgba(255,255,255, 0.8)',
+            stroke: 'rgb(0,0,0)'
         });
 
         this.app.gui.get.text({
-            ctx, color, text: `Hover: ${this.app.game.level.size.height}`, x: card.x + 25, y: card.y + 175,
-        });
-
-        this.app.gui.get.square({
             ctx,
-            ...this.hoverCollection.heightSelector,
-            color: 'rgba(255, 255, 255, 0.2)',
-            stroke: '#000'
+            color,
+            text: `Hover: ${this.app.game.level.size.height}`,
+            x: sizes.x + card.x + 0,
+            y: sizes.y + card.y + 45,
         });
-
     }
 
     drawPlayControls(ctx = this.app.game.gui.controlsCtx) {
