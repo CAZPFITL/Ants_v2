@@ -4,6 +4,7 @@ export default class Screen {
     constructor(app, gui) {
         this.app = app;
         this.gui = gui;
+        this.hoverCollection = {};
         this.buttons = {
             play: {
                 pick: false,
@@ -14,7 +15,6 @@ export default class Screen {
                 start: false
             }
         }
-        this.hoverCollection = {};
         this.buttonsCollection = {
             main_menu: {
                 mainMenuControls: {
@@ -143,20 +143,21 @@ export default class Screen {
 
     #getPlayDataStrings() {
         let antHill = this.app.factory.binnacle?.Anthill
-        const entity = this.app.player.ant
+        const ant = this.app.player.ant
+        const anthill = this.app.player.anthill
 
-        antHill = (antHill instanceof Array) ? antHill[0] : {};
+        antHill = (antHill instanceof Array) ? antHill : {};
 
         const dec = this.app.tools.xDec
         const {ants, food, player} = {
             ants: antHill?.antCounter ?? "n/a",
             food: dec(antHill?.food ?? 0, 0),
             player: {
-                name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
-                energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
-                maxFoodPickCapacity: entity?.maxFoodPickCapacity ?? 100,
-                maxPickedFood: entity?.maxPickedFood ?? 0,
-                pickedFood: entity?.pickedFood ?? 0,
+                name: `Ant #${ant?.id ?? 'N/A'} Anthill #${anthill?.id ?? 'N/A'}`,
+                energy: dec((ant?.energy ?? 1) * 10, 2) ?? 0,
+                maxFoodPickCapacity: ant?.maxFoodPickCapacity ?? 100,
+                maxPickedFood: ant?.maxPickedFood ?? 0,
+                pickedFood: ant?.pickedFood ?? 0,
             }
         }
 
@@ -168,7 +169,7 @@ export default class Screen {
             antSelected: `Player: ${player.name}`,
             pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
             energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
-            entity
+            entity: ant
         }
     }
 
