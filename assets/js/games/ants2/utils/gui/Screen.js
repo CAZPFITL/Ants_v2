@@ -48,7 +48,7 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        document.addEventListener('mousemove', (e) => {
+        this.app.controls.pushListener('mousemove', (e) => {
             for (const key in this.hoverCollection) {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
@@ -62,12 +62,14 @@ export default class Screen {
             }
         });
         this.app.controls.pushListener('click', (e) => {
-            // Create Ant
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
-                {x: e.offsetX, y: e.offsetY},
-                ()=> this.app.player.anthill.addAnt()
-            )
+            if (this.app.player.anthill) {
+                // Create Ant
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.anthillControls.createAnt,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => this.app.player.anthill.addAnt()
+                )
+            }
             // Picking on/off
             this.app.gui.get.isClicked(
                 this.buttonsCollection.play.antControls.pick,
@@ -105,12 +107,8 @@ export default class Screen {
                     this.app.musicBox.play();
                 }
             );
-            // Create ant up
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
-                {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.play.creatingAnt = false
-            )
+            this.buttons.play.creatingAnt = false
+            this.buttons.play.creatingAnthill = false
         });
         this.app.controls.pushListener('mousedown', (e) => {
             // Show fps
@@ -125,29 +123,34 @@ export default class Screen {
                 () => this.app.toggleStats()
             );
 
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.main_menu.mainMenuControls.start,
-                this.app.gui.get.clickCoords(e, this.app.camera.viewport),
-                () => this.buttons.main_menu.start = true
-            );
             // Create ant down
+            if (this.app.player.anthill) {
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.anthillControls.createAnt,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => this.buttons.play.creatingAnt = true
+
+                )
+            }
+            // Create anthill down
             this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
+                this.buttonsCollection.play.anthillControls.createAnthill,
                 {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.main_menu.start = true
+                () => this.buttons.play.creatingAnthill = true
             )
         });
     }
 
     #getPlayDataStrings() {
-        const antHill = this.app.factory.binnacle?.Anthill[0]
+        let antHill = this.app.factory.binnacle?.Anthill
         const entity = this.app.player.ant
 
-        const dec = this.app.tools.xDec
+        antHill = (antHill instanceof Array) ? antHill[0] : {};
 
+        const dec = this.app.tools.xDec
         const {ants, food, player} = {
-            ants: antHill.antCounter ?? "n/a",
-            food: dec(antHill.food, 0),
+            ants: antHill?.antCounter ?? "n/a",
+            food: dec(antHill?.food ?? 0, 0),
             player: {
                 name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
                 energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
@@ -243,6 +246,15 @@ export default class Screen {
                 text: '🐜',
                 font,
                 bg: !this.buttons.play.creatingAnt ? '#b47607' : '#ffa600'
+            },
+            'createAnthill': {
+                x: this.gui.controlsCtx.canvas.width - 120,
+                y: 10,
+                width: 50,
+                height: 50,
+                text: '🐝',
+                font,
+                bg: !this.buttons.play.creatingAnthill ? '#b47607' : '#ffa600'
             }
         }
         this.buttonsCollection.play.antControls = {
@@ -441,16 +453,16 @@ export default class Screen {
         const ctx = this.app.game.gui.controlsCtx;
 
         const looper = {
+            createAnt: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createAnt} : {},
+            createAnthill: {ctx, ...this.buttonsCollection.play.anthillControls.createAnthill},
+            pick: {ctx, ...this.buttonsCollection.play.antControls.pick},
+            eat: {ctx, ...this.buttonsCollection.play.antControls.eat},
+            sound: {ctx, ...this.buttonsCollection.play.gameControls.sound},
             forward: {ctx, ...this.buttonsCollection.play.movementControls.forward},
             reverse: {ctx, ...this.buttonsCollection.play.movementControls.reverse},
             left: {ctx, ...this.buttonsCollection.play.movementControls.left},
             right: {ctx, ...this.buttonsCollection.play.movementControls.right},
-            pick: {ctx, ...this.buttonsCollection.play.antControls.pick},
-            eat: {ctx, ...this.buttonsCollection.play.antControls.eat},
-            createAnt: {ctx, ...this.buttonsCollection.play.anthillControls.createAnt},
-            sound: {ctx, ...this.buttonsCollection.play.gameControls.sound},
         }
-
         Object.keys(looper).forEach(key => {
             this.app.gui.get.button(looper[key]);
 

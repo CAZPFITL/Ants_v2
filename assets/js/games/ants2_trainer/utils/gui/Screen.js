@@ -8,6 +8,9 @@ export default class Screen {
         this.buttons = {
             play: {
                 creatingAnt: false,
+                creatingAnthill: false,
+                resizingW: false,
+                resizingH: false
             },
             main_menu: {
                 start: false
@@ -21,8 +24,13 @@ export default class Screen {
             },
             play: {
                 anthillControls: {
-                    'createAnt': {}
+                    'createAnt': {},
+                    'createAnthill': {}
                 },
+                boardControls: {
+                    'width': {},
+                    'height': {}
+                }
             }
         }
         this.#updatePlayControlsData();
@@ -35,14 +43,33 @@ export default class Screen {
      */
     #addListeners() {
         // mouse move listener
-        document.addEventListener('mousemove', (e) => {
+        this.app.controls.pushListener('mousemove', (e) => {
+            const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: e.offsetX,
+                y: e.offsetY
+            }, this.app.camera.viewport);
+
+            // CREATING ANTHILL PROCESS
+            if (this.buttons.play.creatingAnthill) {
+                this.creation.coords = hoverTranslatedCoords;
+                this.creation.color = 'rgba(56,24,1,0.57)';
+            }
+
+            // DRAG RESIZE WIDTH
+            if (this.buttons.play.resizingW) {
+                this.app.game.level.size.width += e.movementX;
+                this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
+            }
+            // DRAG RESIZE HEIGHT
+            if (this.buttons.play.resizingH) {
+                this.app.game.level.size.height += e.movementX;
+                this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
+            }
+            // HOVER COLLECTION
             for (const key in this.hoverCollection) {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
                     this.gui.hoverStateIn();
-                    this.app.game.level.size[this.hoverCollection[key].name] = this.askNumber(this.hoverCollection[key].name) ?? 200;
-                    this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
-                    this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
                 } else {
                     if  (this.hoverCaller === key) {
                         this.hoverCaller = null;
@@ -52,12 +79,43 @@ export default class Screen {
             }
         });
         this.app.controls.pushListener('click', (e) => {
+            const clickTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: e.offsetX,
+                y: e.offsetY
+            }, this.app.camera.viewport);
             // Create Ant
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
-                {x: e.offsetX, y: e.offsetY},
-                () => this.app.player.anthill.addAnt()
-            )
+            if (this.app.player.anthill) {
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.anthillControls.createAnt,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => this.app.player.anthill.addAnt()
+                )
+            }
+            // Change Width board size
+            if (!this.buttons.play.creatingAnthill) {
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.anthillControls.createAnthill,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        this.buttons.play.creatingAnthill = true;
+                        this.app.game.level.loadAnthill(0, false);
+                        this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                    }
+                )
+            } else {
+                if(this.app.gui.get.isHover({
+                        ...this.app.game.level.coords,
+                        ...this.app.game.level.size,
+                    },
+                    this.app.gui.get.viewportCoords({
+                        x: e.offsetX,
+                        y: e.offsetY
+                    }, this.app.camera.viewport)
+                )) {
+                    this.buttons.play.creatingAnthill = false;
+                    this.creation.color = 'rgba(56,24,1,1)';
+                }
+            }
         });
         this.app.controls.pushListener('mouseup', (e) => {
             // Start Game
@@ -69,36 +127,30 @@ export default class Screen {
                     this.app.game.state.setState(PLAY);
                 }
             );
-            // Create ant up
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
-                {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.play.creatingAnt = false
-            )
+            this.buttons.play.resizingW = false
+            this.buttons.play.resizingH = false
+            this.buttons.play.creatingAnt = false
+            // this.buttons.play.creatingAnthill = false
         });
         this.app.controls.pushListener('mousedown', (e) => {
-            // Show fps
-            (e.which === 2) && this.app.gui.get.isClicked(
-                {
-                    x: 0,
-                    y: 0,
-                    width: this.app.gui.ctx.canvas.width,
-                    height: this.app.gui.ctx.canvas.height
-                },
-                {x: e.offsetX, y: e.offsetY},
-                () => this.app.toggleStats()
-            );
-
+            // Change Width board size
             this.app.gui.get.isClicked(
-                this.buttonsCollection.main_menu.mainMenuControls.start,
-                this.app.gui.get.clickCoords(e, this.app.camera.viewport),
-                () => this.buttons.main_menu.start = true
-            );
+                this.buttonsCollection.play.boardControls.width,
+                {x: e.offsetX, y: e.offsetY},
+                () => this.buttons.play.resizingW = true
+
+            )
+            // Change Height board size
+            this.app.gui.get.isClicked(
+                this.buttonsCollection.play.boardControls.height,
+                {x: e.offsetX, y: e.offsetY},
+                () => this.buttons.play.resizingH = true
+            )
             // Create ant down
             this.app.gui.get.isClicked(
                 this.buttonsCollection.play.anthillControls.createAnt,
                 {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.main_menu.start = true
+                () => (this.app.player.anthill) && (this.buttons.play.creatingAnt = true)
             )
         });
     }
@@ -106,12 +158,15 @@ export default class Screen {
 
     #getPlayDataStrings() {
         // TODO consider to make multiple anthills
-        const antHill = this.app.factory.binnacle?.Anthill[0]
+        let antHill = this.app.factory.binnacle?.Anthill
         const entity = this.app.player.ant
+
+        antHill = (antHill instanceof Array) ? antHill[0] : {};
+
         const dec = this.app.tools.xDec
         const {ants, food, player} = {
-            ants: antHill.antCounter ?? "n/a",
-            food: dec(antHill.food, 0),
+            ants: antHill?.antCounter ?? "n/a",
+            food: dec(antHill?.food ?? 0, 0),
             player: {
                 name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
                 energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
@@ -157,6 +212,35 @@ export default class Screen {
                 text: '🐜',
                 font,
                 bg: !this.buttons.play.creatingAnt ? '#b47607' : '#ffa600'
+            },
+            'createAnthill': {
+                x: this.gui.controlsCtx.canvas.width - 120,
+                y: 10,
+                width: 50,
+                height: 50,
+                text: '🐝',
+                font,
+                bg: !this.buttons.play.creatingAnthill ? '#b47607' : '#ffa600'
+            }
+        }
+        this.buttonsCollection.play.boardControls = {
+            'width': {
+                x: 107.5,
+                y: 150,
+                width: 125,
+                height: 20,
+                text: '< * >',
+                font,
+                bg: this.buttons.play.resizingW ? '#ffa600' : '#b47607'
+            },
+            'height': {
+                x: 107.5,
+                y: 180,
+                width: 125,
+                height: 20,
+                text: '< * >',
+                font,
+                bg: this.buttons.play.resizingH ? '#ffa600' : '#b47607'
             }
         }
     }
@@ -169,9 +253,6 @@ export default class Screen {
         this.app.camera.follow(this.app.player.ant);
     }
 
-    askNumber(key) {
-        return prompt(`${key}: `);
-    }
     /**
      * Draw screens
      */
@@ -200,7 +281,7 @@ export default class Screen {
         });
         this.app.gui.get.text({
             ctx: this.app.gui.ctx,
-            font: "70px Mouse",
+            font: "62px Mouse",
             text: 'Ants AI Trainer',
             x: 0,
             y: -35,
@@ -296,7 +377,7 @@ export default class Screen {
         const sizes = {
             x: card.x + 15,
             y: card.y + 130,
-            width: 135,
+            width: 220,
             height: 70,
         }
 
@@ -308,13 +389,7 @@ export default class Screen {
         });
 
         // Width Selector
-        this.hoverCollection.widthSelector = {
-            name: 'width',
-            x: sizes.x + card.x + 72.5,
-            y: sizes.y + card.y,
-            width: 40,
-            height: 20,
-        }
+        this.hoverCollection.widthSelector = this.buttonsCollection.play.boardControls.width;
 
         this.app.gui.get.text({
             ctx,
@@ -324,33 +399,13 @@ export default class Screen {
             y: sizes.y + card.y + 15,
         });
 
-        this.app.gui.get.square({
-            ctx,
-            ...this.hoverCollection.widthSelector,
-            color: 'rgba(255,255,255, 0.8)',
-            stroke: 'rgb(0,0,0)'
-        });
-
         // Height Selector
-        this.hoverCollection.heightSelector = {
-            name: 'height',
-            x: sizes.x + card.x + 72.5,
-            y: sizes.y + card.y + 30,
-            width: 40,
-            height: 20
-        }
-
-        this.app.gui.get.square({
-            ctx,
-            ...this.hoverCollection.heightSelector,
-            color: 'rgba(255,255,255, 0.8)',
-            stroke: 'rgb(0,0,0)'
-        });
+        this.hoverCollection.heightSelector = this.buttonsCollection.play.boardControls.height;
 
         this.app.gui.get.text({
             ctx,
             color,
-            text: `Hover: ${this.app.game.level.size.height}`,
+            text: `Height: ${this.app.game.level.size.height}`,
             x: sizes.x + card.x + 0,
             y: sizes.y + card.y + 45,
         });
@@ -358,11 +413,23 @@ export default class Screen {
 
     drawPlayControls(ctx = this.app.game.gui.controlsCtx) {
         const looper = {
-            createAnt: {ctx, ...this.buttonsCollection.play.anthillControls.createAnt}
+            createAnt: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createAnt} : {},
+            createAnthill: {ctx, ...this.buttonsCollection.play.anthillControls.createAnthill},
+            width: {ctx, ...this.buttonsCollection.play.boardControls.width},
+            height: {ctx, ...this.buttonsCollection.play.boardControls.height}
         }
 
         Object.keys(looper).forEach(key => {
-            this.app.gui.get.button(looper[key]);
+            if (Object.keys(looper[key]).length > 0) {
+                this.app.gui.get.button(looper[key]);
+            }
+
+            this.hoverCollection[key] = {
+                x: looper[key].x,
+                y: looper[key].y,
+                width: looper[key].width,
+                height: looper[key].height
+            }
         });
     }
 

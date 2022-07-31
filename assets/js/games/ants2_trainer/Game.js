@@ -53,14 +53,5 @@ export default class Ants2Trainer {
     update() {
         (this.state.state === LOAD_GAME_DATA) && this.#loadData();
         (this.state.state === LOAD_GAME_LEVEL) && this.#loadGameLevel();
-        // TODO CHANGE THIS - this monster is temporal
-        if (
-            this.app.game.state.state === 'PLAY' &&
-            this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
-            this.state.state !== GAME_OVER
-        ) {
-            // this.app.game.state.setState(GAME_OVER);
-            // (this.state.state === GAME_OVER) && this.#restart();
-        }
     }
 }

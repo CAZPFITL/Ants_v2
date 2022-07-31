@@ -31,7 +31,7 @@ export default class Anthill {
         this.createTraces();
         // Create new Ants
         for (let i = 0; i < ants; i++) {
-            // this.addAnt();
+            this.addAnt();
         }
     }
 
@@ -48,6 +48,8 @@ export default class Anthill {
             {
                 id: this.antCounterHistory,
                 app: this.app,
+                x: this.coords.x,
+                y: this.coords.y,
                 game: this.game,
                 angle: this.app.tools.random(-3.6, 3.6, false),
                 anthill: this
