@@ -45,7 +45,6 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        // mouse move listener
         this.app.controls.pushListener('mousemove', (e) => {
             // TRANSLATE COORDS
             const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
@@ -85,7 +84,7 @@ export default class Screen {
             }
         });
         this.app.controls.pushListener('click', (e) => {
-            // Create Ant
+            // Create Ant if an anthill is created
             if (this.app.player.anthill) {
                 this.app.gui.get.isClicked(
                     this.buttonsCollection.play.anthillControls.createAnt,
@@ -96,8 +95,11 @@ export default class Screen {
                     }
                 )
             }
-            // Create Entity - specific
+        });
+        this.app.controls.pushListener('mouseup', (e) => {
+            // Create Entity - specific triggers
             if (!this.buttons.play.creating) {
+                // Create Anthill
                 this.app.gui.get.isClicked(
                     this.buttonsCollection.play.anthillControls.createAnthill,
                     {x: e.offsetX, y: e.offsetY},
@@ -108,6 +110,7 @@ export default class Screen {
                         this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
                     }
                 )
+                // Create Food
                 this.app.gui.get.isClicked(
                     this.buttonsCollection.play.anthillControls.createFood,
                     {x: e.offsetX, y: e.offsetY},
@@ -119,10 +122,10 @@ export default class Screen {
                     }
                 )
             }
-            // Place Entity - general
+            // Place Entity - general release
             if (this.buttons.play.creating) {
-                const objX = (this.creation?.size?.width ?? this.creation.width) + 20;
-                const objY = (this.creation?.size?.height ?? this.creation.height) + 20;
+                const objX = (this.creation?.size?.width ?? this.creation.width);
+                const objY = (this.creation?.size?.height ?? this.creation.height);
                 const entity = {
                     x: (-this.app.game.level.size.width + objX) / 2,
                     y: (-this.app.game.level.size.height + objY) / 2,
@@ -140,8 +143,6 @@ export default class Screen {
                     this.buttons.play.creatingFood = false;
                 }
             }
-        });
-        this.app.controls.pushListener('mouseup', (e) => {
             // Start Game
             this.app.gui.get.isClicked(
                 this.buttonsCollection.main_menu.mainMenuControls.start,
