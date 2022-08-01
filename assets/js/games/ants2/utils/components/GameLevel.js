@@ -3,7 +3,7 @@ import Food from "../entities/Food.js";
 import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class GameLevel {
-    constructor({app, game, id = 0, width, height}) {
+    constructor({app, game, id = 0, width, height, addedRules }) {
         this.app = app;
         this.game = game;
         this.name = 'GameLevel #' + id;
@@ -11,6 +11,15 @@ export default class GameLevel {
         this.size = { width, height }
         this.color = '#523f32';
         this.boundTargets = {};
+        this.addedRules = addedRules;
+        this.loadEntitiesList = game.constructor.name === 'Ants2' && [
+            {
+                name: 'Food',
+                props: {amount: 5}
+            }, {
+                name: 'Anthill',
+                props: {ants: 1, free: true},
+            }];
         game.constructor.name === 'Ants2' && this.loadEntities();
         this.app.factory.addGameEntity(this);
     }
@@ -56,11 +65,25 @@ export default class GameLevel {
      * Load methods
      */
     loadEntities() {
-        this.loadFood(5);
-        this.loadAnthill(1, true);
+        for (let entity of this.loadEntitiesList) {
+            entity?.name && this[entity.name](entity.props);
+        }
     }
 
-    loadFood(amount = 1, {width, height} = this.size) {
+    #loadOutsideRules() {
+        for (let rule of this.addedRules) {
+            if (this.app.factory.binnacle[rule.name]) {
+                this.app.factory.binnacle[rule.name].forEach(entity => {
+                    if (entity instanceof Array) return;
+                    rule.rule(entity)
+                })
+            }
+        }
+    }
+
+    Food({amount, width, height}) {
+        width = width ?? this.size.width;
+        height = height ?? this.size.height;
         for (let i = 0; i < amount; i++) {
             this.app.factory.create(Food, {
                 app: this.app,
@@ -69,7 +92,7 @@ export default class GameLevel {
         }
     }
 
-    loadAnthill(ants, free = false) {
+    Anthill({ants, free = false}) {
         let collection = this.app.factory.binnacle['Anthill'] ?? [];
         collection = collection.length
         this.app.factory.create(Anthill, {
@@ -82,8 +105,11 @@ export default class GameLevel {
     }
 
     update() {
-        // console.log(this.boundTargets)
         this.#getBordersEdges();
+        if (this.game.constructor.name === 'Ants2Trainer') {
+            this.#loadOutsideRules();
+        }
+
     }
     /**
      * Draw and Update methods

@@ -38,7 +38,46 @@ export default class Ants2Trainer {
             app,
             game: this,
             width: 300,
-            height: 600
+            height: 600,
+            addedRules: [{
+                name: 'Ant',
+                rule: (entity) => {
+                    const inmovilityRadius = 30;
+
+                    // DIE ON BOUNDS
+                    if (this.app.physics.isInBound(entity)) {
+                        console.log('DIE ON BOUNDS');
+                        entity.home.removeAnt(entity);
+                    }
+
+                    // DIE ON INMOVILITY
+                    if (entity.age < 1 && !entity.requestFlags.startup) {
+                        entity.requestFlags.startup = { x: entity.x, y: entity.y };
+                    }
+                    if (entity.age > 0) {
+                        const { x, y } = entity.requestFlags.startup;
+                        const limits = {
+                            top: y - inmovilityRadius, bottom: y + inmovilityRadius,
+                            left: x - inmovilityRadius, right: x + inmovilityRadius,
+                        }
+                        if (
+                            entity.x < limits.right && entity.x > limits.left &&
+                            entity.y < limits.bottom && entity.y > limits.top && entity.age > 1
+                        ) {
+                            console.log('DIE ON INMOVILITY');
+                            entity.home.removeAnt(entity);
+                        }
+                    }
+
+                    // INMORTALITY FOR TESTS
+                    if (entity.age > 100) {
+                        entity.age = 100;
+                    }
+                    if (entity.energy < 100) {
+                        entity.energy = 100;
+                    }
+                }
+            }]
         })
         this.state.setState(MAIN_MENU);
     }

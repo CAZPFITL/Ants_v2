@@ -39,7 +39,6 @@ export default class Anthill {
     }
 
     addAnt(free = this.game.constructor.name === 'Ants2Trainer') {
-        console.log(free)
         if (!(this.food >= this.antCoste) && !free) {
             return;
         }

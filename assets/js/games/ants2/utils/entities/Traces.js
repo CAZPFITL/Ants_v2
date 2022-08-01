@@ -5,6 +5,11 @@ export default class Traces {
         this.collection = [];
         this.requestFlag = 0;
         this.requestFlags = {};
+        this.props = {
+            min: 1,
+            max: 1,
+            spreadMark: 4
+        }
     }
 
     static createTraces(app, anthill) {
@@ -16,13 +21,13 @@ export default class Traces {
         }
     }
 
-    markTrace(position) {
-        if (!(this.app.request - (this.requestFlags.mark ?? 0) > this.app.tools.random(10, 15)))
+    markTrace(position, props = this.props) {
+        if (!(this.app.request - (this.requestFlags.mark ?? 0) > this.app.tools.random(props.min, props.max)))
             return;
 
         this.requestFlags.mark = this.app.request;
 
-        const spreadMark = 2;
+        const spreadMark = props.spreadMark ?? 2;
         this.app.factory.binnacle['Traces'][0].addTrace({
             x: this.app.tools.random(position.x -  spreadMark,position.x +  spreadMark, false),
             y: this.app.tools.random(position.y -  spreadMark,position.y +  spreadMark, false),

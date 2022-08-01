@@ -16,6 +16,7 @@ import {
 export default class AppMethods {
     constructor(Game, verbose = false) {
         this.state = new States(this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, PLAY_GAME]);
+        this.updateCallbacks = [];
         this.verbose = verbose;
 
         this.tools = Tools;

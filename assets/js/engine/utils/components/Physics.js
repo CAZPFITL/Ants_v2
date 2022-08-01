@@ -57,4 +57,10 @@ export default class Physics {
             ? (entity.y -= y) :
             (entity.y -= entity.y > 0 ? 0.1 : -0.1);
     }
+
+    isInBound(entity) {
+        const limits = this.app.game.level.size;
+        return !(entity.x > -limits.width / 2 && entity.x < limits.width / 2) ||
+            !(entity.y > -limits.height / 2 && entity.y < limits.height / 2);
+    }
 }
