@@ -13,7 +13,7 @@ export default class Traces {
     }
 
     static createTraces(app, anthill) {
-        if (!app.factory.binnacle['Traces']) {
+        if (!app.factory.binnacle['Traces'] || !app.factory.binnacle['Traces'][0]) {
             app.factory.create(Traces, {
                 app,
                 anthill
@@ -31,7 +31,7 @@ export default class Traces {
         this.app.factory.binnacle['Traces'][0].addTrace({
             x: this.app.tools.random(position.x -  spreadMark,position.x +  spreadMark, false),
             y: this.app.tools.random(position.y -  spreadMark,position.y +  spreadMark, false),
-            radius: this.app.tools.random(1,3, false),
+            radius: this.app.tools.random(2,3, false),
             polygons: [{
                 x: position.x -  2,
                 y: position.y -  2,

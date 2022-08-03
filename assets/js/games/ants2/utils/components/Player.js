@@ -21,11 +21,11 @@ export default class Player {
     }
 
     /**
-     * Private methods
+     * Private methods TODO MOVE THIS TO SCREEN
      */
     #addListeners() {
         // Change Controlled Entity
-        this.app.controls.pushListener('click', (event) => {
+        this.app.controls.pushListener(this,'click', (event) => {
             const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
             const ant = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
             ant && this.followCamera && this.app.camera.follow(ant);
@@ -34,7 +34,7 @@ export default class Player {
             anthill && this.app.player.updateAnthill(anthill);
         });
         // Move Player Down events
-        this.app.controls.pushListener('keydown', (event) => {
+        this.app.controls.pushListener(this,'keydown', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 1;
@@ -65,7 +65,7 @@ export default class Player {
                     break;
             }
         });
-        this.app.controls.pushListener('mousedown', (event) => {
+        this.app.controls.pushListener(this,'mousedown', (event) => {
             const {x, y} = {x: event.offsetX, y: event.offsetY};
             const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
 
@@ -80,7 +80,7 @@ export default class Player {
             }
         });
         // Move Player Up Events
-        this.app.controls.pushListener('keyup', (event) => {
+        this.app.controls.pushListener(this,'keyup', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 0;
@@ -109,9 +109,6 @@ export default class Player {
                 case event.key === ' ' && this.app.game.constructor.name === 'Ants2':
                     this.controls.pick = 0;
                     break;
-                case event.key === 'Delete' && this.app.game.constructor.name === 'Ants2Trainer':
-                    this.app.game.restart();
-                    break;
                 case event.key === 'f':
                     this.followCamera = !this.followCamera;
                     break;
@@ -124,7 +121,7 @@ export default class Player {
                     break;
             }
         });
-        this.app.controls.pushListener('mouseup', (e) => {
+        this.app.controls.pushListener(this,'mouseup', (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
             const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
 

@@ -23,15 +23,13 @@ export default class Anthill {
         this.antCoste = 10;
         this.app.player.anthill = this;
         this.loadEntities(ants, false);
-
+        Traces.createTraces(this.app, this);
     }
 
     /**
      * Class methods
      */
     loadEntities(ants, free) {
-        // Create new traces repository
-        Traces.createTraces(this.app, this);
         // Create new Ants
         for (let i = 0; i < ants; i++) {
             this.addAnt(free);

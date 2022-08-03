@@ -2,13 +2,19 @@ import States from "../patterns/State.js";
 import {STOP, PLAY, PAUSE} from "../../env.js";
 
 export default class MusicBox {
-    constructor(app) {
+    constructor(app, callback = (fn) => fn()) {
         this.app = app;
-        this.state = new States(this, STOP, [PLAY, PAUSE, STOP]);
+        this.state = new States(app, this, STOP, [PLAY, PAUSE, STOP]);
         this.song = null;
         this.volume = 1;
         this.songs = [];
         app.factory.addGameEntity(this);
+        callback(() => {
+            this.app.log.registerEvent(
+                'New MusicBox Created',
+                '\x1b[32;1m| \x1b[0mNew MusicBox Created'
+            );
+        });
     }
 
     /**
@@ -17,7 +23,7 @@ export default class MusicBox {
     addSong(listOfSongs) {
         for (let song of listOfSongs) {
             if (this.songs.find(element => element.name === song.name)) {
-                console.warn(`Song ${song.name} already exists`);
+                console.warn(`\x1b[35;1m| \x1b[0mSong ${song.name} already exists`);
                 continue;
             }
 
@@ -32,7 +38,7 @@ export default class MusicBox {
 
             this.song.song.volume = 1;
 
-            this.app.verbose && console.log(`Song ${song.name} added`);
+            this.app.log.registerEvent(`Song ${song.name} added`, `\x1b[35;1m| \x1b[0mSong ${song.name} added`);
         }
     }
 
@@ -40,6 +46,10 @@ export default class MusicBox {
         this.song.song.volume = 0;
         this.song = this.songs.find(element => (element.name === song || element === song));
         this.song.song.volume = cache;
+        this.app.log.registerEvent(
+            `New Song to play - ${this.song.name}`,
+            `\x1b[35;1m| \x1b[0mNew Song to play - ${this.song.name}`
+        );
     }
 
     play() {
@@ -49,7 +59,10 @@ export default class MusicBox {
             })
             .then(() => {
                 this.state.setState(PLAY);
-                this.app.verbose && console.log(`Now playing ${this.song.name}`);
+                this.app.log.registerEvent(
+                    `Now playing ${this.song.name}`,
+                    `\x1b[35;1m| \x1b[0mNow playing ${this.song.name}`
+                );
             })
     }
 
@@ -68,7 +81,7 @@ export default class MusicBox {
         this.song.song.addEventListener('ended', () => {
             this.playNextSong();
             this.autoplay();
-            this.app.verbose && console.log('Song ended');
+            this.app.log.registerEvent('Song ended', '\x1b[35;1m| \x1b[0mSong ended');
         });
     }
 

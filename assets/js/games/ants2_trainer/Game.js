@@ -15,10 +15,16 @@ export default class Ants2Trainer {
         this.app = app;
         this.loadCallback = loadCallback;
         this.gui = new Gui(this.app, this);
+        this.flags = {
+            antLooper: 100,
+            dieRadius: 50
+        };
+        this.bestAnt = null;
         this.app.factory.addGameEntity(this.gui);
-        this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU]);
+        this.state = new States(app, this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU]);
         this.app.factory.addGameEntity(this);
     }
+
     /**
      * Private methods
      */
@@ -42,20 +48,29 @@ export default class Ants2Trainer {
             addedRules: [{
                 name: 'Ant',
                 rule: (entity) => {
-                    const inmovilityRadius = 30;
+                    const inmovilityRadius = this.flags.dieRadius;
+
+                    // INFINITE ENERGY AND NO AGING FOR TESTS
+                    if (entity.age > 100) {
+                        entity.age = 100;
+                    }
+                    if (entity.energy < 100) {
+                        entity.energy = 100;
+                    }
 
                     // DIE ON BOUNDS
                     if (this.app.physics.isInBound(entity)) {
-                        console.log('DIE ON BOUNDS');
+                        this.app.log.registerEvent(
+                            `Ant #${entity.id} Died on bounds`,
+                            `\x1b[35;1m| Ant #${entity.id} Died on bounds`,
+                        );
                         entity.home.removeAnt(entity);
+                        return;
                     }
 
                     // DIE ON INMOVILITY
-                    if (entity.age < 1 && !entity.requestFlags.startup) {
-                        entity.requestFlags.startup = { x: entity.x, y: entity.y };
-                    }
                     if (entity.age > 0) {
-                        const { x, y } = entity.requestFlags.startup;
+                        const {x, y} = {x: entity.home.coords.x, y: entity.home.coords.y};
                         const limits = {
                             top: y - inmovilityRadius, bottom: y + inmovilityRadius,
                             left: x - inmovilityRadius, right: x + inmovilityRadius,
@@ -64,17 +79,28 @@ export default class Ants2Trainer {
                             entity.x < limits.right && entity.x > limits.left &&
                             entity.y < limits.bottom && entity.y > limits.top && entity.age > 1
                         ) {
-                            console.log('DIE ON INMOVILITY');
+                            this.app.log.registerEvent(
+                                `Ant #${entity.id} Died on inmovility`,
+                                `\x1b[36;1m| Ant #${entity.id} Died on inmovility`,
+                            );
                             entity.home.removeAnt(entity);
+                            return;
                         }
                     }
-
-                    // INMORTALITY FOR TESTS
-                    if (entity.age > 100) {
-                        entity.age = 100;
-                    }
-                    if (entity.energy < 100) {
-                        entity.energy = 100;
+                }
+            }, {
+                name: 'Anthill',
+                rule: (entity) => {
+                    if (entity && this.app.game.gui.screen.buttons.play.looping) {
+                        if (entity.antCounter >= this.flags.antLooper) {
+                            return;
+                        }
+                        for (let i = 0; i < this.flags.antLooper; i++) {
+                            if (entity.antCounter >= this.flags.antLooper) {
+                                continue;
+                            }
+                            entity.addAnt();
+                        }
                     }
                 }
             }]
@@ -82,10 +108,31 @@ export default class Ants2Trainer {
         this.state.setState(MAIN_MENU);
     }
 
+    loadFamilyTree() {
+        if (localStorage.getItem('familyTree')) {
+            for (let i = 0; i < this.app.factory.binnacle.Ant.length; i++) {
+                this.app.factory.binnacle.Ant[i].brain = JSON.parse(localStorage.getItem('familyTree'));
+                if (i != 0) {
+                    NeuralNetwork.mutate(this.app.factory.binnacle.Ant[i].brain, 0.1);
+                }
+            }
+        }
+    }
+
+
+    saveFamilyTree = () => {
+        localStorage.setItem('familyTree', JSON.stringify(this.app.game.bestAnt.brain));
+    }
+
+    // discardFamilyTree = (generation, member) => {
+    //     // load and remove the member
+    //     localStorage.removeItem('bestBrain');
+    // }
+
     restart() {
         this.app.player.ant = null;
         this.app.player.anthill = null;
-        this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
+        this.app.factory.restart();
     }
 
     /**

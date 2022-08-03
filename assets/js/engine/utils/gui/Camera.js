@@ -1,5 +1,5 @@
 export default class Camera {
-    constructor(app) {
+    constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.fieldOfView = Math.PI / 4.0;
         this.lookAt = [0, 0];
@@ -18,6 +18,12 @@ export default class Camera {
         this.minZoom = 200;
         this.zoom = this.maxZoom / 2;
         this.#addListeners();
+        callback(()=> {
+            this.app.log.registerEvent(
+                'New Camera Created',
+                '\x1b[32;1m| \x1b[0mNew \x1b[32mCamera\x1b[0m Created'
+            );
+        });
     }
 
     /**
@@ -53,7 +59,7 @@ export default class Camera {
     }
 
     #addListeners() {
-        this.app.controls.pushListener('wheel', (event) => {
+        this.app.controls.pushListener(this,'wheel', (event) => {
             const deltaY = Math.max(-this.rate, Math.min(this.rate, event.deltaY));
             const deltaX = Math.max(-this.rate, Math.min(this.rate, event.deltaX));
 
@@ -73,7 +79,7 @@ export default class Camera {
                 ]);
             }
         });
-        this.app.controls.pushListener('keydown', (event) => {
+        this.app.controls.pushListener(this,'keydown', (event) => {
             if (event.key === 'r') {
                 this.#zoomTo(this.maxZoom);
                 this.#moveTo([0, 0]);

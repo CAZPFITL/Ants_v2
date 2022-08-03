@@ -106,8 +106,8 @@ export default class Ant {
             // What can I find?
             // ...(this.app.factory.binnacle.Food ?? []),
             // ...(this.app.factory.binnacle.Ant ?? []),
-            ...(this.app.factory.binnacle['Traces'][0].collection ?? []),
-            // this.app.game.level.boundTargets
+            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            this.app.game.level.boundTargets
         ]);
 
         this.nose = {

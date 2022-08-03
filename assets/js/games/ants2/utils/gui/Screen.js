@@ -48,7 +48,7 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        this.app.controls.pushListener('mousemove', (e) => {
+        this.app.controls.pushListener(this,'mousemove', (e) => {
             for (const key in this.hoverCollection) {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
@@ -61,7 +61,7 @@ export default class Screen {
                 }
             }
         });
-        this.app.controls.pushListener('click', (e) => {
+        this.app.controls.pushListener(this,'click', (e) => {
             if (this.app.player.anthill) {
                 // Create Ant
                 this.app.gui.get.isClicked(
@@ -96,7 +96,7 @@ export default class Screen {
                 }
             )
         });
-        this.app.controls.pushListener('mouseup', (e) => {
+        this.app.controls.pushListener(this,'mouseup', (e) => {
             // Start Game
             this.app.gui.get.isClicked(
                 this.buttonsCollection.main_menu.mainMenuControls.start,
@@ -110,7 +110,7 @@ export default class Screen {
             this.buttons.play.creatingAnt = false
             this.buttons.play.creatingAnthill = false
         });
-        this.app.controls.pushListener('mousedown', (e) => {
+        this.app.controls.pushListener(this,'mousedown', (e) => {
             // Show fps
             (e.which === 2) && this.app.gui.get.isClicked(
                 {
@@ -446,6 +446,15 @@ export default class Screen {
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
+
+        // ANT COUNTER ON THE BOTTOM LEFT
+        this.app.gui.get.text({
+            ctx,
+            font,
+            text: `${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`,
+            x: 10,
+            y: window.innerHeight - 10,
+        });
 
         this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(130,169,30)';
     }
