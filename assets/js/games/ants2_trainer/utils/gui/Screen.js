@@ -1,4 +1,5 @@
-import {PLAY, MAIN_MENU, GAME_OVER} from "../../env.js";
+import {PLAY, MAIN_MENU, GAME_OVER} from "../../../ants2/env.js";
+import Traces from "./../../../ants2/utils/entities/Traces.js";
 
 export default class Screen {
     constructor(app, gui) {
@@ -12,7 +13,12 @@ export default class Screen {
                 creatingFood: false,
                 creating: false,
                 resizingW: false,
-                resizingH: false
+                resizingH: false,
+                minTracing: false,
+                maxTracing: false,
+                radiusTracing: false,
+                looping: false,
+                loopSizing: false,
             },
             main_menu: {
                 start: false
@@ -28,11 +34,18 @@ export default class Screen {
                 anthillControls: {
                     'createAnt': {},
                     'createAnthill': {},
-                    'createFood': {}
+                    'createFood': {},
+                    'creatingTrace': {},
+                    'drawingTrace': {}
                 },
                 boardControls: {
                     'width': {},
-                    'height': {}
+                    'height': {},
+                    'minTrace': {},
+                    'maxTrace': {},
+                    'traceRadius': {},
+                    'loopSize': {},
+                    'createLoop': {}
                 }
             }
         }
@@ -45,33 +58,110 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        // mouse move listener
-        this.app.controls.pushListener('mousemove', (e) => {
-            // TRANSLATE COORDS
+        this.app.controls.pushListener(this,'mousemove', (e) => {
+            // TRANSLATE COORDS - general process
             const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
                 x: e.offsetX,
                 y: e.offsetY
             }, this.app.camera.viewport);
-            // CREATING ANTHILL PROCESS
+            // CREATING ENTITY PROCESS
             if (this.buttons.play.creating) {
                 if (this.creation?.coords) {
                     (this.creation.coords = hoverTranslatedCoords);
                 } else {
-                    this.creation.x = hoverTranslatedCoords.x;
-                    this.creation.y = hoverTranslatedCoords.y;
+                    this.creation.x = hoverTranslatedCoords?.x;
+                    this.creation.y = hoverTranslatedCoords?.y;
                 }
             }
-            // DRAG RESIZE WIDTH
+            //CREATING TRACE PROCESS (ONLY INSIDE THE MAP)
+            if (this.buttons.play.drawingTrace) {
+                const entity = {
+                    x: (-this.app.game.level.size.width ) / 2,
+                    y: (-this.app.game.level.size.height) / 2,
+                    width: this.app.game.level.size.width,
+                    height: this.app.game.level.size.height
+                }
+                if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
+                    this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
+                }
+            }
+            // DRAG RESIZE WIDTH - (click, drag and drop)
             if (this.buttons.play.resizingW) {
                 this.app.game.level.size.width += e.movementX;
                 this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
             }
-            // DRAG RESIZE HEIGHT
+            // DRAG RESIZE HEIGHT - (click, drag and drop)
             if (this.buttons.play.resizingH) {
                 this.app.game.level.size.height += e.movementX;
                 this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
             }
-            // HOVER COLLECTION
+            // DRAG TRACE RADIUS - (click, drag and drop)
+            if (this.buttons.play.radiusTracing) {
+                if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
+                    const ref = this.app.factory.binnacle['Traces'][0].props.spreadMark;
+                    if (ref >= 2 && ref <= 15) {
+                        this.app.factory.binnacle['Traces'][0].props.spreadMark += e.movementX;
+                    }
+                    if (ref > 15) {
+                        this.app.factory.binnacle['Traces'][0].props.spreadMark = 15;
+                    }
+                    if (ref < 2) {
+                        this.app.factory.binnacle['Traces'][0].props.spreadMark = 2;
+                    }
+                }
+            }
+            // DRAG MIN TRACE - (click, drag and drop)
+            if (this.buttons.play.minTracing) {
+                if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
+                    const ref = this.app.factory.binnacle['Traces'][0].props.min;
+                    const refMax = this.app.factory.binnacle['Traces'][0].props.max;
+                    if (ref >= 1 && ref <= refMax) {
+                        this.app.factory.binnacle['Traces'][0].props.min += e.movementX;
+                    }
+                    if (ref > refMax) {
+                        this.app.factory.binnacle['Traces'][0].props.min = refMax;
+                    }
+                    if (ref < 1) {
+                        this.app.factory.binnacle['Traces'][0].props.min = 1;
+                    }
+                }
+            }
+            // DRAG UPDATE MAX TRACE - (click, drag and drop)
+            if (this.buttons.play.maxTracing) {
+                if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
+                    const ref = this.app.factory.binnacle['Traces'][0].props.max;
+                    const refMin = this.app.factory.binnacle['Traces'][0].props.min;
+                    if (ref >= refMin && ref <= 30) {
+                        this.app.factory.binnacle['Traces'][0].props.max += e.movementX;
+                    }
+                    if (ref > 30) {
+                        this.app.factory.binnacle['Traces'][0].props.max = 30;
+                    }
+                    if (ref < refMin) {
+                        this.app.factory.binnacle['Traces'][0].props.max = refMin;
+                    }
+                }
+            }
+            // DRAG UPDATE LOOP SIZE - (click, drag and drop)
+            if (this.buttons.play.loopSizing) {
+                const ref = this.app.game.flags.antLooper;
+                const refMax = 500
+                const refMin = 50;
+                if (ref >= refMin && ref <= refMax) {
+                    this.app.game.flags.antLooper += e.movementX;
+                }
+                if (ref > refMax) {
+                    this.app.game.flags.antLooper = refMax;
+                }
+                if (ref < refMin) {
+                    this.app.game.flags.antLooper = refMin;
+                }
+            }
+            // CHANGE LOOPER SIZE - (click, drag and drop)
+            if (this.buttons.play.loopSizing) {
+
+            }
+            // HOVER COLLECTION - (hover)
             for (const key in this.hoverCollection) {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
@@ -84,45 +174,56 @@ export default class Screen {
                 }
             }
         });
-        this.app.controls.pushListener('click', (e) => {
-            // Create Ant
-            if (this.app.player.anthill) {
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.play.anthillControls.createAnt,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        this.app.player.anthill.addAnt();
-
-                    }
-                )
-            }
-            // Create Entity - specific
+        this.app.controls.pushListener(this,'mouseup', (e) => {
             if (!this.buttons.play.creating) {
+                // CREATE TRACE
                 this.app.gui.get.isClicked(
-                    this.buttonsCollection.play.anthillControls.createAnthill,
+                    this.buttonsCollection.play.anthillControls.createTrace,
                     {x: e.offsetX, y: e.offsetY},
                     () => {
-                        this.buttons.play.creating = true;
-                        this.buttons.play.creatingAnthill = true;
-                        this.app.game.level.loadAnthill(0, false);
-                        this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                        this.buttons.play.creatingTrace = !this.buttons.play.creatingTrace
                     }
                 )
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.play.anthillControls.createFood,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        this.buttons.play.creating = true;
-                        this.buttons.play.creatingFood = true
-                        this.app.game.level.loadFood(1);
-                        this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
+
+                if (!this.buttons.play.creatingTrace && !this.buttons.play.looping) {
+                    // CREATE ANTHILL - (mouseup)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.anthillControls.createAnthill,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            this.buttons.play.creating = true;
+                            this.buttons.play.creatingAnthill = true;
+                            this.app.game.level.Anthill({ants: 0, free: true});
+                            this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                        }
+                    )
+                    // CREATE FOOD - (mouseup)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.anthillControls.createFood,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            this.buttons.play.creating = true;
+                            this.buttons.play.creatingFood = true
+                            this.app.game.level.Food({amount: 1});
+                            this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
+                        }
+                    )
+                    // CREATE ANT - (mouseup)
+                    if (this.app.player.anthill) {
+                        this.app.gui.get.isClicked(
+                            this.buttonsCollection.play.anthillControls.createAnt,
+                            {x: e.offsetX, y: e.offsetY},
+                            () => {
+                                this.app.player.anthill.addAnt();
+                            }
+                        )
                     }
-                )
+                }
             }
-            // Place Entity - general
+            // Place Entity - blocks every other events
             if (this.buttons.play.creating) {
-                const objX = (this.creation?.size?.width ?? this.creation.width) + 20;
-                const objY = (this.creation?.size?.height ?? this.creation.height) + 20;
+                const objX = (this.creation?.size?.width ?? this.creation.width);
+                const objY = (this.creation?.size?.height ?? this.creation.height);
                 const entity = {
                     x: (-this.app.game.level.size.width + objX) / 2,
                     y: (-this.app.game.level.size.height + objY) / 2,
@@ -140,9 +241,7 @@ export default class Screen {
                     this.buttons.play.creatingFood = false;
                 }
             }
-        });
-        this.app.controls.pushListener('mouseup', (e) => {
-            // Start Game
+            // START TRAINING
             this.app.gui.get.isClicked(
                 this.buttonsCollection.main_menu.mainMenuControls.start,
                 this.app.gui.get.clickCoords(e, this.app.camera.viewport),
@@ -151,37 +250,148 @@ export default class Screen {
                     this.app.game.state.setState(PLAY);
                 }
             );
-            this.buttons.play.resizingW = false
-            this.buttons.play.resizingH = false
-            this.buttons.play.creatingAnt = false
+            // CLEAR PLAY BUTTONS RELEASE - (mouseup)
+            this.buttons.play.loopSizing = false;
+            this.buttons.play.minTracing = false;
+            this.buttons.play.maxTracing = false;
+            this.buttons.play.radiusTracing = false;
+            this.buttons.play.resizingW = false;
+            this.buttons.play.resizingH = false;
+            this.buttons.play.creatingAnt = false;
+            this.buttons.play.drawingTrace = false;
         });
-        this.app.controls.pushListener('mousedown', (e) => {
-            // Change Width board size
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.boardControls.width,
-                {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.play.resizingW = true
+        this.app.controls.pushListener(this,'mousedown', (e) => {
+            // CREATING MODE BLOCKS EVERYTHING
+            if (!this.buttons.play.creating) {
+                // LOOP ON/OFF
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.play.boardControls.createLoop,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                            this.buttons.play.looping = !this.buttons.play.looping
+                        }
+                    }
+                )
+                if (!this.buttons.play.creatingTrace) {
+                    // RESIZING WIDTH - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.width,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => this.buttons.play.resizingW = true
+                    )
+                    // RESIZING HEIGHT - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.height,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => this.buttons.play.resizingH = true
+                    )
+                    // MIN TRACING - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.minTrace,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.minTracing = true
+                            }
+                        }
+                    )
+                    // MAX TRACING - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.maxTrace,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.maxTracing = true
+                            }
+                        }
+                    )
+                    // RADIUS TRACING - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.traceRadius,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.radiusTracing = true
+                            }
+                        }
+                    )
+                    // LOOP SIZING - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.loopSize,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.loopSizing = true
+                            }
+                        }
+                    )
+                    // CREATE ANT - (mousedown)
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.anthillControls.createAnt,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => (this.app.player.anthill && !this.buttons.play.looping) && (this.buttons.play.creatingAnt = true)
+                    )
+                } else {
+                    this.buttons.play.drawingTrace = true;
+                }
+            }
+        });
+        this.app.controls.pushListener(this,'keyup', (event) => {
+            // RESTART CREATING MODE TODO MAKE A CREATE MODE
+            const restartCreating = () => {
+                this.buttons.play.creating = false;
+                this.buttons.play.creatingAnthill = false;
+                this.buttons.play.creatingFood = false;
+                this.buttons.play.looping = false;
 
-            )
-            // Change Height board size
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.boardControls.height,
-                {x: e.offsetX, y: e.offsetY},
-                () => this.buttons.play.resizingH = true
-            )
-            // Create ant down
-            this.app.gui.get.isClicked(
-                this.buttonsCollection.play.anthillControls.createAnt,
-                {x: e.offsetX, y: e.offsetY},
-                () => (this.app.player.anthill) && (this.buttons.play.creatingAnt = true)
-            )
+            }
+            const fallbackAnthill = () => {
+                // FALLBACK ANTHILL
+                if (this.app.factory.binnacle?.Anthill instanceof Array) {
+                    if (this.app.factory.binnacle.Anthill.length === 0) {
+                        this.app.player.anthill = null;
+                        this.app.game.restart();
+                    } else {
+                        this.app.player.anthill = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                    }
+                }
+            }
+            const clearCreationEntity = () => {
+                this.app.factory.remove(this.creation);
+                this.creation = null;
+            }
+            switch (true) {
+                case event.key === 'Delete':
+                    // RESET EVERYTHING
+                    restartCreating();
+                    fallbackAnthill();
+                    this.app.game.restart();
+                    break;
+                case event.key === 'Escape':
+                    // CLEAR CREATING MODE
+                    if (this.buttons.play.creating) {
+                        clearCreationEntity();
+                        restartCreating();
+                        fallbackAnthill();
+                        break;
+                    }
+                    // CLEAR TRACER MODE
+                    if (this.buttons.play.creatingTrace) {
+                        this.buttons.play.creatingTrace = false;
+                        this.buttons.play.drawingTrace = false;
+                        fallbackAnthill();
+                    }
+
+            }
         });
     }
 
     #getPlayDataStrings() {
         // TODO consider to make multiple anthills
         let antHill = this.app.factory.binnacle?.Anthill
-        const entity = this.app.player.ant
+        const ant = this.app.player.ant
+        const anthill = this.app.player.anthill
 
         antHill = (antHill instanceof Array) ? antHill[0] : {};
 
@@ -190,11 +400,11 @@ export default class Screen {
             ants: antHill?.antCounter ?? "n/a",
             food: dec(antHill?.food ?? 0, 0),
             player: {
-                name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
-                energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
-                maxFoodPickCapacity: entity?.maxFoodPickCapacity ?? 100,
-                maxPickedFood: entity?.maxPickedFood ?? 0,
-                pickedFood: entity?.pickedFood ?? 0,
+                name: `Ant #${ant?.id ?? 'N/A'} Anthill #${anthill?.id ?? 'N/A'}`,
+                energy: dec((ant?.energy ?? 1) * 10, 2) ?? 0,
+                maxFoodPickCapacity: ant?.maxFoodPickCapacity ?? 100,
+                maxPickedFood: ant?.maxPickedFood ?? 0,
+                pickedFood: ant?.pickedFood ?? 0,
             }
         }
 
@@ -204,7 +414,7 @@ export default class Screen {
             antSelected: `${player.name}`,
             pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
             energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
-            entity
+            entity: ant
         }
     }
 
@@ -225,9 +435,10 @@ export default class Screen {
 
     #updatePlayControlsData() {
         const font = "16px Mouse";
+        const isAnthillIn = Boolean(this.app.factory.binnacle?.Anthill?.length)
         this.buttonsCollection.play.anthillControls = {
             'createAnt': {
-                x: this.gui.controlsCtx.canvas.width - 60,
+                x: this.gui.controlsCtx.canvas.width - 120,
                 y: 10,
                 width: 50,
                 height: 50,
@@ -236,11 +447,11 @@ export default class Screen {
                 bg: !this.buttons.play.creatingAnt ? '#b47607' : '#ffa600'
             },
             'createAnthill': {
-                x: this.gui.controlsCtx.canvas.width - 120,
+                x: this.gui.controlsCtx.canvas.width - 60,
                 y: 10,
                 width: 50,
                 height: 50,
-                text: '🐝',
+                text: '🏠',
                 font,
                 bg: !this.buttons.play.creatingAnthill ? '#b47607' : '#ffa600'
             },
@@ -249,30 +460,90 @@ export default class Screen {
                 y: 70,
                 width: 50,
                 height: 50,
-                text: '🍏',
+                text: '🍓',
                 font,
                 bg: !this.buttons.play.creatingFood ? '#b47607' : '#ffa600'
+            },
+            'createTrace': {
+                x: this.gui.controlsCtx.canvas.width - 120,
+                y: 70,
+                width: 50,
+                height: 50,
+                text: 'Trace',
+                font: "12px Mouse",
+                bg: !this.buttons.play.creatingTrace ? '#b47607' : '#ffa600'
             }
         }
         this.buttonsCollection.play.boardControls = {
             'width': {
-                x: 107.5,
+                x: 35,
                 y: 150,
-                width: 125,
+                width: 200,
                 height: 20,
-                text: '< * >',
+                text: `< Width: ${this.app.game?.level?.size?.width} >`,
                 font,
                 bg: this.buttons.play.resizingW ? '#ffa600' : '#b47607'
             },
             'height': {
-                x: 107.5,
+                x: 35,
                 y: 180,
-                width: 125,
+                width: 200,
                 height: 20,
-                text: '< * >',
+                text: `< Height: ${this.app.game?.level?.size?.height} >`,
                 font,
                 bg: this.buttons.play.resizingH ? '#ffa600' : '#b47607'
-            }
+            },
+            'minTrace': {
+                x: 35,
+                y: 210,
+                width: 200,
+                height: 20,
+                text: `< minTrace: ${this.app.factory.binnacle.Traces &&
+                this.app.factory.binnacle.Traces[0] &&
+                this.app.factory.binnacle.Traces[0]?.props?.min || 'N/A'} >`,
+                font,
+                bg: isAnthillIn ? (this.buttons.play.minTracing ? '#ffa600' : '#b47607') : '#7a7a79'
+            },
+            'maxTrace': {
+                x: 35,
+                y: 240,
+                width: 200,
+                height: 20,
+                text: `< maxTrace: ${this.app.factory.binnacle.Traces &&
+                this.app.factory.binnacle.Traces[0] &&
+                this.app.factory.binnacle.Traces[0]?.props?.max || 'N/A'} >`,
+                font,
+                bg: isAnthillIn ? (this.buttons.play.maxTracing ? '#ffa600' : '#b47607') : '#7a7a79'
+            },
+            'traceRadius': {
+                x: 35,
+                y: 270,
+                width: 200,
+                height: 20,
+                text: `< traceRadius: ${this.app.factory.binnacle.Traces &&
+                this.app.factory.binnacle.Traces[0] &&
+                this.app.factory.binnacle.Traces[0]?.props?.spreadMark || 'N/A'} >`,
+                font,
+                bg: isAnthillIn ? (this.buttons.play.radiusTracing ? '#ffa600' : '#b47607') : '#7a7a79'
+            },
+            'loopSize': {
+                x: 35,
+                y: 300,
+                width: 200,
+                height: 20,
+                text: `< loopSize: ${this.app.game?.flags?.antLooper} >`,
+                font,
+                bg: isAnthillIn ? (this.buttons.play.loopSizing ? '#ffa600' : '#b47607') : '#7a7a79'
+            },
+            'createLoop': {
+                x: 35,
+                y: 330,
+                width: 200,
+                height: 20,
+                text: 'Create Loop',
+                font,
+                bg: isAnthillIn ? (this.buttons.play.looping ? '#ffa600' : '#b47607') : '#7a7a79'
+            },
         }
     }
 
@@ -345,8 +616,6 @@ export default class Screen {
         const {
             color,
             font,
-            anthillAnts,
-            anthillFood,
             antSelected,
             pickedBarText,
             energyText,
@@ -354,17 +623,24 @@ export default class Screen {
         } = this.#getPlayDataStrings();
 
         // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
+        const height = 360;
         const width = this.app.tools.max([
-            ctx.measureText(antSelected).width,
+            ctx.measureText(antSelected).width * 2,
             240
-        ]);
+        ]) + 10;
+        const sizes = {
+            x: card.x + 15,
+            y: card.y + 130,
+            width: 220,
+            height: 220,
+        }
         // DATA BACKGROUND
         this.app.gui.get.square({
             ctx: this.app.game.gui.controlsCtx,
             x: card.x,
             y: card.y,
-            width: width + 35,
-            height: 225,
+            width,
+            height,
             color: 'rgba(148,255,0,0.32)',
             stroke: '#000'
         });
@@ -403,42 +679,20 @@ export default class Screen {
         }, false);
         // BACKGROUND
         this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(200,200,200)';
-
         //SIZE SELECTORS
-        const sizes = {
-            x: card.x + 15,
-            y: card.y + 130,
-            width: 220,
-            height: 70,
-        }
-
         this.app.gui.get.square({
             ctx,
             ...sizes,
             color: 'rgba(80,62,50,0.75)',
             stroke: 'rgb(0,0,0)'
         });
-
-        // Width Selector
-        this.hoverCollection.widthSelector = this.buttonsCollection.play.boardControls.width;
-
+        // ANT COUNTER ON THE BOTTOM LEFT
         this.app.gui.get.text({
             ctx,
-            color,
-            text: `Width: ${this.app.game.level.size.width}`,
-            x: sizes.x + card.x + 0,
-            y: sizes.y + card.y + 15,
-        });
-
-        // Height Selector
-        this.hoverCollection.heightSelector = this.buttonsCollection.play.boardControls.height;
-
-        this.app.gui.get.text({
-            ctx,
-            color,
-            text: `Height: ${this.app.game.level.size.height}`,
-            x: sizes.x + card.x + 0,
-            y: sizes.y + card.y + 45,
+            font,
+            text: `${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`,
+            x: window.innerWidth - (this.app.gui.ctx.measureText(`${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`).width * 2.2) - 10,
+            y: window.innerHeight - 10,
         });
     }
 
@@ -446,9 +700,15 @@ export default class Screen {
         const looper = {
             createAnt: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createAnt} : {},
             createAnthill: {ctx, ...this.buttonsCollection.play.anthillControls.createAnthill},
-            createFood: {ctx, ...this.buttonsCollection.play.anthillControls.createFood},
+            createFood: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createFood} : {},
+            createTrace: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createTrace} : {},
             width: {ctx, ...this.buttonsCollection.play.boardControls.width},
-            height: {ctx, ...this.buttonsCollection.play.boardControls.height}
+            height: {ctx, ...this.buttonsCollection.play.boardControls.height},
+            traceRadius: {ctx, ...this.buttonsCollection.play.boardControls.traceRadius},
+            minTrace: {ctx, ...this.buttonsCollection.play.boardControls.minTrace},
+            maxTrace: {ctx, ...this.buttonsCollection.play.boardControls.maxTrace},
+            loopSize: {ctx, ...this.buttonsCollection.play.boardControls.loopSize},
+            createLoop: {ctx, ...this.buttonsCollection.play.boardControls.createLoop},
         }
 
         Object.keys(looper).forEach(key => {

@@ -1,8 +1,51 @@
 export default class Traces {
-    constructor({ app }) {
+    constructor({ app, anthill }) {
         this.app = app;
+        this.anthill = anthill;
         this.collection = [];
         this.requestFlag = 0;
+        this.requestFlags = {};
+        this.props = {
+            min: 1,
+            max: 1,
+            spreadMark: 4
+        }
+    }
+
+    static createTraces(app, anthill) {
+        if (!app.factory.binnacle['Traces'] || !app.factory.binnacle['Traces'][0]) {
+            app.factory.create(Traces, {
+                app,
+                anthill
+            });
+        }
+    }
+
+    markTrace(position, props = this.props) {
+        if (!(this.app.request - (this.requestFlags.mark ?? 0) > this.app.tools.random(props.min, props.max)))
+            return;
+
+        this.requestFlags.mark = this.app.request;
+
+        const spreadMark = props.spreadMark ?? 2;
+        this.app.factory.binnacle['Traces'][0].addTrace({
+            x: this.app.tools.random(position.x -  spreadMark,position.x +  spreadMark, false),
+            y: this.app.tools.random(position.y -  spreadMark,position.y +  spreadMark, false),
+            radius: this.app.tools.random(2,3, false),
+            polygons: [{
+                x: position.x -  2,
+                y: position.y -  2,
+            },{
+                x: position.x -  2,
+                y: position.y +  2,
+            },{
+                x: position.x +  2,
+                y: position.y +  2,
+            },{
+                x: position.x +  2,
+                y: position.y -  2,
+            }]
+        });
     }
 
     addTrace(traceData) {

@@ -3,25 +3,87 @@ import Food from "../entities/Food.js";
 import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class GameLevel {
-    constructor({app, game, id = 0, width, height}) {
+    constructor({app, game, id = 0, width, height, addedRules }) {
         this.app = app;
         this.game = game;
         this.name = 'GameLevel #' + id;
         this.coords = { x: -width / 2, y: -height / 2 };
         this.size = { width, height }
         this.color = '#523f32';
-        this.loadEntities();
+        this.boundTargets = {};
+        this.addedRules = addedRules;
+        this.loadEntitiesList = game.constructor.name === 'Ants2' && [
+            {
+                name: 'Food',
+                props: {amount: 5}
+            }, {
+                name: 'Anthill',
+                props: {ants: 1, free: true},
+            }];
+        game.constructor.name === 'Ants2' && this.loadEntities();
+        this.app.factory.addGameEntity(this);
     }
+
+    /**
+     * Private Methods
+     */
+    #getBordersEdges() {
+        const [ topLeft, bottomLeft, topRight, bottomRight ] = [
+            { x: (-this.size.width) / 2, y: (-this.size.height) / 2 },
+            { x: (-this.size.width) / 2, y: (this.size.height) / 2 },
+            { x: (this.size.width) / 2, y: (- this.size.height) / 2 },
+            { x: (this.size.width) / 2, y: (this.size.height) / 2 }
+        ];
+        this.boundTargets = {
+            // These are the bounds for the ants sensors
+            polygons: [
+                // Left
+                topLeft,
+                bottomLeft,
+                { x: bottomLeft - 1, ...bottomLeft.y },
+                { x: topLeft - 1, ...topLeft.y },
+                // Right
+                topRight,
+                bottomRight,
+                { x: bottomRight + 1, ...bottomRight.y },
+                { x: topRight + 1, ...topRight.y },
+                // Top
+                topLeft,
+                topRight,
+                { x: topRight.x, y: topRight.y - 1 },
+                { x: topLeft.x, y: topLeft.y - 1 },
+                // Bottom
+                bottomLeft,
+                bottomRight,
+                { x: bottomRight.x, y: bottomRight.y + 1 },
+                { x: bottomLeft.x, y: bottomLeft.y + 1 }
+            ]
+        }
+    }
+
     /**
      * Load methods
      */
     loadEntities() {
-        this.loadFood(5);
-        this.loadAnthill(1, true);
-        this.app.factory.addGameEntity(this);
+        for (let entity of this.loadEntitiesList) {
+            entity?.name && this[entity.name](entity.props);
+        }
     }
 
-    loadFood(amount = 1, {width, height} = this.size) {
+    #loadOutsideRules() {
+        for (let rule of this.addedRules) {
+            if (this.app.factory.binnacle[rule.name]) {
+                this.app.factory.binnacle[rule.name].forEach(entity => {
+                    if (entity instanceof Array) return;
+                    rule.rule(entity)
+                })
+            }
+        }
+    }
+
+    Food({amount, width, height}) {
+        width = width ?? this.size.width;
+        height = height ?? this.size.height;
         for (let i = 0; i < amount; i++) {
             this.app.factory.create(Food, {
                 app: this.app,
@@ -30,7 +92,7 @@ export default class GameLevel {
         }
     }
 
-    loadAnthill(ants, free = false) {
+    Anthill({ants, free = false}) {
         let collection = this.app.factory.binnacle['Anthill'] ?? [];
         collection = collection.length
         this.app.factory.create(Anthill, {
@@ -42,6 +104,13 @@ export default class GameLevel {
         });
     }
 
+    update() {
+        this.#getBordersEdges();
+        if (this.game.constructor.name === 'Ants2Trainer') {
+            this.#loadOutsideRules();
+        }
+
+    }
     /**
      * Draw and Update methods
      */

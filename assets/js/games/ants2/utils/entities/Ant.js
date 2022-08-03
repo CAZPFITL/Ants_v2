@@ -5,7 +5,7 @@ import Food from "./Food.js";
 import Traces from "./Traces.js";
 
 export default class Ant {
-    constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
+    constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill, addedRules = []}) {
         this.home = anthill;
         this.app = app;
         this.game = game;
@@ -15,6 +15,8 @@ export default class Ant {
         this.no_draw = false;
         this.foodFound = false;
         this.anthillFound = false;
+        // Training
+        this.isOnBound = false;
         // Measurements
         const size = app.tools.random(8, 16);
         this.x = x;
@@ -33,6 +35,7 @@ export default class Ant {
         this.maxFoodPickCapacity = size * 2;
         this.requestFlags = {};
         this.nose = {x, y};
+        this.player = Boolean(this.app.player?.controls);
         // physics
         this.speed = 0;
         this.angle = angle;
@@ -55,10 +58,11 @@ export default class Ant {
         }
         this.sensor = new Sensor(this);
         this.brain = new NeuralNetwork(this, [
-            this.sensor.rayCount + 2, // #inputs (4 offsets, foodFound and anthillFound)
+            this.sensor.rayCount + 0, // #inputs (4 offsets, foodFound and anthillFound)
             6, // first layer
             4, // second layer
-            Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
+            // Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
+            4
         ]);
     }
 
@@ -71,8 +75,8 @@ export default class Ant {
         //Inputs
         const outputs = NeuralNetwork.feedForward([
             ...offsets,
-            Number(this.foodFound),
-            Number(this.anthillFound),
+            // Number(this.foodFound),
+            // Number(this.anthillFound),
             // Number(this.energy / 100)
         ], this.brain);
         // Outputs
@@ -80,13 +84,13 @@ export default class Ant {
         this.controls.left = outputs[1];
         this.controls.right = outputs[2];
         this.controls.reverse = outputs[3];
-        this.controls.pick = outputs[4];
-        this.controls.drop = outputs[5];
-        this.controls.run = outputs[5];
-        this.controls.eat = outputs[6];
+        // this.controls.pick = outputs[4];
+        // this.controls.drop = outputs[5];
+        // this.controls.run = outputs[5];
+        // this.controls.eat = outputs[6];
 
         // Player Process
-        const controls = this.app.controls.getControls(this);
+        const controls = this.player ? this.app.controls.getControls(this) : this.controls;
         this.#move(controls);
         this.#mark(controls);
         this.#smell();
@@ -100,9 +104,10 @@ export default class Ant {
     #smell() {
         this.sensor.update([
             // What can I find?
-            // ...this.app.factory.binnacle.Food,
-            // ...this.app.factory.binnacle.Ant,
-            ...this.app.factory.binnacle['Traces'][0].collection,
+            // ...(this.app.factory.binnacle.Food ?? []),
+            // ...(this.app.factory.binnacle.Ant ?? []),
+            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            this.app.game.level.boundTargets
         ]);
 
         this.nose = {
@@ -144,29 +149,7 @@ export default class Ant {
         if (!controls.mark)
             return;
 
-        if (!(this.app.request - (this.requestFlags.mark ?? 0) > this.app.tools.random(10, 15)))
-            return;
-
-        this.requestFlags.mark = this.app.request;
-        const spreadMark = 2;
-        this.app.factory.binnacle['Traces'][0].addTrace({
-            x: this.app.tools.random(this.x -  spreadMark,this.x +  spreadMark, false),
-            y: this.app.tools.random(this.y -  spreadMark,this.y +  spreadMark, false),
-            radius: this.app.tools.random(1,3, false),
-            polygons: [{
-                x: this.x -  2,
-                y: this.y -  2,
-            },{
-                x: this.x -  2,
-                y: this.y +  2,
-            },{
-                x: this.x +  2,
-                y: this.y +  2,
-            },{
-                x: this.x +  2,
-                y: this.y -  2,
-            }]
-        });
+        this.app.factory.binnacle.Traces[0].markTrace(this);
     }
 
     #eatFood(controls) {
@@ -228,6 +211,7 @@ export default class Ant {
     #highlight() {
         this.color = (this.app.player.ant === this) ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.6)';
     }
+
     /**
      * In games draw section
      */

@@ -39,26 +39,45 @@ export default class NeuralNetwork {
 
     // Mutation script for the network
     static mutate(network, amount=1) {
-        const lerp = (a, b, t) => a + (b - a) * t;
-
-        network.levels.forEach(level => {
-            for (let i = 0; i < level.biases.length; i++) {
-                level.biases[i] = lerp(
-                    level.biases[i],
-                    Math.random() * 2 - 1,
+        for (let i = 0; i < network.levels.length; i++) {
+            for (let j = 0; j < network.levels[i].biases.length; j++) {
+                network.levels[i].biases[j] = MathMe.lerp(
+                    network.levels[i].biases[j],
+                    MathMe.random(),
                     amount
                 );
             }
-            for (let i = 0; i < level.weights.length; i++) {
-                for (let j = 0; j < level.weights[i].length; j++) {
-                    level.weights[i][j] = lerp(
-                        level.weights[i][j],
-                        Math.random() * 2 - 1,
+            for (let j = 0; j < network.levels[i].weights.length; j++) {
+                for (let k = 0; k < network.levels[i].weights[j].length; k++) {
+                    network.levels[i].weights[j][k] = MathMe.lerp(
+                        network.levels[i].weights[j][k],
+                        MathMe.r(),
                         amount
                     );
                 }
             }
-        })
+        }
+    }
+
+    static evolveFromParents(network1, network2) {
+        for (let i = 0; i < network1.levels.length; i++) {
+            for (let j = 0; j < network1.levels[i].biases.length; j++) {
+                network1.levels[i].biases[j] = MathMe.lerp(
+                    network1.levels[i].biases[j],
+                    network2.levels[i].biases[j],
+                    0.5
+                );
+            }
+            for (let j = 0; j < network1.levels[i].weights.length; j++) {
+                for (let k = 0; k < network1.levels[i].weights[j].length; k++) {
+                    network1.levels[i].weights[j][k] = MathMe.lerp(
+                        network1.levels[i].weights[j][k],
+                        network2.levels[i].weights[j][k],
+                        0.5
+                    );
+                }
+            }
+        }
     }
 }
 
@@ -84,12 +103,12 @@ class Level {
         // loop through all the inputs and outputs and set the weights to a random value between -1 and 1
         for (let i = 0; i < level.inputs.length; i++) {
             for (let j = 0; j < level.outputs.length; j++) {
-                level.weights[i][j] = Math.random() * 2 - 1;
+                level.weights[i][j] = MathMe.random();
             }
         }
         // loop through all the biases and set them to random numbers between -1 and 1
         for (let i = 0; i < level.biases.length; i++) {
-            level.biases[i] = Math.random() * 2 - 1;
+            level.biases[i] = MathMe.random();
         }
     }
 
@@ -99,21 +118,46 @@ class Level {
         for (let i = 0; i < level.inputs.length; i++) {
             level.inputs[i] = givenInputs[i];
         }
-        // loop through all the outputs
+
+        // // loop through all the outputs
+        // for (let i = 0; i < level.outputs.length; i++) {
+        //     let sum = 0;
+        //     //loop through all the inputs
+        //     for (let j = 0; j < level.inputs.length; j++) {
+        //         sum += level.inputs[j] * level.weights[j][i];
+        //     }
+        //     // compares
+        //     if(sum > level.biases[i]){
+        //         level.outputs[i] = 1;
+        //     } else {
+        //         level.outputs[i] = 0;
+        //     }
+        // }
+
         for (let i = 0; i < level.outputs.length; i++) {
             let sum = 0;
             //loop through all the inputs
             for (let j = 0; j < level.inputs.length; j++) {
                 sum += level.inputs[j] * level.weights[j][i];
             }
-            // compares
-            if(sum > level.biases[i]){
-                level.outputs[i] = 1;
-            } else {
-                level.outputs[i] = 0;
-            }
+            // get output
+            level.outputs[i] = MathMe.relu(sum + level.biases[i]);
         }
 
         return level.outputs
+    }
+}
+
+class MathMe {
+    static random(){
+        return Math.random() * 2 - 1
+    }
+
+    static lerp(a, b, t) {
+        return a + (b - a) * t;
+    }
+
+    static relu(x) {
+        return x > 0 ? x : 0;
     }
 }

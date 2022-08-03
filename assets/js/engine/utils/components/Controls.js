@@ -1,7 +1,13 @@
 export default class Controls {
-    constructor(app) {
+    constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.listeners = [];
+        callback(()=> {
+            this.app.log.registerEvent(
+                'New Controls Created',
+                '\x1b[32;1m| \x1b[0mNew \x1b[32mControls\x1b[0m Created'
+            );
+        });
     }
 
     getControls(entity) {
@@ -10,7 +16,11 @@ export default class Controls {
             : entity.controls;
     }
 
-    pushListener(event, fn) {
+    pushListener(caller, event, fn) {
+        this.app.log.registerEvent(
+            `Listener added for ${event} from ${caller.constructor.name}`,
+            `\x1b[33;1m| \x1b[0mNew listener \x1b[33m${event} \x1b[0mfrom \x1b[33m${caller.constructor.name}`
+        );
         !this.listeners[event] ?
             (this.listeners[event] = [fn]) :
             (this.listeners[event].push(fn));

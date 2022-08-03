@@ -17,7 +17,7 @@ export default class Ants2 {
         this.loadCallback = loadCallback;
         this.gui = new Gui(this.app, this);
         this.app.factory.addGameEntity(this.gui);
-        this.state = new States(this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU]);
+        this.state = new States(app, this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU]);
         this.app.factory.addGameEntity(this);
     }
     /**

@@ -1,16 +1,16 @@
-import Ant from './Ant.js';
+import Ant from './../../../ants2/utils/entities/Ant.js';
 import { PLAY, GAME_OVER } from "../../env.js";
-import Traces from "./Traces.js";
+import Traces from "./../../../ants2/utils/entities/Traces.js";
 
 export default class Anthill {
-    constructor({app, game, id = 0, ants, free}) {
+    constructor({app, game, id = 0, ants = 0, free}) {
         this.app = app;
         this.game = game;
         this.id = id;
         this.no_draw = false;
         this.no_update = false;
-        const width = app.tools.random(50,150);
-        const height = app.tools.random(50,150);
+        const width = app.tools.random(50,50);
+        const height = app.tools.random(50,50);
         this.population = [];
         this.polygons = [];
         this.antCounter = 0;
@@ -22,27 +22,21 @@ export default class Anthill {
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
-        this.loadEntities(ants, free);
+        this.loadEntities(ants, false);
+        Traces.createTraces(this.app, this);
     }
+
     /**
      * Class methods
      */
     loadEntities(ants, free) {
-        // Create new traces repository
-        this.createTraces();
         // Create new Ants
         for (let i = 0; i < ants; i++) {
             this.addAnt(free);
         }
     }
 
-    createTraces() {
-        this.app.factory.create(Traces, {
-            app: this.app,
-        });
-    }
-
-    addAnt(free) {
+    addAnt(free = this.game.constructor.name === 'Ants2Trainer') {
         if (!(this.food >= this.antCoste) && !free) {
             return;
         }
@@ -53,6 +47,8 @@ export default class Anthill {
             {
                 id: this.antCounterHistory,
                 app: this.app,
+                x: this.coords.x,
+                y: this.coords.y,
                 game: this.game,
                 angle: this.app.tools.random(-3.6, 3.6, false),
                 anthill: this
@@ -66,8 +62,6 @@ export default class Anthill {
         this.antCounter = this.population.length;
         // update ant counter history
         ++this.antCounterHistory;
-        // follow new ant
-        this.app.camera.follow(this.population[this.population.length - 1]);
     }
 
     removeAnt(ant) {
@@ -135,16 +129,16 @@ export default class Anthill {
 
     update() {
         if (!this.no_update &&
-                this.app.game.state.state === PLAY ||
-                    this.app.game.state.state === GAME_OVER) {
+            this.app.game.state.state === PLAY ||
+            this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.createPolygon(this);
         }
     }
 
     draw() {
         if (!this.no_draw &&
-                this.app.game.state.state === PLAY ||
-                    this.app.game.state.state === GAME_OVER) {
+            this.app.game.state.state === PLAY ||
+            this.app.game.state.state === GAME_OVER) {
             this.app.gui.get.drawPolygon(this.app.gui.ctx, this);
         }
     }

@@ -4,6 +4,7 @@ export default class Screen {
     constructor(app, gui) {
         this.app = app;
         this.gui = gui;
+        this.hoverCollection = {};
         this.buttons = {
             play: {
                 pick: false,
@@ -14,7 +15,6 @@ export default class Screen {
                 start: false
             }
         }
-        this.hoverCollection = {};
         this.buttonsCollection = {
             main_menu: {
                 mainMenuControls: {
@@ -48,7 +48,7 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        this.app.controls.pushListener('mousemove', (e) => {
+        this.app.controls.pushListener(this,'mousemove', (e) => {
             for (const key in this.hoverCollection) {
                 if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
                     this.hoverCaller = key;
@@ -61,7 +61,7 @@ export default class Screen {
                 }
             }
         });
-        this.app.controls.pushListener('click', (e) => {
+        this.app.controls.pushListener(this,'click', (e) => {
             if (this.app.player.anthill) {
                 // Create Ant
                 this.app.gui.get.isClicked(
@@ -96,7 +96,7 @@ export default class Screen {
                 }
             )
         });
-        this.app.controls.pushListener('mouseup', (e) => {
+        this.app.controls.pushListener(this,'mouseup', (e) => {
             // Start Game
             this.app.gui.get.isClicked(
                 this.buttonsCollection.main_menu.mainMenuControls.start,
@@ -110,7 +110,7 @@ export default class Screen {
             this.buttons.play.creatingAnt = false
             this.buttons.play.creatingAnthill = false
         });
-        this.app.controls.pushListener('mousedown', (e) => {
+        this.app.controls.pushListener(this,'mousedown', (e) => {
             // Show fps
             (e.which === 2) && this.app.gui.get.isClicked(
                 {
@@ -143,20 +143,21 @@ export default class Screen {
 
     #getPlayDataStrings() {
         let antHill = this.app.factory.binnacle?.Anthill
-        const entity = this.app.player.ant
+        const ant = this.app.player.ant
+        const anthill = this.app.player.anthill
 
-        antHill = (antHill instanceof Array) ? antHill[0] : {};
+        antHill = (antHill instanceof Array) ? antHill : {};
 
         const dec = this.app.tools.xDec
         const {ants, food, player} = {
             ants: antHill?.antCounter ?? "n/a",
             food: dec(antHill?.food ?? 0, 0),
             player: {
-                name: `Ant #${entity?.id ?? 'N/A'} Anthill #${entity?.home?.id ?? 'N/A'}`,
-                energy: dec((entity?.energy ?? 1) * 10, 2) ?? 0,
-                maxFoodPickCapacity: entity?.maxFoodPickCapacity ?? 100,
-                maxPickedFood: entity?.maxPickedFood ?? 0,
-                pickedFood: entity?.pickedFood ?? 0,
+                name: `Ant #${ant?.id ?? 'N/A'} Anthill #${anthill?.id ?? 'N/A'}`,
+                energy: dec((ant?.energy ?? 1) * 10, 2) ?? 0,
+                maxFoodPickCapacity: ant?.maxFoodPickCapacity ?? 100,
+                maxPickedFood: ant?.maxPickedFood ?? 0,
+                pickedFood: ant?.pickedFood ?? 0,
             }
         }
 
@@ -168,7 +169,7 @@ export default class Screen {
             antSelected: `Player: ${player.name}`,
             pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
             energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
-            entity
+            entity: ant
         }
     }
 
@@ -445,6 +446,15 @@ export default class Screen {
             barColor: 'rgba(0,0,0,0.5)',
             stroke: '#000'
         }, false);
+
+        // ANT COUNTER ON THE BOTTOM LEFT
+        this.app.gui.get.text({
+            ctx,
+            font,
+            text: `${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`,
+            x: 10,
+            y: window.innerHeight - 10,
+        });
 
         this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(130,169,30)';
     }

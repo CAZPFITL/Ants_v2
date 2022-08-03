@@ -7,6 +7,7 @@ import Factory from "./patterns/Factory.js";
 import Physics from "./components/Physics.js";
 import Controls from "./components/Controls.js";
 import MusicBox from "./components/MusicBox.js";
+import Log from "./components/Log.js";
 import {
     LOAD_ENGINE,
     LOAD_GAME,
@@ -14,12 +15,14 @@ import {
 } from "../env.js";
 
 export default class AppMethods {
-    constructor(Game, verbose = false) {
-        this.state = new States(this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, PLAY_GAME]);
+    constructor(Game, verbose) {
+        this.updateCallbacks = [];
         this.verbose = verbose;
 
         this.tools = Tools;
 
+        this.log = new Log(this);
+        this.state = new States(this, this, LOAD_ENGINE, [LOAD_ENGINE, LOAD_GAME, PLAY_GAME]);
         this.controls = new Controls(this);
         this.physics = new Physics(this);
         this.factory = new Factory(this);

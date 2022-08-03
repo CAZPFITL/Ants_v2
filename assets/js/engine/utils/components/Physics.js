@@ -1,7 +1,13 @@
 export default class Physics {
-    constructor(app) {
+    constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.stopRange = 0.05;
+        callback(()=> {
+            this.app.log.registerEvent(
+                `New Physics Created`,
+                `\x1b[32;1m| \x1b[0mNew \x1b[32mPhysics\x1b[0m Created`
+            );
+        });
     }
     /**
      * Class methods
@@ -56,5 +62,11 @@ export default class Physics {
         (entity.y > -limits.height / 2 && entity.y < limits.height / 2)
             ? (entity.y -= y) :
             (entity.y -= entity.y > 0 ? 0.1 : -0.1);
+    }
+
+    isInBound(entity) {
+        const limits = this.app.game.level.size;
+        return !(entity.x > -limits.width / 2 && entity.x < limits.width / 2) ||
+            !(entity.y > -limits.height / 2 && entity.y < limits.height / 2);
     }
 }
