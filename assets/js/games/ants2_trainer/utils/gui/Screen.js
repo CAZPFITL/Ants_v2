@@ -1,5 +1,11 @@
-import {PLAY, MAIN_MENU, GAME_OVER} from "../../../ants2/env.js";
 import Traces from "./../../../ants2/utils/entities/Traces.js";
+import Visualizer from './../../../../engine/utils/components/Visualizer.js';
+import {
+    PLAY,
+    MAIN_MENU,
+    GAME_OVER,
+    NETWORK
+} from "../../../ants2/env.js";
 
 export default class Screen {
     constructor(app, gui) {
@@ -555,6 +561,10 @@ export default class Screen {
         this.app.camera.follow(this.app.player.ant);
     }
 
+    #updateNetworkControlsData() {
+
+    }
+
     /**
      * Draw screens
      */
@@ -566,6 +576,11 @@ export default class Screen {
     drawPlayScreen() {
         this.drawPlayDecoration();
         this.drawPlayControls();
+    }
+
+    drawNetworkScreen() {
+        this.drawNetworkDecoration();
+        this.drawNetworkControls();
     }
 
     /**
@@ -696,6 +711,35 @@ export default class Screen {
         });
         // PRINT LOG
         this.app.log.printLog(ctx, font);
+        // PRINT NEURAL NETWORK
+        // const nWidth= 200;
+        // const nHeight= 260;
+        // const contexter = ctx;
+        // const nX= ctx.canvas.width-nWidth;
+        // const nY= ctx.canvas.height-nHeight-10;
+        // const contexter = this.app.gui.ctx;
+        // const nX= this.app.game.level.size.width / 2 + 30;
+        // const nY= -this.app.game.level.size.height / 2 + 30;
+        // const nX= (this.app.player?.ant?.x) ?? (this.app.game.level.size.width / 2) + 30;
+        // const nY= (this.app.player?.ant?.y) ?? (-this.app.game.level.size.height / 2) + 30;
+
+        // this.app.player?.ant?.brain && this.app.gui.get.square({
+        //     ctx: contexter,
+        //     x: nX - 10,
+        //     y: nY - 30,
+        //     width: nWidth,
+        //     height: nHeight,
+        //     color: 'rgba(158,144,183,0.87)',
+        //     stroke: '#000'
+        // });
+        // this.app.player?.ant?.brain && Visualizer.drawNetwork(
+        //     contexter,
+        //     this.app.player.ant.brain,
+        //     nX + 20,
+        //     nY,
+        //     nWidth - 60,
+        //     nHeight - 60,
+        // );
     }
 
     drawPlayControls(ctx = this.app.game.gui.controlsCtx) {
@@ -727,6 +771,13 @@ export default class Screen {
         });
     }
 
+    drawNetworkDecoration() {
+
+    }
+
+    drawNetworkControls() {
+
+    }
     /**
      * Draw and Update methods
      */
@@ -737,6 +788,9 @@ export default class Screen {
         }
         if (this.app.game.state.state === MAIN_MENU) {
             this.#updateMainMenuData();
+        }
+        if (this.app.game.state.state === NETWORK) {
+            this.#updateNetworkControlsData();
         }
     }
 
@@ -753,6 +807,11 @@ export default class Screen {
             this.app.game.level
         ) {
             this.drawPlayScreen();
+        }
+
+        // MAIN MENU SCREEN ELEMENTS
+        if (this.app.game.state.state === NETWORK) {
+            this.drawNetworkScreen();
         }
     }
 }

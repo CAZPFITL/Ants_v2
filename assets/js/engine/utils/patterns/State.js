@@ -21,10 +21,12 @@ export default class State {
     }
 
     setState(state) {
-        this.app.log.registerEvent(
-            `${this.caller.constructor.name} State Changed to ${state}`,
-            `\x1b[35;1m| \x1b[0mSet \x1b[35;1m${this.caller.constructor.name}\x1b[0m State\x1b[35;1m ${state}`
-        );
-        this.state = state;
+        if (this.states.includes(state)) {
+            this.app.log.registerEvent(
+                `${this.caller.constructor.name} State Changed to ${state}`,
+                `\x1b[35;1m| \x1b[0mSet \x1b[35;1m${this.caller.constructor.name}\x1b[0m State\x1b[35;1m ${state}`
+            );
+            this.state = state;
+        }
     }
 }

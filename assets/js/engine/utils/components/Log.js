@@ -3,7 +3,7 @@ export default class Log {
     constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.fadeSpeed = 30;
-        this.n = 8;
+        this.n = 6;
         this.lineHeight = 26;
         this.cleared = true;
         this.log = [];
@@ -55,7 +55,7 @@ export default class Log {
                 text: `${message}...`,
                 x: 16,
                 y: logY + (index * this.lineHeight) + 1,
-                color: 'rgba(0,0,0,0.46)',
+                color: `rgba(0,0,0,${0.46 - ((this.log.length - index) * (this.n/100))})`,
                 width: this.app.gui.ctx.measureText(message).width,
                 height: this.lineHeight
             });
@@ -65,7 +65,7 @@ export default class Log {
                 text: `${message}...`,
                 x: 15,
                 y: logY + (index * this.lineHeight),
-                color: 'rgba(255,0,115,0.54)',
+                color: `rgba(255,0,115,${0.54 - ((this.log.length - index) * (this.n/100))})`,
                 width: this.app.gui.ctx.measureText(message).width,
                 height: this.lineHeight
             });

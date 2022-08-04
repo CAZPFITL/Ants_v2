@@ -57,7 +57,7 @@ export default class Traces {
     }
 
     update() {
-        if (this.app.request - (this.requestFlag ?? 0) < 300) return;
+        if (this.app.request - (this.requestFlag ?? 0) < 5000) return;
         this.requestFlag = this.app.request;
         this.removeTrace(this.collection[0]);
     }

@@ -4,3 +4,4 @@ export const GAME_OVER = 'GAME_OVER';
 export const MAIN_MENU = 'MAIN_MENU';
 export const PLAY = 'PLAY';
 export const STOP = 'STOP';
+export const NETWORK = 'NETWORK';

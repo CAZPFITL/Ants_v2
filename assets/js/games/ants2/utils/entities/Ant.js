@@ -3,6 +3,7 @@ import Sensor from "../../../../engine/utils/components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
 import Food from "./Food.js";
 import Traces from "./Traces.js";
+import Visualizer from './../../../../engine/utils/components/Visualizer.js';
 
 export default class Ant {
     constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill, addedRules = []}) {
@@ -209,7 +210,12 @@ export default class Ant {
     }
 
     #highlight() {
-        this.color = (this.app.player.ant === this) ? 'rgba(0,0,0,1)' : 'rgba(0,0,0,0.6)';
+        if (this.app.game.constructor.name === 'Ants2') {
+            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.35)';
+        }
+        if (this.app.game.constructor.name === 'Ants2Trainer') {
+            this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.35)';
+        }
     }
 
     /**
@@ -242,6 +248,50 @@ export default class Ant {
         ]
     }
 
+    drawAntNetwork() {
+        if (this.app.game.constructor.name !== 'Ants2Trainer' || this !== this.app.player.ant) {
+            return;
+        }
+
+        const boxDistance = 80;
+        const nWidth= 100;
+        const nHeight= 100;
+        const contexter = this.app.gui.ctx;
+        const nX= (this.app.player?.ant?.x) + boxDistance;
+        const nY= (this.app.player?.ant?.y) - nHeight - boxDistance;
+
+        contexter.lineWidth = 1.5;
+        this.app.player?.ant?.brain && this.app.gui.get.square({
+            ctx: contexter,
+            x: nX,
+            y: nY,
+            width: nWidth,
+            height: nHeight,
+            color: 'rgba(158,144,183,0.49)',
+            stroke: 'rgb(0,150,234)'
+        });
+        contexter.beginPath();
+        contexter.moveTo(nX, nY + nHeight);
+        contexter.lineTo(nX - boxDistance, nY + boxDistance + nHeight);
+        contexter.stroke();
+        contexter.lineWidth = 0.5;
+        this.app.player?.ant?.brain && Visualizer.drawNetwork(
+            contexter,
+            this.app.player.ant.brain,
+            nX + 10,
+            nY + 10,
+            nWidth - 20,
+            nHeight - 20,
+            6.5
+        );
+    }
+
+    drawAnt(ctx) {
+        this.app.gui.get.drawPolygon(ctx, this);
+        !this.no_draw && this.sensor.draw(ctx);
+        this.drawAntNetwork();
+    }
+
     update() {
         if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             // Draw me
@@ -255,8 +305,7 @@ export default class Ant {
 
     draw(ctx) {
         if (!this.no_draw && this.app.game.state.state === PLAY) {
-            this.app.gui.get.drawPolygon(ctx, this);
-            !this.no_draw && this.sensor.draw(ctx);
+            this.drawAnt(ctx);
         }
     }
 }

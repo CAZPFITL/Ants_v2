@@ -4,8 +4,8 @@ export default class Sensor {
         this.app = entity.app;
         this.no_update = false;
         this.no_draw = false;
-        this.rayCount = 8;
-        this.rayLength = 40;
+        this.rayCount = 5;
+        this.rayLength = 50;
         this.raySpread = Math.PI * 0.5;
         this.rays = [];
         this.readings = [];
@@ -90,8 +90,8 @@ export default class Sensor {
 
     drawRays(ctx) {
         for (let i = 0; i < this.rays.length; i++) {
-            this.drawRay(ctx, this.rays[i], i, '#000000', 0);
-            this.drawRay(ctx, this.rays[i], i, '#818181', 1);
+            this.drawRay(ctx, this.rays[i], i, 'rgba(0,0,0,0.44)', 0);
+            this.drawRay(ctx, this.rays[i], i, 'rgba(0,138,168,0.89)', 1);
         }
     }
 
