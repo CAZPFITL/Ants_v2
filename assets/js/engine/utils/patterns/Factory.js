@@ -5,7 +5,7 @@ export default class Factory {
         callback(()=> {
             this.app.log.registerEvent(
                 `New Factory Created`,
-                `\x1b[32;1m| \x1b[0mNew \x1b[32mFactory\x1b[0m Created`
+                `\x1b[32;1m| \x1b[0mNew \x1b[32;1mFactory\x1b[0m Created`
             );
         });
     }
@@ -21,7 +21,7 @@ export default class Factory {
         this.binnacle[object.name].push(instanceFromType);
         this.app.log.registerEvent(
             `Factory Produced ${object.name}`,
-            `\x1b[32;1m| \x1b[0mFactory Produced \x1b[32m${object.name}${props.id ? ` #${props.id}` : ''}`
+            `\x1b[32;1m| \x1b[0mFactory Produced \x1b[32;1m${object.name}${props.id ? ` #${props.id}` : ''}`
         );
         // Return the object
         return instanceFromType;

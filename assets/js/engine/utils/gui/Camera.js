@@ -21,7 +21,7 @@ export default class Camera {
         callback(()=> {
             this.app.log.registerEvent(
                 'New Camera Created',
-                '\x1b[32;1m| \x1b[0mNew \x1b[32mCamera\x1b[0m Created'
+                '\x1b[32;1m| \x1b[0mNew \x1b[32;1mCamera\x1b[0m Created'
             );
         });
     }

@@ -17,7 +17,10 @@ export default class Ants2Trainer {
         this.gui = new Gui(this.app, this);
         this.flags = {
             antLooper: 100,
-            dieRadius: 50
+            dieRadius: 50,
+            logStart: 0,
+            logFlag: 0,
+            logCounter: 0,
         };
         this.bestAnt = null;
         this.app.factory.addGameEntity(this.gui);

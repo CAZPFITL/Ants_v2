@@ -7,7 +7,7 @@ export default class State {
         callback(()=> {
             this.app.log.registerEvent(
                 `New ${this.caller.constructor.name} State Created`,
-                `\x1b[32;1m| \x1b[0mNew \x1b[32m${this.caller.constructor.name}\x1b[0m State Created`
+                `\x1b[32;1m| \x1b[0mNew \x1b[32;1m${this.caller.constructor.name}\x1b[0m State Created`
             );
             this.addStates(states);
             this.setState(initialState);
@@ -23,7 +23,7 @@ export default class State {
     setState(state) {
         this.app.log.registerEvent(
             `${this.caller.constructor.name} State Changed to ${state}`,
-            `\x1b[95;1m| \x1b[0mSet \x1b[95m${this.caller.constructor.name}\x1b[0m State\x1b[95m ${state}`
+            `\x1b[35;1m| \x1b[0mSet \x1b[35;1m${this.caller.constructor.name}\x1b[0m State\x1b[35;1m ${state}`
         );
         this.state = state;
     }

@@ -694,6 +694,8 @@ export default class Screen {
             x: window.innerWidth - (this.app.gui.ctx.measureText(`${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`).width * 2.2) - 10,
             y: window.innerHeight - 10,
         });
+        // PRINT LOG
+        this.app.log.printLog(ctx, font);
     }
 
     drawPlayControls(ctx = this.app.game.gui.controlsCtx) {

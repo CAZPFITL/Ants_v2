@@ -10,7 +10,7 @@ export default class Gui {
         callback(()=> {
             this.app.log.registerEvent(
                 `New Gui Created`,
-                `\x1b[32;1m| \x1b[0mNew \x1b[32mApp Gui\x1b[0m Created`
+                `\x1b[32;1m| \x1b[0mNew \x1b[32;1mApp Gui\x1b[0m Created`
             );
         });
     }
