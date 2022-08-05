@@ -771,10 +771,6 @@ export default class Screen {
         });
     }
 
-    drawNetworkDecoration() {
-
-    }
-
     drawNetworkControls() {
 
     }
@@ -807,11 +803,6 @@ export default class Screen {
             this.app.game.level
         ) {
             this.drawPlayScreen();
-        }
-
-        // MAIN MENU SCREEN ELEMENTS
-        if (this.app.game.state.state === NETWORK) {
-            this.drawNetworkScreen();
         }
     }
 }

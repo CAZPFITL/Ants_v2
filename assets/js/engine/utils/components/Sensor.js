@@ -3,7 +3,7 @@ export default class Sensor {
         this.entity = entity;
         this.app = entity.app;
         this.no_update = false;
-        this.no_draw = false;
+        this.no_draw = this.app.game.constructor.name === 'Ants2';
         this.rayCount = 5;
         this.rayLength = 50;
         this.raySpread = Math.PI * 0.5;

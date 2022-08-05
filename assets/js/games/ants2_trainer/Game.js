@@ -1,6 +1,7 @@
 import GameLevel from "./../ants2/utils/components/GameLevel.js";
 import Gui from "./../ants2/utils/gui/Gui.js";
 import States from "../../engine/utils/patterns/State.js";
+import FamilyTree from "../../engine/utils/components/FamilyTree.js";
 import Player from "./../ants2/utils/components/Player.js";
 import {
     LOAD_GAME_DATA,
@@ -27,6 +28,10 @@ export default class Ants2Trainer {
         this.app.factory.addGameEntity(this.gui);
         this.state = new States(app, this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU, NETWORK]);
         this.app.factory.addGameEntity(this);
+
+        this.app.factory.create(FamilyTree,{
+            app: this.app
+        })
     }
 
     /**
