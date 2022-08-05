@@ -59,19 +59,113 @@ export default class FamilyTree {
             return;
         }
 
-        //WRAPPER
-        const wrapperW = 300;
-        const wrapperH = 300;
-        const wrapperX = - wrapperW / 2;
-        const wrapperY = - wrapperH / 2;
+        const drawBoard = (elementsSize = 40, limit = 60) => {
+            //WRAPPER
+            const margin = elementsSize / 2 > limit ? limit : elementsSize / 2;
+            const wrapperW = elementsSize * 3 + margin * 2;
+            const wrapperH = elementsSize * 3 + margin * 2;
+            const wrapperX = wrapperW / 2;
+            const wrapperY = wrapperH / 2;
+            // DRAW WRAPPER
+            this.app.gui.get.square({
+                ctx,
+                x: -wrapperX,
+                y: -wrapperY,
+                width: wrapperW,
+                height: wrapperH,
+                stroke: '#000',
+            });
 
-        this.app.gui.get.square({
-            ctx,
-            x: wrapperX,
-            y: wrapperY,
-            width: wrapperW,
-            height: wrapperH,
-            stroke: '#000',
-        });
+            // DRAW BOARD
+            const drawNuclearFamilyTree = (x, y) => {
+                // DRAW PARENT
+                const drawElement = (x, y, level = 0) => {
+                    this.app.gui.get.square({
+                        ctx,
+                        x,
+                        y,
+                        width: elementsSize,
+                        height: elementsSize,
+                        color: '#FFF',
+                        stroke: '#000'
+                    });
+
+                    ctx.fillStyle = '#000';
+                    ctx.font = `${elementsSize / 2}px Mouse`;
+                    ctx.fillText(String(level), x + elementsSize / 2 - (elementsSize / 8), y + elementsSize / 2 + (elementsSize / 5));
+                }
+
+                // DRAW RELATIONS
+                const drawRelations = (x, y) => {
+                    // RELATION 1
+                    this.app.gui.get.line({
+                        ctx,
+                        x1: x + elementsSize / 2,
+                        y1: y + elementsSize,
+                        x2: x + elementsSize / 2,
+                        y2: y + elementsSize * 1.5,
+                        color: '#000',
+                    });
+                    // RELATION 2
+                    this.app.gui.get.line({
+                        ctx,
+                        x1: x + elementsSize * 2.5,
+                        y1: y + elementsSize,
+                        x2: x + elementsSize * 2.5,
+                        y2: y + elementsSize * 1.5,
+                        color: '#000',
+                    });
+                    // RELATION 3
+                    this.app.gui.get.line({
+                        ctx,
+                        x1: x + elementsSize * 1.5,
+                        y1: y + elementsSize * 1.5,
+                        x2: x + elementsSize * 1.5,
+                        y2: y + elementsSize * 2,
+                        color: '#000',
+                    });
+                    // UNION
+                    this.app.gui.get.line({
+                        ctx,
+                        x1: x + elementsSize / 2,
+                        y1: y + elementsSize * 1.5,
+                        x2: x + elementsSize * 2.5,
+                        y2: y + elementsSize * 1.5,
+                        color: '#000',
+                    });
+                }
+
+                // Father
+                drawElement(x, y, 0);
+                // Mother
+                drawElement(x + elementsSize * 2, y, 0);
+                // Children
+                drawElement(x + elementsSize, y + elementsSize * 2, 0);
+                // Relationships
+                drawRelations(x, y);
+            }
+            //
+            // const generations = [{elements: 4}, {elements: 2}];
+            //
+            // generations.forEach(generation => {
+            //     for (let i = 0; i < generation.elements; i++) {
+            //
+            //     }
+            //     drawNuclearFamilyTree(-wrapperX + margin, -wrapperY + margin, 0);
+            //     drawNuclearFamilyTree(wrapperX + margin, -wrapperY + margin, 0);
+            //
+            //
+            // });
+            drawNuclearFamilyTree(-wrapperX + margin, -wrapperY + margin, 0);
+            drawNuclearFamilyTree(wrapperX + margin, -wrapperY + margin, 0);
+
+            drawNuclearFamilyTree(wrapperX * 3 + margin, -wrapperY + margin, 0);
+            drawNuclearFamilyTree(wrapperX * 5 + margin, -wrapperY + margin, 0);
+
+            drawNuclearFamilyTree(-wrapperX * 0.5 + margin, wrapperY + margin, 0);
+            drawNuclearFamilyTree(wrapperX + margin, wrapperY + margin, 0);
+        }
+
+        drawBoard(100);
     }
 }
