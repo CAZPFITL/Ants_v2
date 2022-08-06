@@ -51,7 +51,7 @@ export default class NeuralNetwork {
                 for (let k = 0; k < network.levels[i].weights[j].length; k++) {
                     network.levels[i].weights[j][k] = MathMe.lerp(
                         network.levels[i].weights[j][k],
-                        MathMe.r(),
+                        MathMe.random(),
                         amount
                     );
                 }
@@ -59,6 +59,7 @@ export default class NeuralNetwork {
         }
     }
 
+    // Crossover script for the network
     static evolveFromParents(network1, network2) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
@@ -78,6 +79,8 @@ export default class NeuralNetwork {
                 }
             }
         }
+
+        return network1;
     }
 }
 

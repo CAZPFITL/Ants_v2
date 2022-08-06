@@ -1,8 +1,11 @@
 import GameLevel from "./../ants2/utils/components/GameLevel.js";
-import Gui from "./../ants2/utils/gui/Gui.js";
-import States from "../../engine/utils/patterns/State.js";
-import FamilyTree from "../../engine/utils/components/FamilyTree.js";
 import Player from "./../ants2/utils/components/Player.js";
+import Gui from "./../ants2/utils/gui/Gui.js";
+
+import NeuralNetwork from "../../engine/utils/components/Network.js";
+import FamilyTree from "../../engine/utils/components/FamilyTree.js";
+import States from "../../engine/utils/patterns/State.js";
+
 import {
     LOAD_GAME_DATA,
     LOAD_GAME_LEVEL,
@@ -114,10 +117,11 @@ export default class Ants2Trainer {
                 }
             }]
         })
-        this.state.setState(MAIN_MENU);
+        this.state.setState(NETWORK);
     }
 
     loadFamilyTree() {
+        // TODO Move to Family Tree component
         if (localStorage.getItem('familyTree')) {
             for (let i = 0; i < this.app.factory.binnacle.Ant.length; i++) {
                 this.app.factory.binnacle.Ant[i].brain = JSON.parse(localStorage.getItem('familyTree'));
@@ -127,7 +131,6 @@ export default class Ants2Trainer {
             }
         }
     }
-
 
     saveFamilyTree = () => {
         localStorage.setItem('familyTree', JSON.stringify(this.app.game.bestAnt.brain));
