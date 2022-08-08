@@ -58,7 +58,7 @@ export default class Ant {
             run: 0
         }
         this.sensor = new Sensor(this);
-        this.brain = new NeuralNetwork(this, [
+        this.brain = new NeuralNetwork([
             this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
             6, // first layer
             4, // second layer

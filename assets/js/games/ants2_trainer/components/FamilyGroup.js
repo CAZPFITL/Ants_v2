@@ -86,7 +86,7 @@ export default class Group {
      * Procreate the group
      */
     procreate() {
-        this.child = NeuralNetwork.evolveFromParents(this.father, this.mother);
+        this.child.brain = NeuralNetwork.evolveFromParents(this.father.brain, this.mother.brain);
     }
 
     /**

@@ -319,12 +319,41 @@ export default class Screen {
                         this.app.game.state.setState(PLAY);
                     }
                 );
+                // SAVE
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.networks.save,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        console.log('save');
+                        this.app.factory.binnacle.FamilyTree[0].save();
+                    }
+                );
+                // LOAD
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.networks.load,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        console.log('load');
+                        this.app.factory.binnacle.FamilyTree[0].load();
+                    }
+                );
+
                 // MEMBERS CLICK
                 this.app.factory.binnacle.Member.forEach(key => {
                     this.app.gui.get.isClicked(
                         key,
                         this.app.gui.get.clickCoords(e, this.app.camera.viewport),
-                        () => this.app.factory.binnacle.FamilyTree[0].selectMember(key)
+                        () => {
+                            this.app.factory.binnacle.FamilyTree[0].selectMember(key)
+                            if (
+                                key.group.father.brain &&
+                                key.group.mother.brain &&
+                                !key.brain &&
+                                key.role === 'child'
+                            ) {
+                                key.group.procreate();
+                            }
+                        }
                     )
                 });
                 this.buttons.networks.player = false;
@@ -568,9 +597,9 @@ export default class Screen {
                     bg: !this.buttons.play.creatingTrace ? '#b47607' : '#ffa600'
                 },
                 'networks': {
-                    x: this.gui.controlsCtx.canvas.width - 60,
+                    x: this.gui.controlsCtx.canvas.width - 90,
                     y: 130,
-                    width: 50,
+                    width: 80,
                     height: 50,
                     text: 'Networks',
                     font,
@@ -674,6 +703,24 @@ export default class Screen {
                     font,
                     bg: !this.buttons.networks.back ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
                 },
+                'save': {
+                    x: this.gui.controlsCtx.canvas.width - 90,
+                    y: this.gui.controlsCtx.canvas.height - 60,
+                    width: 80,
+                    height: 50,
+                    text: 'Save',
+                    font,
+                    bg: !this.buttons.networks.save ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+                },
+                'load': {
+                    x: this.gui.controlsCtx.canvas.width - 180,
+                    y: this.gui.controlsCtx.canvas.height - 60,
+                    width: 80,
+                    height: 50,
+                    text: 'Load',
+                    font,
+                    bg: !this.buttons.networks.load ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+                }
             }
         }
     }
@@ -876,7 +923,9 @@ export default class Screen {
             start: {ctx: this.app.gui.ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start}
         } : (network) ? {
             player: this.app.player.ant ? {ctx, ...this.buttonsCollection.networks.player} : {},
-            back: {ctx, ...this.buttonsCollection.networks.back}
+            back: {ctx, ...this.buttonsCollection.networks.back},
+            load: {ctx, ...this.buttonsCollection.networks.load},
+            save: {ctx, ...this.buttonsCollection.networks.save}
         } : {};
 
         this.hoverCollection = {};

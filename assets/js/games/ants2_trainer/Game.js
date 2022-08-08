@@ -132,7 +132,7 @@ export default class Ants2Trainer {
     }
 
     saveFamilyTree = () => {
-        localStorage.setItem('familyTree', JSON.stringify(this.app.game.bestAnt.brain));
+        localStorage.setItem('familyTree', JSON.stringify(this.app.factory.binnacle.FamilyTree[0]));
     }
 
     // discardFamilyTree = (generation, member) => {

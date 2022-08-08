@@ -1,6 +1,6 @@
 export default class NeuralNetwork {
-    constructor(app, neuronCount) {
-        this.app = app;
+    constructor(neuronCount) {
+        // this.app = app;
         this.getNetworkData({neuronCount});
     }
     /**
@@ -63,18 +63,16 @@ export default class NeuralNetwork {
     static evolveFromParents(network1, network2) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
-                network1.levels[i].biases[j] = MathMe.lerp(
+                network1.levels[i].biases[j] = MathMe.average(
                     network1.levels[i].biases[j],
-                    network2.levels[i].biases[j],
-                    0.5
+                    network2.levels[i].biases[j]
                 );
             }
             for (let j = 0; j < network1.levels[i].weights.length; j++) {
                 for (let k = 0; k < network1.levels[i].weights[j].length; k++) {
-                    network1.levels[i].weights[j][k] = MathMe.lerp(
+                    network1.levels[i].weights[j][k] = MathMe.average(
                         network1.levels[i].weights[j][k],
-                        network2.levels[i].weights[j][k],
-                        0.5
+                        network2.levels[i].weights[j][k]
                     );
                 }
             }
@@ -154,6 +152,10 @@ class Level {
 class MathMe {
     static random(){
         return Math.random() * 2 - 1
+    }
+
+    static average(a, b) {
+        return (a + b) / 2;
     }
 
     static lerp(a, b, t) {
