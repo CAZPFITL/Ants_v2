@@ -1,5 +1,5 @@
 export default class Traces {
-    constructor({ app, anthill }) {
+    constructor({app, anthill}) {
         this.app = app;
         this.anthill = anthill;
         this.collection = [];
@@ -29,21 +29,21 @@ export default class Traces {
 
         const spreadMark = props.spreadMark ?? 2;
         this.app.factory.binnacle['Traces'][0].addTrace({
-            x: this.app.tools.random(position.x -  spreadMark,position.x +  spreadMark, false),
-            y: this.app.tools.random(position.y -  spreadMark,position.y +  spreadMark, false),
-            radius: this.app.tools.random(2,3, false),
+            x: this.app.tools.random(position.x - spreadMark, position.x + spreadMark, false),
+            y: this.app.tools.random(position.y - spreadMark, position.y + spreadMark, false),
+            radius: this.app.tools.random(2, 3, false),
             polygons: [{
-                x: position.x -  2,
-                y: position.y -  2,
-            },{
-                x: position.x -  2,
-                y: position.y +  2,
-            },{
-                x: position.x +  2,
-                y: position.y +  2,
-            },{
-                x: position.x +  2,
-                y: position.y -  2,
+                x: position.x - 2,
+                y: position.y - 2,
+            }, {
+                x: position.x - 2,
+                y: position.y + 2,
+            }, {
+                x: position.x + 2,
+                y: position.y + 2,
+            }, {
+                x: position.x + 2,
+                y: position.y - 2,
             }]
         });
     }
@@ -57,29 +57,33 @@ export default class Traces {
     }
 
     update() {
-        if (this.app.request - (this.requestFlag ?? 0) < 5000) return;
-        this.requestFlag = this.app.request;
-        this.removeTrace(this.collection[0]);
+        if (this.app.game.state.state === 'PLAY') {
+            if (this.app.request - (this.requestFlag ?? 0) < 5000) return;
+            this.requestFlag = this.app.request;
+            this.removeTrace(this.collection[0]);
+        }
     }
 
     draw() {
-        for (let i = 0; i < this.collection.length; i++) {
-            // draw circle of random radius
-            this.app.gui.ctx.fillStyle = 'rgba(255,207,0,0.34)';
-            this.app.gui.ctx.beginPath();
-            this.app.gui.ctx.arc(
-                this.collection[i].x,
-                this.collection[i].y,
-                this.collection[i].radius,
-                0,
-                2 * Math.PI);
-            this.app.gui.ctx.fill()
+        if (this.app.game.state.state === 'PLAY') {
+            for (let i = 0; i < this.collection.length; i++) {
+                // draw circle of random radius
+                this.app.gui.ctx.fillStyle = 'rgba(255,207,0,0.34)';
+                this.app.gui.ctx.beginPath();
+                this.app.gui.ctx.arc(
+                    this.collection[i].x,
+                    this.collection[i].y,
+                    this.collection[i].radius,
+                    0,
+                    2 * Math.PI);
+                this.app.gui.ctx.fill()
+            }
         }
     }
 }
 
 class Trace {
-    constructor({ x, y, radius, polygons }) {
+    constructor({x, y, radius, polygons}) {
         this.x = x;
         this.y = y;
         this.radius = radius;

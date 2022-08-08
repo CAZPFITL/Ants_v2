@@ -15,8 +15,9 @@ export default class FamilyTree {
         this.margin = elementsSize / 2 > marginLimit ? marginLimit : elementsSize / 2;
         this.height = elementsSize * 3 + this.margin * 2;
         this.width = elementsSize * 3 + this.margin * 2;
-        this.x = this.width / 2;
-        this.y = this.height / 2;
+        this.x = -this.width / 2;
+        this.y = -this.height / 2;
+        this.memberSelected = null;
         this.init();
     }
 
@@ -24,13 +25,26 @@ export default class FamilyTree {
      * Initialize the FamilyTree
      */
     init() {
-        this.setGeneration();
         this.setGroup(0, 1);
-        this.app.factory.addGameEntity(this);
+        this.setGroup(0, 2);
+        this.setGroup(1, 3);
         this.app.log.registerEvent(
             `New FamilyTree Created`,
             `\x1b[32;1m| \x1b[0mNew \x1b[32;1mFamilyTree\x1b[0m Created`
         );
+    }
+
+    selectMember(member) {
+        this.memberSelected = member;
+    }
+
+    applyBrain(member) {
+        this.memberSelected.brain = member.brain;
+
+        if (member === this.app.player.ant) {
+            this.app.player.ant = null;
+            this.app.factory.remove(member)
+        }
     }
 
     /**
@@ -46,36 +60,19 @@ export default class FamilyTree {
      * @param id {number} - Id of the group to draw
      */
     setGroup(gen, id = this.getMembersTotal() + 1) {
+        if (!this.generations[gen]) this.setGeneration();
         this.generations[gen].push(
-            new Group({
+            this.app.factory.create(Group,{
                 app: this.app,
                 id,
                 tree: this,
                 fromBoard: false,
                 haveChild: false,
-                x: (this.x + this.generations[gen].length * (this.width + this.margin)) - this.width,
-                y: this.y,
+                x: this.x + this.generations[gen].length * (this.width + this.margin),
+                y: -this.y - gen * (this.width + this.margin),
                 gen
             })
         );
-    }
-
-    /**
-     * Draw the FamilyTree
-     * @param gen {number} - Generation to draw
-     * @param group {number} - Group to draw
-     * @param position {string} - Position of the group to draw
-     * @param member {object} - Member to draw
-     * @param id {number} - id of the member to draw
-     */
-    setMember(
-        gen= this.generations.length,
-        group= this.generations[this.generations.length - 1].length,
-        position = 'father',
-        member = this.app.player?.ant?.brain ?? {},
-        id = this.getMembersTotal() + 1
-    ) {
-        this.generations[gen - 1][group - 1].addMember(position, member, id);
     }
 
     /**
@@ -90,21 +87,5 @@ export default class FamilyTree {
             });
         });
         return total;
-    }
-
-    /**
-     * Update the FamilyTree
-     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
-     */
-    update(ctx = this.app.gui.ctx) {
-        if (this.app.game.state.state === 'NETWORK') {
-            // UPDATE BOARD MEASUREMENTS
-            this.margin = this.elementsSize / 2 > this.marginLimit ? this.marginLimit : this.elementsSize / 2;
-            this.height = this.elementsSize * 3 + this.margin * 2;
-            this.width = this.elementsSize * 3 + this.margin * 2;
-            this.x = this.width / 2;
-            this.y = this.height / 2;
-
-        }
     }
 }

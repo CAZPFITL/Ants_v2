@@ -131,10 +131,10 @@ export default class Gui {
     /**
      * Screen instantiable objects
      */
-    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000'}) {
+    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000', center = true}) {
         // create a button to be used in the canvas
         this.square({ctx, x, y, width, height, color: bg, stroke});
-        this.text({ctx, font, color, text, x, y, width, height, center: true});
+        this.text({ctx, font, color, text, x, y, width, height, center});
     }
 
     static square({ctx, x, y, width, height, color = '#FFF', stroke = false}) {

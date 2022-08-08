@@ -10,13 +10,17 @@ export default class Member {
      * @param x {number} - The x position of the Family Member
      * @param y {number} - The y position of the Family Member
      */
-    constructor({app, tree, group, id, fromBoard, haveChild, x, y}) {
+    constructor({app, role, tree, group, id, fromBoard, haveChild, x, y}) {
         this.app = app;
+        this.role = role;
         this.tree = tree;
         this.group = group;
         this.id = id;
         this.x = x;
         this.y = y;
+        this.selected = false;
+        this.width = this.tree.elementsSize;
+        this.height = this.tree.elementsSize;
         this.brain = null;
         this.fromBoard = fromBoard;
         this.haveChild = haveChild;
@@ -27,7 +31,6 @@ export default class Member {
      * Initialize the Family Member
      */
     init() {
-        this.app.factory.addGameEntity(this);
         this.app.log.registerEvent(
             `New TreeGroup Created`,
             `\x1b[32;1m| \x1b[0mNew \x1b[32;1mTreeGroup\x1b[0m Created`
@@ -51,22 +54,25 @@ export default class Member {
      * @param y {number} - The y position of the Family Member
      * @param color {string} - The color of the Family Member
      */
-    draw(ctx, x, y, color) {
+    draw(ctx = this.app.gui.ctx, x= this.x, y = this.y) {
+        this.selected && console.log(this.selected)
         if (this.app.game.state.state === 'NETWORK') {
+            const isSelected = this.tree.memberSelected === this;
             this.app.gui.get.square({
                 ctx,
                 x,
                 y,
                 width: this.group.tree.elementsSize,
                 height: this.group.tree.elementsSize,
-                color: '#FFF',
-                stroke: color
+                color: isSelected ? '#FC9EFF56' : '#FFF',
+                stroke: this.brain ? '#000' : '#777',
             });
 
             ctx.fillStyle = '#000';
             ctx.font = `${this.group.tree.elementsSize / 2}px Mouse`;
+            const text = this.brain ? this.id : '';
             ctx.fillText(
-                String(this.id ?? ''),
+                String(text),
                 x + this.group.tree.elementsSize / 2 - (this.group.tree.elementsSize / 8),
                 y + this.group.tree.elementsSize / 2 + (this.group.tree.elementsSize / 5)
             );

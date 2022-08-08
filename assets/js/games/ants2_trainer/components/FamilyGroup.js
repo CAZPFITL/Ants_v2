@@ -20,7 +20,7 @@ export default class Group {
         this.father = null;
         this.mother = null;
         this.child = null;
-        this.x = -x;
+        this.x = x;
         this.y = y;
         this.margin = this.tree.elementsSize / 2 > this.tree.marginLimit ? this.tree.marginLimit : this.tree.elementsSize / 2;
         this.width = this.tree.elementsSize * 3 + this.margin * 2;
@@ -38,34 +38,36 @@ export default class Group {
      * Initialize the Family Group
      */
     init() {
-        this.father = new Member({
+        this.father = this.app.factory.create(Member, {
             app: this.app,
+            role: 'father',
             tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: false,
-            x: this.x,
-            y: this.y,
+            x: this.x + this.margin,
+            y: -this.y + this.margin,
         });
-        this.mother = new Member({
+        this.mother = this.app.factory.create(Member, {
             app: this.app,
+            role: 'mother',
             tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: false,
-            x: this.x,
-            y: this.y,
+            x: this.x + this.margin + this.tree.elementsSize * 2,
+            y: -this.y + this.margin,
         });
-        this.child = new Member({
+        this.child = this.app.factory.create(Member, {
             app: this.app,
+            role: 'child',
             tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: true,
-            x: this.x,
-            y: this.y,
+            x: this.x + this.margin + this.tree.elementsSize,
+            y: -this.y + this.margin + this.tree.elementsSize * 2,
         });
-        this.app.factory.addGameEntity(this);
     }
 
     /**
@@ -157,31 +159,19 @@ export default class Group {
     /**
      * Draw the Family Group
      * @param ctx {CanvasRenderingContext2D} - Context of the canvas
-     * @param x {number} - x position of the Family Group
-     * @param y {number} - y position of the Family Group
-     */
-    drawMembers(ctx, x, y) {
-        this.father.draw(ctx, x, y, this.father.brain ? '#000000' : '#999999');
-        this.mother.draw(ctx, x + this.tree.elementsSize * 2, y, this.mother.brain ? '#000000' : '#999999');
-        this.child.draw(ctx, x + this.tree.elementsSize, y + this.tree.elementsSize * 2, this.child.brain ? '#000000' : '#999999');
-    }
-
-    /**
-     * Draw the Family Group
-     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
      */
     draw(ctx) {
         if (this.app.game.state.state === 'NETWORK') {
+            // console.log(this.x)
             this.app.gui.get.square({
                 ctx,
-                x: -this.x,
+                x: this.x,
                 y: -this.y,
                 width: this.width,
                 height: this.height,
                 stroke: '#000000',
             });
-            this.drawRelations(ctx, -this.x + this.margin, -this.y + this.margin);
-            this.drawMembers(ctx, -this.x + this.margin, -this.y + this.margin);
+            this.drawRelations(ctx, this.x + this.margin, -this.y + this.margin);
         }
     }
 }

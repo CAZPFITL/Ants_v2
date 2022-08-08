@@ -1,5 +1,4 @@
 import Traces from "./../../../ants2/utils/entities/Traces.js";
-
 import {
     PLAY,
     MAIN_MENU,
@@ -33,7 +32,11 @@ export default class Screen {
             },
             main_menu: {
                 start: false
-            }
+            },
+            networks: {
+                positioning: false,
+                player: false,
+            },
         }
         this.buttonsCollection = {
             main_menu: {
@@ -59,6 +62,9 @@ export default class Screen {
                     'loopSize': {},
                     'createLoop': {}
                 }
+            },
+            networks: {
+                'player': {}
             }
         }
         this.#addListeners();
@@ -69,12 +75,12 @@ export default class Screen {
      */
     #addListeners() {
         this.app.controls.pushListener(this, 'mousemove', (e) => {
+            // TRANSLATE COORDS - general process
+            const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: e.offsetX,
+                y: e.offsetY
+            }, this.app.camera.viewport);
             if (this.app.game.state.state === PLAY) {
-                // TRANSLATE COORDS - general process
-                const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
-                    x: e.offsetX,
-                    y: e.offsetY
-                }, this.app.camera.viewport);
                 // CREATING ENTITY PROCESS
                 if (this.buttons.play.creating) {
                     if (this.creation?.coords) {
@@ -169,16 +175,25 @@ export default class Screen {
                         this.app.game.flags.antLooper = refMin;
                     }
                 }
-                // HOVER COLLECTION - (hover)
-                for (const key in this.hoverCollection) {
-                    if (this.app.gui.get.isHover(this.hoverCollection[key], {x: e.clientX, y: e.clientY})) {
-                        this.hoverCaller = key;
-                        this.gui.hoverStateIn();
-                    } else {
-                        if (this.hoverCaller === key) {
-                            this.hoverCaller = null;
-                            this.gui.hoverStateOut();
-                        }
+            }
+            // HOVER COLLECTION - (hover)
+            for (const key in this.hoverCollection) {
+                if (
+                    this.app.gui.get.isHover(
+                        this.hoverCollection[key],
+                        {x: e.clientX, y: e.clientY}
+                    ) ||
+                    this.app.gui.get.isHover(
+                        this.hoverCollection[key],
+                        hoverTranslatedCoords
+                    )
+                ) {
+                    this.hoverCaller = key;
+                    this.gui.hoverStateIn();
+                } else {
+                    if (this.hoverCaller === key) {
+                        this.hoverCaller = null;
+                        this.gui.hoverStateOut();
                     }
                 }
             }
@@ -190,10 +205,11 @@ export default class Screen {
                     this.buttonsCollection.main_menu.mainMenuControls.start,
                     this.app.gui.get.clickCoords(e, this.app.camera.viewport),
                     () => {
-                        this.buttons.main_menu.start = false;
+                        this.gui.hoverStateOut();
                         this.app.game.state.setState(PLAY);
                     }
                 );
+                this.buttons.main_menu.start = false;
             }
             if (this.app.game.state.state === PLAY) {
                 // CLEAR PLAY BUTTONS RELEASE - (mouseup)
@@ -257,7 +273,9 @@ export default class Screen {
                             this.buttonsCollection.play.anthillControls.networks,
                             {x: e.offsetX, y: e.offsetY},
                             () => {
+                                this.gui.hoverStateOut();
                                 this.app.game.state.setState(NETWORK);
+                                this.gui.hoverStateOut();
                             }
                         )
                     }
@@ -283,10 +301,46 @@ export default class Screen {
                 }
             }
             if (this.app.game.state.state === NETWORK) {
-
+                // USE PLAYERS ANT
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.networks.player,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        if (this.app.factory.binnacle.FamilyTree[0].memberSelected) {
+                            this.app.factory.binnacle.FamilyTree[0].applyBrain(this.app.player.ant);
+                        }
+                    }
+                );
+                // BACK
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.networks.back,
+                    {x: e.offsetX, y: e.offsetY},
+                    () => {
+                        this.app.game.state.setState(PLAY);
+                    }
+                );
+                // MEMBERS CLICK
+                this.app.factory.binnacle.Member.forEach(key => {
+                    this.app.gui.get.isClicked(
+                        key,
+                        this.app.gui.get.clickCoords(e, this.app.camera.viewport),
+                        () => this.app.factory.binnacle.FamilyTree[0].selectMember(key)
+                    )
+                });
+                this.buttons.networks.player = false;
             }
         });
         this.app.controls.pushListener(this, 'mousedown', (e) => {
+            if (this.app.game.state.state === MAIN_MENU) {
+                // START TRAINING
+                this.app.gui.get.isClicked(
+                    this.buttonsCollection.main_menu.mainMenuControls.start,
+                    this.app.gui.get.clickCoords(e, this.app.camera.viewport),
+                    () => {
+                        this.buttons.main_menu.start = true;
+                    }
+                );
+            }
             if (this.app.game.state.state === PLAY) {
                 // CREATING MODE BLOCKS EVERYTHING
                 if (!this.buttons.play.creating) {
@@ -431,7 +485,6 @@ export default class Screen {
      * @returns {{color: string, pickedBarText: string, energyText: string, antSelected: string, entity: object, font: string}}
      */
     #getPlayDataStrings() {
-        // TODO consider to make multiple anthills
         const ant = this.app.player.ant
         const anthill = this.app.player.anthill
 
@@ -596,11 +649,32 @@ export default class Screen {
                 },
             }
             // UPDATE CAMERA
-            if (!this.app.player.ant?.speed) return;
-
+            if (!this.app.player?.ant?.speed) return;
             this.app.player.followCamera &&
             this.app.player.ant.speed !== 0 &&
-            this.app.camera.follow(this.app.player.ant);
+            this.app.camera.follow(this.app.player?.ant);
+        }
+        if (this.app.game.state.state === NETWORK) {
+            this.buttonsCollection.networks = {
+                'player': {
+                    x: 25,
+                    y: 50,
+                    width: 220,
+                    height: 25,
+                    text: `player's ant`,
+                    font,
+                    bg: !this.buttons.networks.player ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+                },
+                'back': {
+                    x: 10,
+                    y: this.gui.controlsCtx.canvas.height - 60,
+                    width: 80,
+                    height: 50,
+                    text: 'Back',
+                    font,
+                    bg: !this.buttons.networks.back ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+                },
+            }
         }
     }
 
@@ -610,6 +684,7 @@ export default class Screen {
     draw() {
         const useControlsCtx = this.app.game.state.state === PLAY
             || this.app.game.state.state === GAME_OVER
+            || this.app.game.state.state === NETWORK
             && this.app.game.level;
 
         const ctx = (useControlsCtx) ? this.app.game.gui.controlsCtx : this.app.gui.ctx;
@@ -729,15 +804,60 @@ export default class Screen {
             this.app.log.printLog(ctx, font);
         }
         if (this.app.game.state.state === NETWORK) {
-            ctx.canvas.style.backgroundColor = 'rgb(178,82,231)';
+            const ctx = this.app.game.gui.controlsCtx;
+            const card = {
+                x: 10,
+                y: 10,
+            }
+            // CALCULATE MAX CONTENT WIDTH FROM ALL ELEMENTS
+            const height = 360;
+            const width = this.app.tools.max([
+                ctx.measureText(this.app.player.ant).width * 2,
+                240
+            ]) + 10;
+            const sizes = {
+                x: card.x + 15,
+                y: card.y + 130,
+                width: 220,
+                height: 220,
+            }
+            // DATA BACKGROUND
+            this.app.gui.get.square({
+                ctx,
+                x: card.x,
+                y: card.y,
+                width,
+                height,
+                color: 'rgba(148,255,0,0.32)',
+                stroke: '#000'
+            });
+            // TITLE
+            this.app.gui.get.text({
+                ctx,
+                font: "20px Mouse",
+                color: '#000000',
+                text: 'Brains Available',
+                x: card.x + 15,
+                y: card.y + 30,
+            });
+            // SEPARATOR
+            this.app.gui.get.line({
+                ctx,
+                x1: card.x + 15,
+                y1: card.y + 40,
+                x2: card.x + 15 + 220,
+                y2: card.y + 40,
+                width: 220,
+                height: 1,
+                color: '#000'
+            })
+            this.app.gui.ctx.canvas.style.backgroundColor = 'rgb(178,82,231)';
         }
 
         // DRAW CONTROLS
-        const play = this.app.game.state.state === PLAY
-            || this.app.game.state.state === GAME_OVER
-            && this.app.game.level;
-
+        const play = this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER && this.app.game.level;
         const menu = this.app.game.state.state === MAIN_MENU;
+        const network = this.app.game.state.state === NETWORK;
 
         const looper = (play) ? {
             createAnt: this.app.player.anthill ? {ctx, ...this.buttonsCollection.play.anthillControls.createAnt} : {},
@@ -753,21 +873,36 @@ export default class Screen {
             createLoop: {ctx, ...this.buttonsCollection.play.boardControls.createLoop},
             networks: this.app.player.ant?.brain ? {ctx, ...this.buttonsCollection.play.anthillControls.networks} : {},
         } : (menu) ? {
-            start: {ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start}
+            start: {ctx: this.app.gui.ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start}
+        } : (network) ? {
+            player: this.app.player.ant ? {ctx, ...this.buttonsCollection.networks.player} : {},
+            back: {ctx, ...this.buttonsCollection.networks.back}
         } : {};
+
+        this.hoverCollection = {};
+
+        this.app.factory.binnacle?.Member.forEach((member, key) => {
+            if (this.app.game.state.state === NETWORK) {
+                this.hoverCollection[member.id] = {
+                    ctx: this.app.gui.ctx,
+                    x: member.x,
+                    y: member.y,
+                    width: member.width,
+                    height: member.height,
+                }
+            }
+        })
 
         Object.keys(looper).forEach(key => {
             if (Object.keys(looper[key]).length > 0) {
                 this.app.gui.get.button(looper[key]);
             }
 
-            if (this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER && this.app.game.level) {
-                this.hoverCollection[key] = {
-                    x: looper[key].x,
-                    y: looper[key].y,
-                    width: looper[key].width,
-                    height: looper[key].height
-                }
+            this.hoverCollection[key] = {
+                x: looper[key].x,
+                y: looper[key].y,
+                width: looper[key].width,
+                height: looper[key].height
             }
         });
     }

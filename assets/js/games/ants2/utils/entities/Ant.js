@@ -10,6 +10,7 @@ export default class Ant {
         this.app = app;
         this.game = game;
         this.id = id;
+        this.name = `${id} from ${anthill.id}`
         // Booleans
         this.no_update = false;
         this.no_draw = false;
