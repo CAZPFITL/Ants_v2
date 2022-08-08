@@ -1,4 +1,3 @@
-import Camera from "./Camera.js";
 import Tools from "./../helpers/Tools.js";
 
 export default class Gui {
@@ -26,6 +25,7 @@ export default class Gui {
     }
 
     static isClicked(entity, click, callback) {
+        if (!entity) return;
         const {x, y, width, height} = entity;
         if (click.x > x && click.x < x + width && click.y > y && click.y < y + height) {
             callback();

@@ -2,18 +2,17 @@ import GameLevel from "./../ants2/utils/components/GameLevel.js";
 import Player from "./../ants2/utils/components/Player.js";
 import Gui from "./../ants2/utils/gui/Gui.js";
 
-import NeuralNetwork from "../../engine/utils/components/Network.js";
-import FamilyTree from "../../engine/utils/components/FamilyTree.js";
+import NeuralNetwork from "../ants2/utils/components/Network.js";
+import FamilyTree from "./components/FamilyTree.js";
 import States from "../../engine/utils/patterns/State.js";
 
 import {
     LOAD_GAME_DATA,
     LOAD_GAME_LEVEL,
-    GAME_OVER,
     PLAY,
     MAIN_MENU,
     NETWORK
-} from "./../ants2/env.js";
+} from "../ants2/env.js";
 
 export default class Ants2Trainer {
     constructor(app, loadCallback) {
@@ -96,7 +95,7 @@ export default class Ants2Trainer {
                                 `\x1b[36;1m| Ant #${entity.id} Died on inmovility`,
                             );
                             entity.home.removeAnt(entity);
-                            return;
+                            return false;
                         }
                     }
                 }
@@ -117,7 +116,7 @@ export default class Ants2Trainer {
                 }
             }]
         })
-        this.state.setState(NETWORK);
+        this.state.setState(MAIN_MENU);
     }
 
     loadFamilyTree() {
@@ -125,7 +124,7 @@ export default class Ants2Trainer {
         if (localStorage.getItem('familyTree')) {
             for (let i = 0; i < this.app.factory.binnacle.Ant.length; i++) {
                 this.app.factory.binnacle.Ant[i].brain = JSON.parse(localStorage.getItem('familyTree'));
-                if (i != 0) {
+                if (i !== 0) {
                     NeuralNetwork.mutate(this.app.factory.binnacle.Ant[i].brain, 0.1);
                 }
             }

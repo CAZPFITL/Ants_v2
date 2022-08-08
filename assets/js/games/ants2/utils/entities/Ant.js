@@ -1,12 +1,11 @@
-import NeuralNetwork from "../../../../engine/utils/components/Network.js";
-import Sensor from "../../../../engine/utils/components/Sensor.js";
+import NeuralNetwork from "../components/Network.js";
+import Sensor from "../components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
-import Food from "./Food.js";
 import Traces from "./Traces.js";
-import Visualizer from './../../../../engine/utils/components/Visualizer.js';
+import Visualizer from '../components/Visualizer.js';
 
 export default class Ant {
-    constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill, addedRules = []}) {
+    constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
         this.home = anthill;
         this.app = app;
         this.game = game;
@@ -59,7 +58,7 @@ export default class Ant {
         }
         this.sensor = new Sensor(this);
         this.brain = new NeuralNetwork(this, [
-            this.sensor.rayCount + 0, // #inputs (4 offsets, foodFound and anthillFound)
+            this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
             6, // first layer
             4, // second layer
             // Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
@@ -147,7 +146,7 @@ export default class Ant {
     }
 
     #mark(controls) {
-        if (!controls.mark)
+        if (!controls.mark || !this.app.factory.binnacle?.Traces)
             return;
 
         this.app.factory.binnacle.Traces[0].markTrace(this);

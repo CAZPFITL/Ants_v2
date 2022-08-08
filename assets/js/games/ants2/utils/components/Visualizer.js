@@ -1,6 +1,5 @@
 export default class Visualizer{
     static drawNetwork(ctx,network, left, top, width, height, radius = 14){
-        const margin=50;
         const lerp=(a,b,t)=>a+(b-a)*t;
 
         const levelHeight=height/network.levels.length;
@@ -10,7 +9,7 @@ export default class Visualizer{
                 lerp(
                     height-levelHeight,
                     0,
-                    network.levels.length==1
+                    network.levels.length===1
                         ?0.5
                         :i/(network.levels.length-1)
                 );
@@ -22,7 +21,7 @@ export default class Visualizer{
                 network.levels[i],
                 left,levelTop,
                 width,levelHeight,
-                i==network.levels.length-1
+                i===network.levels.length-1
                     ?['⬆','⬅', '➡' ,'⬇']
                     :[]
             );
@@ -114,7 +113,7 @@ export default class Visualizer{
         return lerp(
             left,
             right,
-            nodes.length==1
+            nodes.length===1
                 ?0.5
                 :index/(nodes.length-1)
         );

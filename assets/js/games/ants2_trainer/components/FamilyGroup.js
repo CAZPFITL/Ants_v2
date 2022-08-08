@@ -1,7 +1,18 @@
-import NeuralNetwork from "./Network.js";
+import NeuralNetwork from "../../ants2/utils/components/Network.js";
 import Member from "./FamilyMember.js";
 
 export default class Group {
+    /**
+     * Create the Family Group
+     * @param app {object} - App instance
+     * @param tree {object} - Tree instance
+     * @param id {number} - id of the Family Group
+     * @param fromBoard {boolean} - if the Family Group is created from the board
+     * @param haveChild {boolean} - if the Family Group have a child
+     * @param x {number} - x position of the Family Group
+     * @param y {number} - y position of the Family Group
+     * @param gen {number} - generation of the Family Group
+     */
     constructor({app, tree, id, fromBoard, haveChild, x, y, gen}) {
         this.app = app;
         this.tree = tree;
@@ -9,11 +20,13 @@ export default class Group {
         this.father = null;
         this.mother = null;
         this.child = null;
-        this.x = x;
+        this.x = -x;
         this.y = y;
+        this.margin = this.tree.elementsSize / 2 > this.tree.marginLimit ? this.tree.marginLimit : this.tree.elementsSize / 2;
+        this.width = this.tree.elementsSize * 3 + this.margin * 2;
+        this.height = this.tree.elementsSize * 3 + this.margin * 2;
         this.gen = gen;
         this.totalMembers = 0;
-        this.app.factory.addGameEntity(this);
         this.app.log.registerEvent(
             `New TreeGroup #${this.id} created`,
             `\x1b[32;1m| \x1b[0mNew \x1b[32;1mTreeGroup #${this.id}\x1b[0m Created`
@@ -21,9 +34,13 @@ export default class Group {
         this.init();
     }
 
+    /**
+     * Initialize the Family Group
+     */
     init() {
         this.father = new Member({
             app: this.app,
+            tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: false,
@@ -32,6 +49,7 @@ export default class Group {
         });
         this.mother = new Member({
             app: this.app,
+            tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: false,
@@ -40,26 +58,41 @@ export default class Group {
         });
         this.child = new Member({
             app: this.app,
+            tree: this.tree,
             group: this,
             fromBoard: false,
             haveChild: true,
             x: this.x,
             y: this.y,
         });
+        this.app.factory.addGameEntity(this);
     }
 
-    addMember(position, member) {
+    /**
+     * Add a Member to the Family Tree
+     * @param position {string} - Position of the Member in the Family Tree
+     * @param member {object} - Member to add to the Family Tree
+     * @param id {number} - id of the Member to add to the Family Tree
+     */
+    addMember(position, member, id) {
         if (position === 'father' || position === 'mother') {
-            this[position].brain = member;
+            this[position].addBrain(member, id);
         }
     }
 
+    /**
+     * Procreate the group
+     */
     procreate() {
         this.child = NeuralNetwork.evolveFromParents(this.father, this.mother);
     }
 
-    // UPDATE
-    updateTotalMembers() {
+    /**
+     * Update the Family Group
+     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
+     */
+    update(ctx = this.app.gui.ctx) {
+        // UPDATE TOTAL MEMBERS
         let total = 0;
         this.father.brain && total++;
         this.mother.brain && total++;
@@ -67,12 +100,12 @@ export default class Group {
         this.totalMembers = total;
     }
 
-    update(ctx = this.app.gui.ctx) {
-        this.updateTotalMembers();
-        this.draw(ctx);
-    }
-
-    // DRAW
+    /**
+     * Draw the relations between the members of the Family Group
+     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
+     * @param x {number} - x position of the Family Group
+     * @param y {number} - y position of the Family Group
+     */
     drawRelations(ctx, x, y) {
         // VERTICAL RELATION LEFT
         this.app.gui.get.line({
@@ -121,29 +154,34 @@ export default class Group {
         });
     }
 
+    /**
+     * Draw the Family Group
+     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
+     * @param x {number} - x position of the Family Group
+     * @param y {number} - y position of the Family Group
+     */
     drawMembers(ctx, x, y) {
         this.father.draw(ctx, x, y, this.father.brain ? '#000000' : '#999999');
         this.mother.draw(ctx, x + this.tree.elementsSize * 2, y, this.mother.brain ? '#000000' : '#999999');
         this.child.draw(ctx, x + this.tree.elementsSize, y + this.tree.elementsSize * 2, this.child.brain ? '#000000' : '#999999');
     }
 
+    /**
+     * Draw the Family Group
+     * @param ctx {CanvasRenderingContext2D} - Context of the canvas
+     */
     draw(ctx) {
-        const margin = this.tree.elementsSize / 2 > this.tree.marginLimit ? this.tree.marginLimit : this.tree.elementsSize / 2;
-        const wrapperW = this.tree.elementsSize * 3 + margin * 2;
-        const wrapperH = this.tree.elementsSize * 3 + margin * 2;
-
-        // DRAW WRAPPER
-        this.app.gui.get.square({
-            ctx,
-            x: -this.x,
-            y: -this.y,
-            width: wrapperW,
-            height: wrapperH,
-            stroke: '#000000',
-        });
-
-        // Relationships
-        this.drawRelations(ctx, -this.x + margin, -this.y + margin);
-        this.drawMembers(ctx, -this.x + margin, -this.y + margin);
+        if (this.app.game.state.state === 'NETWORK') {
+            this.app.gui.get.square({
+                ctx,
+                x: -this.x,
+                y: -this.y,
+                width: this.width,
+                height: this.height,
+                stroke: '#000000',
+            });
+            this.drawRelations(ctx, -this.x + this.margin, -this.y + this.margin);
+            this.drawMembers(ctx, -this.x + this.margin, -this.y + this.margin);
+        }
     }
 }
