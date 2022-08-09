@@ -77,7 +77,7 @@ export default class FamilyTree {
 
     /**
      * Count the brains in the FamilyTree
-     * @returns {number} - Total of members in the tree
+     * @returns {number} - Total of members in the Tree
      */
     getMembersTotal() {
         let total = 0;

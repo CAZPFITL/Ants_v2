@@ -27,7 +27,7 @@ export default class Ant {
         this.width = size * 0.5;
         // State and capabilities
         this.age = 0;
-        this.maxAge = app.tools.random(100, 200);
+        this.maxAge = app.tools.random(400, 600);
         this.eatingRate = app.tools.random(size, size * 3) * 0.008;
         this.carryRate = app.tools.random(size, size * 2) * 0.008;
         this.metabolismSpeed = 0.005;
@@ -58,13 +58,15 @@ export default class Ant {
             run: 0
         }
         this.sensor = new Sensor(this);
-        this.brain = new NeuralNetwork([
-            this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
-            6, // first layer
-            4, // second layer
-            // Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
-            4
-        ]);
+        this.brain = (this.app.game.gui.screen.buttons.play.loading && this.app.LOADED_BRAINS)
+            ? NeuralNetwork.mutate(this.app.LOADED_BRAINS, 0.1)
+            : new NeuralNetwork([
+                this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
+                6, // first layer
+                4, // second layer
+                // Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
+                4
+            ]);
     }
 
     /**
@@ -200,7 +202,7 @@ export default class Ant {
     }
 
     #age() {
-        if (this.app.request - (this.requestFlags.age ?? 0) < 1000) return;
+        if (this.app.request - (this.requestFlags.age ?? 0) < 500) return;
         this.requestFlags.age = this.app.request;
         this.age += 1;
         if (this.age > this.maxAge) {
@@ -254,11 +256,11 @@ export default class Ant {
         }
 
         const boxDistance = 80;
-        const nWidth= 100;
-        const nHeight= 100;
+        const nWidth = 100;
+        const nHeight = 100;
         const contexter = this.app.gui.ctx;
-        const nX= (this.app.player?.ant?.x) + boxDistance;
-        const nY= (this.app.player?.ant?.y) - nHeight - boxDistance;
+        const nX = (this.app.player?.ant?.x) + boxDistance;
+        const nY = (this.app.player?.ant?.y) - nHeight - boxDistance;
 
         contexter.lineWidth = 1.5;
         this.app.player?.ant?.brain && this.app.gui.get.square({

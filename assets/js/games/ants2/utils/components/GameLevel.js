@@ -38,8 +38,8 @@ export default class GameLevel {
             // These are the bounds for the ants sensors
             polygons: [
                 // Left
-                topLeft,
-                bottomLeft,
+                { x: topLeft.x, y: topLeft.y },
+                { x: bottomLeft.x, y: topLeft.y },
                 { x: bottomLeft - 1, ...bottomLeft.y },
                 { x: topLeft - 1, ...topLeft.y },
                 // Right
@@ -75,7 +75,7 @@ export default class GameLevel {
             if (this.app.factory.binnacle[rule.name]) {
                 this.app.factory.binnacle[rule.name].forEach(entity => {
                     if (entity instanceof Array) return;
-                    rule.rule(entity)
+                    rule.rule(entity);
                 })
             }
         }

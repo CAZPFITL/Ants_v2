@@ -27,11 +27,10 @@ export default class Traces {
 
         this.requestFlags.mark = this.app.request;
 
-        const spreadMark = props.spreadMark ?? 2;
         this.app.factory.binnacle['Traces'][0].addTrace({
-            x: this.app.tools.random(position.x - spreadMark, position.x + spreadMark, false),
-            y: this.app.tools.random(position.y - spreadMark, position.y + spreadMark, false),
-            radius: this.app.tools.random(2, 3, false),
+            x: this.app.tools.random(position.x, position.x, false),
+            y: this.app.tools.random(position.y, position.y, false),
+            radius: this.app.tools.random(2, 2.5, false),
             polygons: [{
                 x: position.x - 2,
                 y: position.y - 2,
@@ -60,7 +59,7 @@ export default class Traces {
         if (this.app.game.state.state === 'PLAY') {
             if (this.app.request - (this.requestFlag ?? 0) < 5000) return;
             this.requestFlag = this.app.request;
-            this.removeTrace(this.collection[0]);
+            // this.removeTrace(this.collection[0]);
         }
     }
 

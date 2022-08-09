@@ -3,6 +3,7 @@ export default class NeuralNetwork {
         // this.app = app;
         this.getNetworkData({neuronCount});
     }
+
     /**
      * Class methods
      */
@@ -16,6 +17,7 @@ export default class NeuralNetwork {
             ));
         }
     }
+
     /**
      * Static methods
      */
@@ -38,7 +40,7 @@ export default class NeuralNetwork {
     }
 
     // Mutation script for the network
-    static mutate(network, amount=1) {
+    static mutate(network, amount = 1) {
         for (let i = 0; i < network.levels.length; i++) {
             for (let j = 0; j < network.levels[i].biases.length; j++) {
                 network.levels[i].biases[j] = MathMe.lerp(
@@ -59,20 +61,21 @@ export default class NeuralNetwork {
         }
     }
 
-    // Crossover script for the network
-    static evolveFromParents(network1, network2) {
+    static evolveFromParents(network1, network2, amount = 0.1) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
-                network1.levels[i].biases[j] = MathMe.average(
+                network1.levels[i].biases[j] = MathMe.lerp(
                     network1.levels[i].biases[j],
-                    network2.levels[i].biases[j]
+                    network2.levels[i].biases[j],
+                    amount
                 );
             }
             for (let j = 0; j < network1.levels[i].weights.length; j++) {
                 for (let k = 0; k < network1.levels[i].weights[j].length; k++) {
-                    network1.levels[i].weights[j][k] = MathMe.average(
+                    network1.levels[i].weights[j][k] = MathMe.lerp(
                         network1.levels[i].weights[j][k],
-                        network2.levels[i].weights[j][k]
+                        network2.levels[i].weights[j][k],
+                        amount
                     );
                 }
             }
@@ -150,7 +153,7 @@ class Level {
 }
 
 class MathMe {
-    static random(){
+    static random() {
         return Math.random() * 2 - 1
     }
 

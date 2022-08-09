@@ -1,4 +1,5 @@
 import Traces from "./../../../ants2/utils/entities/Traces.js";
+import Parser from "../../../ants2/utils/components/Parser.js";
 import {
     PLAY,
     MAIN_MENU,
@@ -29,6 +30,9 @@ export default class Screen {
                 looping: false,
                 loopSizing: false,
                 networking: false,
+                saving: false,
+                loading: false,
+                oscillating: false,
             },
             main_menu: {
                 start: false
@@ -51,7 +55,9 @@ export default class Screen {
                     'createFood': {},
                     'creatingTrace': {},
                     'drawingTrace': {},
-                    'networks': {},
+                    'saveNetworks': {},
+                    'loadFromNetworks': {},
+                    'oscillateMap': {}
                 },
                 boardControls: {
                     'width': {},
@@ -163,8 +169,8 @@ export default class Screen {
                 // DRAG UPDATE LOOP SIZE - (click, drag and drop)
                 if (this.buttons.play.loopSizing) {
                     const ref = this.app.game.flags.antLooper;
-                    const refMax = 500
-                    const refMin = 50;
+                    const refMax = 3000
+                    const refMin = 20;
                     if (ref >= refMin && ref <= refMax) {
                         this.app.game.flags.antLooper += e.movementX;
                     }
@@ -232,7 +238,40 @@ export default class Screen {
                             this.buttons.play.creatingTrace = !this.buttons.play.creatingTrace
                         }
                     )
-
+                    // SAVE NETWORKS
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.saveNetworks,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.saving = 0;
+                                Parser.save(this.app.factory.binnacle.Ant);
+                            }
+                        }
+                    )
+                    // LOAD FROM NETWORKS
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.loadFromNetworks,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.loading = !this.buttons.play.loading;
+                                if(this.buttons.play.loading) {
+                                    this.app.game.LOADED_BRAINS = Parser.load();
+                                } else {
+                                    this.app.game.LOADED_BRAINS = false;
+                                }
+                            }
+                        }
+                    )
+                    // OSCILLATE MAP
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.oscillateMap,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            this.buttons.play.oscillating = !this.buttons.play.oscillating;
+                        }
+                    )
                     if (!this.buttons.play.creatingTrace && !this.buttons.play.looping) {
                         // CREATE ANTHILL - (mouseup)
                         this.app.gui.get.isClicked(
@@ -267,18 +306,18 @@ export default class Screen {
                             )
                         }
                     }
-                    // NETWORK - (mouseup)
-                    if (this.app.player.anthill) {
-                        this.app.gui.get.isClicked(
-                            this.buttonsCollection.play.anthillControls.networks,
-                            {x: e.offsetX, y: e.offsetY},
-                            () => {
-                                this.gui.hoverStateOut();
-                                this.app.game.state.setState(NETWORK);
-                                this.gui.hoverStateOut();
-                            }
-                        )
-                    }
+                    // // NETWORK - (mouseup)
+                    // if (this.app.player.anthill) {
+                    //     this.app.gui.get.isClicked(
+                    //         this.buttonsCollection.play.anthillControls.networks,
+                    //         {x: e.offsetX, y: e.offsetY},
+                    //         () => {
+                    //             this.gui.hoverStateOut();
+                    //             this.app.game.state.setState(NETWORK);
+                    //             this.gui.hoverStateOut();
+                    //         }
+                    //     )
+                    // }
                 } else {
                     const objX = (this.creation?.size?.width ?? this.creation.width);
                     const objY = (this.creation?.size?.height ?? this.creation.height);
@@ -300,64 +339,64 @@ export default class Screen {
                     }
                 }
             }
-            if (this.app.game.state.state === NETWORK) {
-                // USE PLAYERS ANT
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.networks.player,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        if (this.app.factory.binnacle.FamilyTree[0].memberSelected) {
-                            this.app.factory.binnacle.FamilyTree[0].applyBrain(this.app.player.ant);
-                        }
-                    }
-                );
-                // BACK
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.networks.back,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        this.app.game.state.setState(PLAY);
-                    }
-                );
-                // SAVE
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.networks.save,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        console.log('save');
-                        this.app.factory.binnacle.FamilyTree[0].save();
-                    }
-                );
-                // LOAD
-                this.app.gui.get.isClicked(
-                    this.buttonsCollection.networks.load,
-                    {x: e.offsetX, y: e.offsetY},
-                    () => {
-                        console.log('load');
-                        this.app.factory.binnacle.FamilyTree[0].load();
-                    }
-                );
-
-                // MEMBERS CLICK
-                this.app.factory.binnacle.Member.forEach(key => {
-                    this.app.gui.get.isClicked(
-                        key,
-                        this.app.gui.get.clickCoords(e, this.app.camera.viewport),
-                        () => {
-                            this.app.factory.binnacle.FamilyTree[0].selectMember(key)
-                            if (
-                                key.group.father.brain &&
-                                key.group.mother.brain &&
-                                !key.brain &&
-                                key.role === 'child'
-                            ) {
-                                key.group.procreate();
-                            }
-                        }
-                    )
-                });
-                this.buttons.networks.player = false;
-            }
+            // if (this.app.game.state.state === NETWORK) {
+            //     // USE PLAYERS ANT
+            //     this.app.gui.get.isClicked(
+            //         this.buttonsCollection.networks.player,
+            //         {x: e.offsetX, y: e.offsetY},
+            //         () => {
+            //             if (this.app.factory.binnacle.FamilyTree[0].memberSelected) {
+            //                 this.app.factory.binnacle.FamilyTree[0].applyBrain(this.app.player.ant);
+            //             }
+            //         }
+            //     );
+            //     // BACK
+            //     this.app.gui.get.isClicked(
+            //         this.buttonsCollection.networks.back,
+            //         {x: e.offsetX, y: e.offsetY},
+            //         () => {
+            //             this.app.game.state.setState(PLAY);
+            //         }
+            //     );
+            //     // SAVE
+            //     this.app.gui.get.isClicked(
+            //         this.buttonsCollection.networks.save,
+            //         {x: e.offsetX, y: e.offsetY},
+            //         () => {
+            //             console.log('save');
+            //             this.app.factory.binnacle.FamilyTree[0].save();
+            //         }
+            //     );
+            //     // LOAD
+            //     this.app.gui.get.isClicked(
+            //         this.buttonsCollection.networks.load,
+            //         {x: e.offsetX, y: e.offsetY},
+            //         () => {
+            //             console.log('load');
+            //             this.app.factory.binnacle.FamilyTree[0].load();
+            //         }
+            //     );
+            //
+            //     // MEMBERS CLICK
+            //     this.app.factory.binnacle.Member.forEach(key => {
+            //         this.app.gui.get.isClicked(
+            //             key,
+            //             this.app.gui.get.clickCoords(e, this.app.camera.viewport),
+            //             () => {
+            //                 this.app.factory.binnacle.FamilyTree[0].selectMember(key)
+            //                 if (
+            //                     key.group.father.brain &&
+            //                     key.group.mother.brain &&
+            //                     !key.brain &&
+            //                     key.role === 'child'
+            //                 ) {
+            //                     key.group.procreate();
+            //                 }
+            //             }
+            //         )
+            //     });
+            //     this.buttons.networks.player = false;
+            // }
         });
         this.app.controls.pushListener(this, 'mousedown', (e) => {
             if (this.app.game.state.state === MAIN_MENU) {
@@ -373,6 +412,16 @@ export default class Screen {
             if (this.app.game.state.state === PLAY) {
                 // CREATING MODE BLOCKS EVERYTHING
                 if (!this.buttons.play.creating) {
+                    // SAVE NETWORKS
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.saveNetworks,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                this.buttons.play.saving = 1
+                            }
+                        }
+                    );
                     // LOOP ON/OFF
                     this.app.gui.get.isClicked(
                         this.buttonsCollection.play.boardControls.createLoop,
@@ -452,9 +501,6 @@ export default class Screen {
                         this.buttons.play.drawingTrace = true;
                     }
                 }
-            }
-            if (this.app.game.state.state === NETWORK) {
-
             }
         });
         this.app.controls.pushListener(this, 'keyup', (event) => {
@@ -596,15 +642,15 @@ export default class Screen {
                     font: "12px Mouse",
                     bg: !this.buttons.play.creatingTrace ? '#b47607' : '#ffa600'
                 },
-                'networks': {
-                    x: this.gui.controlsCtx.canvas.width - 90,
-                    y: 130,
-                    width: 80,
-                    height: 50,
-                    text: 'Networks',
-                    font,
-                    bg: !this.buttons.play.networking ? '#b47607' : '#ffa600'
-                }
+                // 'networks': {
+                //     x: this.gui.controlsCtx.canvas.width - 90,
+                //     y: 130,
+                //     width: 80,
+                //     height: 50,
+                //     text: 'Networks',
+                //     font,
+                //     bg: !this.buttons.play.networking ? '#b47607' : '#ffa600'
+                // }
             }
             this.buttonsCollection.play.boardControls = {
                 'width': {
@@ -647,20 +693,20 @@ export default class Screen {
                     font,
                     bg: isAnthillIn ? (this.buttons.play.maxTracing ? '#ffa600' : '#b47607') : '#7a7a79'
                 },
-                'traceRadius': {
-                    x: 35,
-                    y: 270,
-                    width: 200,
-                    height: 20,
-                    text: `< traceRadius: ${this.app.factory.binnacle.Traces &&
-                    this.app.factory.binnacle.Traces[0] &&
-                    this.app.factory.binnacle.Traces[0]?.props?.spreadMark || 'N/A'} >`,
-                    font,
-                    bg: isAnthillIn ? (this.buttons.play.radiusTracing ? '#ffa600' : '#b47607') : '#7a7a79'
-                },
+                // 'traceRadius': {
+                //     x: 35,
+                //     y: 270,
+                //     width: 200,
+                //     height: 20,
+                //     text: `< traceRadius: ${this.app.factory.binnacle.Traces &&
+                //     this.app.factory.binnacle.Traces[0] &&
+                //     this.app.factory.binnacle.Traces[0]?.props?.spreadMark || 'N/A'} >`,
+                //     font,
+                //     bg: isAnthillIn ? (this.buttons.play.radiusTracing ? '#ffa600' : '#b47607') : '#7a7a79'
+                // },
                 'loopSize': {
                     x: 35,
-                    y: 300,
+                    y: 270,
                     width: 200,
                     height: 20,
                     text: `< loopSize: ${this.app.game?.flags?.antLooper} >`,
@@ -669,13 +715,40 @@ export default class Screen {
                 },
                 'createLoop': {
                     x: 35,
-                    y: 330,
+                    y: 300,
                     width: 200,
                     height: 20,
                     text: 'Create Loop',
                     font,
                     bg: isAnthillIn ? (this.buttons.play.looping ? '#ffa600' : '#b47607') : '#7a7a79'
                 },
+                'saveNetworks': {
+                    x: 35,
+                    y: 330,
+                    width: 30,
+                    height: 20,
+                    text: '💾',
+                    font: "10px Mouse",
+                    bg: this.app.factory.binnacle?.Ant?.length > 0 ? (this.buttons.play.saving ? '#ffa600' : '#b47607') : '#7a7a79'
+                },
+                'loadFromNetworks': {
+                    x: 75,
+                    y: 330,
+                    width: 30,
+                    height: 20,
+                    text: '📁',
+                    font: "10px Mouse",
+                    bg: this.app.factory.binnacle?.Ant?.length > 0 ? (this.buttons.play.loading ? '#ffa600' : '#b47607') : '#7a7a79'
+                },
+                'oscillateMap': {
+                    x: 115,
+                    y: 330,
+                    width: 30,
+                    height: 20,
+                    text: '⌘',
+                    font: "10px Mouse",
+                    bg: this.buttons.play.oscillating ? '#ffa600' : '#b47607'
+                }
             }
             // UPDATE CAMERA
             if (!this.app.player?.ant?.speed) return;
@@ -683,46 +756,46 @@ export default class Screen {
             this.app.player.ant.speed !== 0 &&
             this.app.camera.follow(this.app.player?.ant);
         }
-        if (this.app.game.state.state === NETWORK) {
-            this.buttonsCollection.networks = {
-                'player': {
-                    x: 25,
-                    y: 50,
-                    width: 220,
-                    height: 25,
-                    text: `player's ant`,
-                    font,
-                    bg: !this.buttons.networks.player ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
-                },
-                'back': {
-                    x: 10,
-                    y: this.gui.controlsCtx.canvas.height - 60,
-                    width: 80,
-                    height: 50,
-                    text: 'Back',
-                    font,
-                    bg: !this.buttons.networks.back ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
-                },
-                'save': {
-                    x: this.gui.controlsCtx.canvas.width - 90,
-                    y: this.gui.controlsCtx.canvas.height - 60,
-                    width: 80,
-                    height: 50,
-                    text: 'Save',
-                    font,
-                    bg: !this.buttons.networks.save ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
-                },
-                'load': {
-                    x: this.gui.controlsCtx.canvas.width - 180,
-                    y: this.gui.controlsCtx.canvas.height - 60,
-                    width: 80,
-                    height: 50,
-                    text: 'Load',
-                    font,
-                    bg: !this.buttons.networks.load ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
-                }
-            }
-        }
+        // if (this.app.game.state.state === NETWORK) {
+        //     this.buttonsCollection.networks = {
+        //         'player': {
+        //             x: 25,
+        //             y: 50,
+        //             width: 220,
+        //             height: 25,
+        //             text: `player's ant`,
+        //             font,
+        //             bg: !this.buttons.networks.player ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+        //         },
+        //         'back': {
+        //             x: 10,
+        //             y: this.gui.controlsCtx.canvas.height - 60,
+        //             width: 80,
+        //             height: 50,
+        //             text: 'Back',
+        //             font,
+        //             bg: !this.buttons.networks.back ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+        //         },
+        //         'save': {
+        //             x: this.gui.controlsCtx.canvas.width - 90,
+        //             y: this.gui.controlsCtx.canvas.height - 60,
+        //             width: 80,
+        //             height: 50,
+        //             text: 'Save',
+        //             font,
+        //             bg: !this.buttons.networks.save ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+        //         },
+        //         'load': {
+        //             x: this.gui.controlsCtx.canvas.width - 180,
+        //             y: this.gui.controlsCtx.canvas.height - 60,
+        //             width: 80,
+        //             height: 50,
+        //             text: 'Load',
+        //             font,
+        //             bg: !this.buttons.networks.load ? 'rgba(255,113,134,0.6)' : 'rgba(255,125,146,0.7)'
+        //         }
+        //     }
+        // }
     }
 
     /**
@@ -919,6 +992,9 @@ export default class Screen {
             loopSize: {ctx, ...this.buttonsCollection.play.boardControls.loopSize},
             createLoop: {ctx, ...this.buttonsCollection.play.boardControls.createLoop},
             networks: this.app.player.ant?.brain ? {ctx, ...this.buttonsCollection.play.anthillControls.networks} : {},
+            saveNetworks: {ctx, ...this.buttonsCollection.play.boardControls.saveNetworks},
+            loadFromNetworks: {ctx, ...this.buttonsCollection.play.boardControls.loadFromNetworks},
+            oscillateMap: {ctx, ...this.buttonsCollection.play.boardControls.oscillateMap},
         } : (menu) ? {
             start: {ctx: this.app.gui.ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start}
         } : (network) ? {
@@ -930,17 +1006,17 @@ export default class Screen {
 
         this.hoverCollection = {};
 
-        this.app.factory.binnacle?.Member.forEach((member, key) => {
-            if (this.app.game.state.state === NETWORK) {
-                this.hoverCollection[member.id] = {
-                    ctx: this.app.gui.ctx,
-                    x: member.x,
-                    y: member.y,
-                    width: member.width,
-                    height: member.height,
-                }
-            }
-        })
+        // if (this.app.game.state.state === NETWORK) {
+        //     this.app.factory.binnacle?.Member.forEach((member, key) => {
+        //         this.hoverCollection[member.id] = {
+        //             ctx: this.app.gui.ctx,
+        //             x: member.x,
+        //             y: member.y,
+        //             width: member.width,
+        //             height: member.height,
+        //         }
+        //     })
+        // }
 
         Object.keys(looper).forEach(key => {
             if (Object.keys(looper[key]).length > 0) {
