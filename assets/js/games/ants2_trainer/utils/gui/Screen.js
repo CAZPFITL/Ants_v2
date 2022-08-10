@@ -258,6 +258,8 @@ export default class Screen {
                                 this.buttons.play.loading = !this.buttons.play.loading;
                                 if(this.buttons.play.loading) {
                                     this.app.game.LOADED_BRAINS = Parser.load();
+                                    window.a = this.app.game.LOADED_BRAINS;
+                                    window.b = this.app.player.ant;
                                 } else {
                                     this.app.game.LOADED_BRAINS = false;
                                 }
