@@ -40,7 +40,7 @@ export default class NeuralNetwork {
     }
 
     // Mutation script for the network
-    static mutate(network, amount = 1) {
+    static mutate(network, amount = 0.01) {
         for (let i = 0; i < network.levels.length; i++) {
             for (let j = 0; j < network.levels[i].biases.length; j++) {
                 network.levels[i].biases[j] = MathMe.lerp(
@@ -61,7 +61,7 @@ export default class NeuralNetwork {
         }
     }
 
-    static evolveFromParents(network1, network2, amount = 0.1) {
+    static evolveFromParents(network1, network2, amount = 0.01) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
                 network1.levels[i].biases[j] = MathMe.lerp(
@@ -124,29 +124,29 @@ class Level {
         }
 
         // // loop through all the outputs
-        // for (let i = 0; i < level.outputs.length; i++) {
-        //     let sum = 0;
-        //     //loop through all the inputs
-        //     for (let j = 0; j < level.inputs.length; j++) {
-        //         sum += level.inputs[j] * level.weights[j][i];
-        //     }
-        //     // compares
-        //     if(sum > level.biases[i]){
-        //         level.outputs[i] = 1;
-        //     } else {
-        //         level.outputs[i] = 0;
-        //     }
-        // }
-
         for (let i = 0; i < level.outputs.length; i++) {
             let sum = 0;
             //loop through all the inputs
             for (let j = 0; j < level.inputs.length; j++) {
                 sum += level.inputs[j] * level.weights[j][i];
             }
-            // get output
-            level.outputs[i] = MathMe.relu(sum + level.biases[i]);
+            // compares
+            if(sum > level.biases[i]){
+                level.outputs[i] = 1;
+            } else {
+                level.outputs[i] = 0;
+            }
         }
+
+        // for (let i = 0; i < level.outputs.length; i++) {
+        //     let sum = 0;
+        //     //loop through all the inputs
+        //     for (let j = 0; j < level.inputs.length; j++) {
+        //         sum += level.inputs[j] * level.weights[j][i];
+        //     }
+        //     // get output
+        //     level.outputs[i] = MathMe.relu(sum + level.biases[i]);
+        // }
 
         return level.outputs
     }

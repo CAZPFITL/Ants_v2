@@ -1,4 +1,4 @@
-import NeuralNetwork from "./Network.js";
+import NeuralNetwork from "../../../games/ants2/utils/components/Network.js";
 
 export default class Parser {
     constructor(app) {
@@ -12,15 +12,15 @@ export default class Parser {
         if (saveData.length > 1) {
             saveData.shift();
             saveData.forEach((network, index) => {
-                cache[0] = NeuralNetwork.evolveFromParents(cache[0], network, 0.1);
+                cache[0] = NeuralNetwork.evolveFromParents(cache[0], network, 0.01);
             });
         }
 
         console.log('saved', cache[0]);
-        localStorage.setItem('bests', JSON.stringify(cache[0]));
+        localStorage.setItem('_best', JSON.stringify(cache[0]));
     }
 
     static load() {
-        return JSON.parse(localStorage.getItem('bests'));
+        return JSON.parse(localStorage.getItem('_best'));
     }
 }

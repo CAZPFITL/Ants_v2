@@ -59,7 +59,7 @@ export default class Ant {
         }
         this.sensor = new Sensor(this);
         this.brain = (this.app.game.gui.screen.buttons.play.loading && this.app.LOADED_BRAINS)
-            ? NeuralNetwork.mutate(this.app.LOADED_BRAINS, 0.1)
+            ? NeuralNetwork.mutate(this.app.LOADED_BRAINS, 0.01)
             : new NeuralNetwork([
                 this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
                 6, // first layer

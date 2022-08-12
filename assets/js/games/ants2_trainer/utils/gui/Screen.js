@@ -1,5 +1,5 @@
 import Traces from "./../../../ants2/utils/entities/Traces.js";
-import Parser from "../../../ants2/utils/components/Parser.js";
+import Parser from "../../../../engine/utils/components/Parser.js";
 import {
     PLAY,
     MAIN_MENU,
@@ -40,6 +40,7 @@ export default class Screen {
             networks: {
                 positioning: false,
                 player: false,
+                clearing: false,
             },
         }
         this.buttonsCollection = {
@@ -57,6 +58,7 @@ export default class Screen {
                     'drawingTrace': {},
                     'saveNetworks': {},
                     'loadFromNetworks': {},
+                    'clearNetworks': {},
                     'oscillateMap': {}
                 },
                 boardControls: {
@@ -236,6 +238,16 @@ export default class Screen {
                         {x: e.offsetX, y: e.offsetY},
                         () => {
                             this.buttons.play.creatingTrace = !this.buttons.play.creatingTrace
+                        }
+                    )
+                    this.buttons.play.clearing = false;
+                    // CLEAR NETWORKS
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.clearNetworks,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            this.buttons.play.clearing = 0;
+                            localStorage.removeItem('_best');
                         }
                     )
                     // SAVE NETWORKS
@@ -422,6 +434,14 @@ export default class Screen {
                             if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
                                 this.buttons.play.saving = 1
                             }
+                        }
+                    );
+                    // CLEAR NETWORKS
+                    this.app.gui.get.isClicked(
+                        this.buttonsCollection.play.boardControls.clearNetworks,
+                        {x: e.offsetX, y: e.offsetY},
+                        () => {
+                            this.buttons.play.clearing = 1
                         }
                     );
                     // LOOP ON/OFF
@@ -742,8 +762,17 @@ export default class Screen {
                     font: "10px Mouse",
                     bg: this.app.factory.binnacle?.Ant?.length > 0 ? (this.buttons.play.loading ? '#ffa600' : '#b47607') : '#7a7a79'
                 },
-                'oscillateMap': {
+                'clearNetworks': {
                     x: 115,
+                    y: 330,
+                    width: 30,
+                    height: 20,
+                    text: '🗑',
+                    font: "10px Mouse",
+                    bg: this.buttons.play.clearing ? '#ffa600' : '#b47607'
+                },
+                'oscillateMap': {
+                    x: 155,
                     y: 330,
                     width: 30,
                     height: 20,
@@ -996,6 +1025,7 @@ export default class Screen {
             networks: this.app.player.ant?.brain ? {ctx, ...this.buttonsCollection.play.anthillControls.networks} : {},
             saveNetworks: {ctx, ...this.buttonsCollection.play.boardControls.saveNetworks},
             loadFromNetworks: {ctx, ...this.buttonsCollection.play.boardControls.loadFromNetworks},
+            clearNetworks: {ctx, ...this.buttonsCollection.play.boardControls.clearNetworks},
             oscillateMap: {ctx, ...this.buttonsCollection.play.boardControls.oscillateMap},
         } : (menu) ? {
             start: {ctx: this.app.gui.ctx, ...this.buttonsCollection.main_menu.mainMenuControls.start}
