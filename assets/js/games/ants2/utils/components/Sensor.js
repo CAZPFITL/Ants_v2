@@ -1,12 +1,12 @@
 export default class Sensor {
-    constructor(entity) {
+    constructor(entity, rayCount = 5, raySpread = Math.PI * 0.5, rayLength = 50) {
         this.entity = entity;
         this.app = entity.app;
         this.no_update = false;
-        this.no_draw = this.app.game.constructor.name !== 'Ants2';
-        this.rayCount = 5;
-        this.rayLength = 50;
-        this.raySpread = Math.PI * 0.5;
+        this.no_draw = true;
+        this.rayCount = rayCount;
+        this.rayLength = rayLength;
+        this.raySpread = raySpread;
         this.rays = [];
         this.readings = [];
     }

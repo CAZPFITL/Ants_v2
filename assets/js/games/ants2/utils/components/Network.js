@@ -4,9 +4,6 @@ export default class NeuralNetwork {
         this.getNetworkData({neuronCount});
     }
 
-    /**
-     * Class methods
-     */
     // Crossover script for the network
     getNetworkData({neuronCount}) {
         this.levels = [];
@@ -18,9 +15,6 @@ export default class NeuralNetwork {
         }
     }
 
-    /**
-     * Static methods
-     */
     // feed forward propagation of the network
     static feedForward(givenInputs, network) {
         // get the level outputs
@@ -61,6 +55,7 @@ export default class NeuralNetwork {
         }
     }
 
+    // Evolve from parents
     static evolveFromParents(network1, network2, amount = 0.01) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
@@ -86,7 +81,7 @@ export default class NeuralNetwork {
 }
 
 // this class works as a layer of the neural network
-class Level {
+export class Level {
     // constructor takes the number of inputs and outputs
     constructor(inputCount, outputCount) {
         // create the arrays

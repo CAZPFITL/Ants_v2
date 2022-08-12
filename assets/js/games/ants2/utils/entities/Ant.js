@@ -1,7 +1,6 @@
-import NeuralNetwork from "../components/Network.js";
+import Brain from "../components/Brain.js";
 import Sensor from "../components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
-import Traces from "./Traces.js";
 import Visualizer from '../components/Visualizer.js';
 
 export default class Ant {
@@ -46,7 +45,7 @@ export default class Ant {
         this.turnSpeed = 0.05;
         // Shape
         this.polygons = [];
-
+        // Control
         this.controls = {
             forward: 0,
             reverse: 0,
@@ -57,46 +56,41 @@ export default class Ant {
             eat: 0,
             run: 0
         }
-        this.sensor = new Sensor(this);
-        this.brain = (this.app.game.gui.screen.buttons.play.loading && this.app.LOADED_BRAINS)
-            ? NeuralNetwork.mutate(this.app.LOADED_BRAINS, 0.01)
-            : new NeuralNetwork([
-                this.sensor.rayCount, // #inputs (4 offsets, foodFound and anthillFound)
-                6, // first layer
-                4, // second layer
-                // Object.keys(this.controls).length  // #outputs (forward, left, right, reverse, pick, drop, run, eat)
-                4
-            ]);
+        this.sensors = {
+            eyes: new Sensor(this, 2),
+            nose: new Sensor(this, 7),
+            antennas: new Sensor(this, 2)
+        }
+        this.brain = new Brain([
+            {
+                neuronCount: [
+                    this.sensors.nose.rayCount, // inputs
+                    6, // neurons in first layer
+                    4, // neurons in second layer
+                    4
+                ],
+                inputs: this.sensors.nose,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            }
+        ], this.controls);
     }
 
     /**
      * Private methods
      */
     #neuralProcess() {
-        // AI Process
-        const offsets = this.sensor.readings.map(sensor => sensor == null ? 0 : 1 - sensor.offset);
-        //Inputs
-        const outputs = NeuralNetwork.feedForward([
-            ...offsets,
-            // Number(this.foodFound),
-            // Number(this.anthillFound),
-            // Number(this.energy / 100)
-        ], this.brain);
-        // Outputs
-        this.controls.forward = outputs[0];
-        this.controls.left = outputs[1];
-        this.controls.right = outputs[2];
-        this.controls.reverse = outputs[3];
-        // this.controls.pick = outputs[4];
-        // this.controls.drop = outputs[5];
-        // this.controls.run = outputs[5];
-        // this.controls.eat = outputs[6];
+        this.brain.update();
+        this.#smell();
 
-        // Player Process
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
+
         this.#move(controls);
         this.#mark(controls);
-        this.#smell();
         this.#carryFood(controls);
         this.#eatFood(controls);
         this.#metabolism(controls);
@@ -105,11 +99,12 @@ export default class Ant {
     }
 
     #smell() {
-        this.sensor.update([
+        // this sensors should read for traces
+        this.sensors.nose.update([
             // What can I find?
             // ...(this.app.factory.binnacle.Food ?? []),
             // ...(this.app.factory.binnacle.Ant ?? []),
-            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            // ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
             this.app.game.level.boundTargets
         ]);
 
@@ -220,9 +215,6 @@ export default class Ant {
         }
     }
 
-    /**
-     * In games draw section
-     */
     shape() {
         const rad = Math.hypot(this.width, this.height) / 2;
         const alpha = Math.atan2(this.width, this.height);
@@ -290,7 +282,6 @@ export default class Ant {
 
     drawAnt(ctx) {
         this.app.gui.get.drawPolygon(ctx, this);
-        !this.no_draw && this.sensor.draw(ctx);
         this.drawAntNetwork();
     }
 

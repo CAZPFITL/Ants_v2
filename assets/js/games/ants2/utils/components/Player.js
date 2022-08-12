@@ -16,7 +16,7 @@ export default class Player {
                 eat: 0,
                 run: 0,
                 mark: 0
-            } : null;
+            } : false;
         this.#addListeners();
     }
 
