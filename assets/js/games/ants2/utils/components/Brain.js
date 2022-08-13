@@ -1,5 +1,4 @@
 import NeuralNetwork from "./Network.js";
-
 /**
  * tasks = [
  *      {
@@ -33,14 +32,26 @@ export default class Brain {
                 ])
             );
         }
+
         // prepare main neural network to take decisions
         this.mainNeuralNetwork = new NeuralNetwork([
             Object.keys(this.controls).length,
             4,
             6,
+            8,
+            10,
+            8,
+            6,
             Object.keys(this.outputs).length,
         ]);
         this.restartOutputs();
+    }
+
+    mutate(brain, amount = 0.01) {
+        for (let i = 0; i < brain.length; i++) {
+            NeuralNetwork.mutate(brain[i], amount);
+            this.brain[i] = brain[i];
+        }
     }
 
     restartOutputs() {
@@ -50,7 +61,9 @@ export default class Brain {
         }
     }
 
-    update() {
+    update(sense) {
+        // INPUTS
+        sense();
         this.restartOutputs();
         const senses = [...this.tasks]
         // get outputs from all tasks
@@ -69,6 +82,8 @@ export default class Brain {
                 this.outputs[senses[i].outputs[j]].push(outputs[j]); // this
             }
         }
+
+        //OUTPUTS
         // average outputs collections from different processes
         for (let i = 0; i < Object.keys(this.outputs).length; i++) {
             const element = this.outputs[Object.keys(this.outputs)[i]];
@@ -81,6 +96,12 @@ export default class Brain {
         // loop through all the outputs and equals in controls namesake
         for (let i = 0; i < Object.keys(this.outputs).length; i++) {
             this.controls[Object.keys(this.outputs)[i]] = this.outputs[Object.keys(this.outputs)[i]];
+        }
+    }
+
+    static pairBrains(brain1, brain2, amount = 0.01) {
+        for (let i = 0; i < brain1.length; i++) {
+            brain1[i] = NeuralNetwork.evolveFromParents(brain1[i], brain2[i], amount);
         }
     }
 }

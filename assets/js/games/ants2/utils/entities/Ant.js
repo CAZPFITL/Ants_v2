@@ -1,7 +1,7 @@
+import NeuralNetwork from "../components/Network.js";
 import Brain from "../components/Brain.js";
 import Sensor from "../components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
-import Visualizer from '../components/Visualizer.js';
 
 export default class Ant {
     constructor({app, game, id, x = 0, y = 0, color = '#000', angle = 0, anthill}) {
@@ -57,45 +57,161 @@ export default class Ant {
             run: 0
         }
         this.sensors = {
-            eyes: new Sensor(this, 2),
-            nose: new Sensor(this, 7),
-            antennas: new Sensor(this, 2)
+            nose: new Sensor(
+                this,
+                10,
+                20,
+                Math.PI * 0.8,
+                'rgba(255,195,0,0.5)'
+            ),
+            eyes: new Sensor(
+                this,
+                4,
+                30,
+                Math.PI * 0.5,
+                'rgba(255,95,120,0.5)'
+            ),
+            antennas: new Sensor(
+                this,
+                2,
+                20,
+                Math.PI * 0.2,
+                'rgba(0,0,0,0.5)'
+            )
         }
         this.brain = new Brain([
-            {
-                neuronCount: [
-                    this.sensors.nose.rayCount, // inputs
-                    6, // neurons in first layer
-                    4, // neurons in second layer
-                    4
-                ],
-                inputs: this.sensors.nose,
-                outputs: [
-                    'forward',
-                    'left',
-                    'right',
-                    'reverse',
-                ]
-            }
-        ], this.controls);
+                {
+                    id: 'follow trace with nose',
+                    neuronCount: [
+                        this.sensors.eyes.rayCount, // inputs
+                        6, // neurons in first layer
+                        8, // neurons in second layer
+                        10, // neurons in third layer
+                        8, // neurons in second layer
+                        6, // neurons in third layer
+                        4
+                    ],
+                    inputs: this.sensors.eyes,
+                    outputs: [
+                        'forward',
+                        'left',
+                        'right',
+                        'reverse',
+                    ]
+                },
+                {
+                    id: 'follow trace with nose',
+                    neuronCount: [
+                        this.sensors.nose.rayCount, // inputs
+                        6, // neurons in first layer
+                        8, // neurons in second layer
+                        6, // neurons in third layer
+                        4
+                    ],
+                    inputs: this.sensors.nose,
+                    outputs: [
+                        'forward',
+                        'left',
+                        'right',
+                        'reverse',
+                    ]
+                },
+                {
+                    id: 'go away from bounds with nose',
+                    neuronCount: [
+                        this.sensors.nose.rayCount, // inputs
+                        6, // neurons in first layer
+                        8, // neurons in second layer
+                        6, // neurons in third layer
+                        4
+                    ],
+                    inputs: this.sensors.nose,
+                    outputs: [
+                        'forward',
+                        'left',
+                        'right',
+                        'reverse',
+                    ]
+                },
+                {
+                    id: 'follow trace with antennas',
+                    neuronCount: [
+                        this.sensors.antennas.rayCount, // inputs
+                        6, // neurons in first layer
+                        8, // neurons in second layer
+                        6, // neurons in third layer
+                        4
+                    ],
+                    inputs: this.sensors.antennas,
+                    outputs: [
+                        'forward',
+                        'left',
+                        'right',
+                        'reverse',
+                    ]
+                },
+                {
+                    id: 'go away from bounds with antennas',
+                    neuronCount: [
+                        this.sensors.antennas.rayCount, // inputs
+                        6, // neurons in first layer
+                        8, // neurons in second layer
+                        6, // neurons in third layer
+                        4
+                    ],
+                    inputs: this.sensors.antennas,
+                    outputs: [
+                        'forward',
+                        'left',
+                        'right',
+                        'reverse',
+                    ]
+                }
+            ], this.controls);
+
+        if (this.app.game.gui.screen.buttons.play.loading && this.app.game.LOADED_BRAINS) {
+            this.brain.mutate(this.app.game.LOADED_BRAINS, 0.005)
+            this.app.log.registerEvent(
+                `${this.name} brain mutated`,
+                `\x1b[32;1m| \x1b[0m${this.name} \x1b[32;1mBrain\x1b[0m Mutated`
+            );
+        }
     }
 
     /**
      * Private methods
      */
     #neuralProcess() {
-        this.brain.update();
-        this.#smell();
-
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
 
-        this.#move(controls);
-        this.#mark(controls);
-        this.#carryFood(controls);
-        this.#eatFood(controls);
-        this.#metabolism(controls);
-        this.#dropFood(controls);
-        this.#age();
+        this.brain.update(() => {
+            // PERCEIVE
+            this.#watch();
+            this.#touch();
+            this.#smell();
+            // REACT
+            this.#move(controls);
+            this.#mark(controls);
+            this.#carryFood(controls);
+            this.#eatFood(controls);
+            this.#metabolism(controls);
+            this.#dropFood(controls);
+            this.#age();
+        });
+    }
+
+    #watch() {
+        this.sensors.eyes.update([
+            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            this.app.game.level.boundTargets
+        ]);
+    }
+
+    #touch() {
+        this.sensors.antennas.update([
+            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            this.app.game.level.boundTargets
+        ]);
     }
 
     #smell() {
@@ -104,7 +220,7 @@ export default class Ant {
             // What can I find?
             // ...(this.app.factory.binnacle.Food ?? []),
             // ...(this.app.factory.binnacle.Ant ?? []),
-            // ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
             this.app.game.level.boundTargets
         ]);
 
@@ -242,47 +358,8 @@ export default class Ant {
         ]
     }
 
-    drawAntNetwork() {
-        if (this.app.game.constructor.name !== 'Ants2Trainer' || this !== this.app.player.ant) {
-            return;
-        }
-
-        const boxDistance = 80;
-        const nWidth = 100;
-        const nHeight = 100;
-        const contexter = this.app.gui.ctx;
-        const nX = (this.app.player?.ant?.x) + boxDistance;
-        const nY = (this.app.player?.ant?.y) - nHeight - boxDistance;
-
-        contexter.lineWidth = 1.5;
-        this.app.player?.ant?.brain && this.app.gui.get.square({
-            ctx: contexter,
-            x: nX,
-            y: nY,
-            width: nWidth,
-            height: nHeight,
-            color: 'rgba(158,144,183,0.49)',
-            stroke: 'rgb(0,150,234)'
-        });
-        contexter.beginPath();
-        contexter.moveTo(nX, nY + nHeight);
-        contexter.lineTo(nX - boxDistance, nY + boxDistance + nHeight);
-        contexter.stroke();
-        contexter.lineWidth = 0.5;
-        this.app.player?.ant?.brain && Visualizer.drawNetwork(
-            contexter,
-            this.app.player.ant.brain,
-            nX + 10,
-            nY + 10,
-            nWidth - 20,
-            nHeight - 20,
-            6.5
-        );
-    }
-
     drawAnt(ctx) {
         this.app.gui.get.drawPolygon(ctx, this);
-        this.drawAntNetwork();
     }
 
     update() {
@@ -299,6 +376,9 @@ export default class Ant {
     draw(ctx) {
         if (!this.no_draw && this.app.game.state.state === PLAY) {
             this.drawAnt(ctx);
+            Object.values(this.sensors).forEach(sensor => {
+                sensor.draw(ctx);
+            })
         }
     }
 }

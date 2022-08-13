@@ -1,4 +1,5 @@
 import NeuralNetwork from "../../../games/ants2/utils/components/Network.js";
+import Brain from "../../../games/ants2/utils/components/Brain.js";
 
 export default class Parser {
     constructor(app) {
@@ -6,21 +7,21 @@ export default class Parser {
     }
 
     static save(collection) {
-        const saveData = collection.map((ant) => ant.brain);
-        const cache = [saveData[0]];
+        const saveData = collection.map((ant) => ant.brain.brain);
+        const cache = saveData[0];
 
         if (saveData.length > 1) {
             saveData.shift();
-            saveData.forEach((network, index) => {
-                cache[0] = NeuralNetwork.evolveFromParents(cache[0], network, 0.01);
+            saveData.forEach((brain, index) => {
+                Brain.pairBrains(cache, brain, 0.01);
             });
         }
-
-        console.log('saved', cache[0]);
-        localStorage.setItem('_best', JSON.stringify(cache[0]));
+        console.log('saved', cache);
+        localStorage.setItem('bestBrain', JSON.stringify(cache));
     }
 
     static load() {
-        return JSON.parse(localStorage.getItem('_best'));
+        console.log(JSON.parse(localStorage.getItem('bestBrain')));
+        return JSON.parse(localStorage.getItem('bestBrain'));
     }
 }

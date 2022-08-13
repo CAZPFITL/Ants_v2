@@ -1,5 +1,5 @@
 export default class Sensor {
-    constructor(entity, rayCount = 5, raySpread = Math.PI * 0.5, rayLength = 50) {
+    constructor(entity, rayCount = 5, rayLength = 50, raySpread = Math.PI * 0.5, color = 'rgba(0,0,0,0.6)') {
         this.entity = entity;
         this.app = entity.app;
         this.no_update = false;
@@ -9,6 +9,7 @@ export default class Sensor {
         this.raySpread = raySpread;
         this.rays = [];
         this.readings = [];
+        this.color = color;
     }
 
     castRays() {
@@ -71,15 +72,15 @@ export default class Sensor {
     /**
      * Draw and Update methods
      */
-    drawRay(ctx, ray, i, color, n) {
+    drawRay(ctx, ray, i, color) {
         let end = this.readings[i] ?? ray[1];
 
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = color;
         ctx.moveTo(
-            ray[n].x,
-            ray[n].y
+            ray[0].x,
+            ray[0].y
         );
         ctx.lineTo(
             end.x,
@@ -90,8 +91,7 @@ export default class Sensor {
 
     drawRays(ctx) {
         for (let i = 0; i < this.rays.length; i++) {
-            this.drawRay(ctx, this.rays[i], i, 'rgba(0,0,0,0.44)', 0);
-            this.drawRay(ctx, this.rays[i], i, 'rgba(0,138,168,0.89)', 1);
+            this.drawRay(ctx, this.rays[i], i, this.color, 1);
         }
     }
 
