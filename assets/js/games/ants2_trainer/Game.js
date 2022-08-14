@@ -3,7 +3,7 @@ import NeuralNetwork from "../ants2/utils/components/Network.js";
 import Player from "./../ants2/utils/components/Player.js";
 import Gui from "./../ants2/utils/gui/Gui.js";
 
-import Tester from "./components/Tester.js";
+import Tester from "./utils/components/Tester.js";
 import States from "../../engine/utils/patterns/State.js";
 
 import {
@@ -56,8 +56,8 @@ export default class Ants2Trainer {
         this.level = new GameLevel({
             app,
             game: this,
-            width: 300,
-            height: 600,
+            width: 200,
+            height: 200,
             addedRules: [{
                 name: 'Ant',
                 rule: (entity) => {
@@ -85,7 +85,7 @@ export default class Ants2Trainer {
                     checkBounds(entity);
 
                     // DIE ON INMOVILITY
-                    const speed = 200;
+                    const speed = 200 / this.app.gameSpeed;
                     const inmovilityRadius = 20;
 
                     const checkEntity = (entity) => {

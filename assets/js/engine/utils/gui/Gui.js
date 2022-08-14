@@ -89,12 +89,12 @@ export default class Gui {
         const shape = entity.shape();
         if (shape.length < 1) return;
         const points = [];
-        shape.forEach(point => {
+        for (let i = 0; i < shape.length; i++) {
             points.push({
-                x: point.x,
-                y: point.y
+                x: shape[i].x,
+                y: shape[i].y
             });
-        });
+        }
         entity.polygons = points;
     }
 

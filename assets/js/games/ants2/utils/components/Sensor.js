@@ -1,7 +1,9 @@
+import Tools from '../../../../engine/utils/helpers/Tools.js';
+
 export default class Sensor {
     constructor(entity, rayCount = 5, rayLength = 50, raySpread = Math.PI * 0.5, color = 'rgba(0,0,0,0.6)') {
         this.entity = entity;
-        this.app = entity.app;
+        this.tools = Tools;
         this.no_update = false;
         this.no_draw = true;
         this.rayCount = rayCount;
@@ -17,7 +19,7 @@ export default class Sensor {
         // loop to get all the rayCount iterations of the rays
         for (let i = 0; i < this.rayCount; i++) {
             // get the angle of the ray
-            const rayAngle = this.app.tools.lerp(
+            const rayAngle = this.tools.lerp(
                 this.raySpread / 2,
                 -this.raySpread / 2,
                 this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
@@ -42,7 +44,7 @@ export default class Sensor {
                 continue;
             }
             for (let j = 0; j < poly.length; j++) {
-                const value = this.app.tools.getIntersection(
+                const value = this.tools.getIntersection(
                     ray[0],
                     ray[1],
                     poly[j],
@@ -72,15 +74,15 @@ export default class Sensor {
     /**
      * Draw and Update methods
      */
-    drawRay(ctx, ray, i, color) {
+    drawRay(ctx, ray, i, color, n) {
         let end = this.readings[i] ?? ray[1];
 
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.strokeStyle = color;
         ctx.moveTo(
-            ray[0].x,
-            ray[0].y
+            ray[n].x,
+            ray[n].y
         );
         ctx.lineTo(
             end.x,
@@ -91,7 +93,8 @@ export default class Sensor {
 
     drawRays(ctx) {
         for (let i = 0; i < this.rays.length; i++) {
-            this.drawRay(ctx, this.rays[i], i, this.color, 1);
+            this.drawRay(ctx, this.rays[i], i, 'red', 1);
+            this.drawRay(ctx, this.rays[i], i, this.color, 0);
         }
     }
 

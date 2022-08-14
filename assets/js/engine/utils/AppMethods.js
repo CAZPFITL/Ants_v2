@@ -28,6 +28,7 @@ export default class AppMethods {
         this.factory = new Factory(this);
         this.gui = new Gui(this);
         this.camera = new Camera(this);
+        this.gameSpeed = 1;
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
         this.stats = new Stats();

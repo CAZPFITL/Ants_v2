@@ -1,4 +1,4 @@
-import NeuralNetwork from "../../../ants2/utils/components/Network.js";
+import NeuralNetwork from "../../../../ants2/utils/components/Network.js";
 import Member from "./FamilyMember.js";
 
 export default class Group {

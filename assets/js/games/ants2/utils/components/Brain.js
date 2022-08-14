@@ -1,4 +1,5 @@
 import NeuralNetwork from "./Network.js";
+
 /**
  * tasks = [
  *      {
@@ -44,6 +45,7 @@ export default class Brain {
             6,
             Object.keys(this.outputs).length,
         ]);
+
         this.restartOutputs();
     }
 
@@ -61,15 +63,23 @@ export default class Brain {
         }
     }
 
-    update(sense) {
+    think(sense) {
         // INPUTS
         sense();
+
+        const senses = this.tasks.map((x, index) => {
+            return {
+                inputs: x.inputs.readings,
+                outputs: x.outputs,
+            }
+        });
+
         this.restartOutputs();
-        const senses = [...this.tasks]
+
         // get outputs from all tasks
         for (let i = 0; i < senses.length; i++) {
             // extract analog input
-            const offsets = senses[i].inputs.readings.map(sensor =>
+            const offsets = senses[i].inputs.map(sensor =>
                 sensor == null
                     ? 0
                     : 1 - sensor.offset
@@ -77,7 +87,6 @@ export default class Brain {
             // get outputs from analog inputs
             const outputs = NeuralNetwork.feedForward(offsets, this.brain[i]);
 
-            // add to outputs element the output to the final process
             for (let j = 0; j < senses[i].outputs.length; j++) {
                 this.outputs[senses[i].outputs[j]].push(outputs[j]); // this
             }

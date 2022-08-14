@@ -39,10 +39,16 @@ export default class Ant {
         // physics
         this.speed = 0;
         this.angle = angle;
+        // referencable objects
         this.acceleration = 0.3;
         this.friction = 0.040;
         this.maxSpeed = 0.6;
         this.turnSpeed = 0.05;
+        this._acceleration = this.acceleration;
+        this._friction = this.friction;
+        this._maxSpeed = this.maxSpeed;
+        this._turnSpeed = this.turnSpeed;
+
         // Shape
         this.polygons = [];
         // Control
@@ -62,21 +68,21 @@ export default class Ant {
                 10,
                 20,
                 Math.PI * 0.8,
-                'rgba(255,195,0,0.5)'
+                'rgba(210,255,123,0.58)'
             ),
             eyes: new Sensor(
                 this,
                 4,
                 30,
                 Math.PI * 0.5,
-                'rgba(255,95,120,0.5)'
+                'rgba(161,252,255,0.52)'
             ),
             antennas: new Sensor(
                 this,
                 2,
                 20,
                 Math.PI * 0.2,
-                'rgba(0,0,0,0.5)'
+                this.color
             )
         }
         this.brain = new Brain([
@@ -169,13 +175,13 @@ export default class Ant {
                 }
             ], this.controls);
 
-        if (this.app.game.gui.screen.buttons.play.loading && this.app.game.LOADED_BRAINS) {
-            this.brain.mutate(this.app.game.LOADED_BRAINS, 0.005)
-            this.app.log.registerEvent(
-                `${this.name} brain mutated`,
-                `\x1b[32;1m| \x1b[0m${this.name} \x1b[32;1mBrain\x1b[0m Mutated`
-            );
-        }
+        // if (this.app.game.gui.screen?.buttons?.play?.loading && this.app?.game?.LOADED_BRAINS) {
+        //     this.brain.mutate(this.app.game.LOADED_BRAINS, 0.5);
+        //     this.app.log.registerEvent(
+        //         `${this.name} brain mutated`,
+        //         `\x1b[32;1m| \x1b[0m${this.name} \x1b[32;1mBrain\x1b[0m Mutated`
+        //     );
+        // }
     }
 
     /**
@@ -184,7 +190,7 @@ export default class Ant {
     #neuralProcess() {
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
 
-        this.brain.update(() => {
+        this.brain.think(() => {
             // PERCEIVE
             this.#watch();
             this.#touch();
@@ -241,19 +247,25 @@ export default class Ant {
     }
 
     #move(controls) {
+        // update referencable data
+        this.acceleration = this._acceleration * this.app.gameSpeed;
+        this.turnSpeed = this._turnSpeed * this.app.gameSpeed
+        this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
+        this.friction = this._friction / this.app.gameSpeed;
+
         // Trigger Movement
         if (controls.reverse) this.app.physics.slowdown(this);
         if (controls.left) this.app.physics.turnLeft(this);
         if (controls.right) this.app.physics.turnRight(this);
         if (controls.forward) {
             this.app.physics.speedup(this);
-            this.energy -= 0.003;
+            this.energy -= 0.003 * this.app.gameSpeed;
         }
         if (controls.run) {
-            this.maxSpeed = 1.2;
-            this.energy -= 0.006;
+            this.maxSpeed = this.maxSpeed * 1.2;
+            this.energy -= 0.006 * this.app.gameSpeed;
         } else {
-            this.maxSpeed = 0.6;
+            this.maxSpeed = this.maxSpeed;
         }
         // Make Move
         this.app.physics.move(this)
@@ -272,17 +284,17 @@ export default class Ant {
             return
         }
 
-        this.game.gui.screen.buttons.play.eat = 1
+        this.game.gui.screen.buttons.play.eat = 1 * this.app.gameSpeed;
         controls.pick = 0;
 
-        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5);
-        (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate);
+        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);
+        (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate * this.app.gameSpeed);
     }
 
     #metabolism(controls) {
         this.energy -= (!controls.forward && !controls.reverse && !controls.left && !controls.right)
             ? this.metabolismSpeed
-            : this.metabolismSpeed * 1.5;
+            : this.metabolismSpeed * 1.5 * this.app.gameSpeed;
         if (this.energy <= 0) {
             this.home.removeAnt(this);
             this.energy = 0;
@@ -301,19 +313,19 @@ export default class Ant {
         const food = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
         const capacityAvailable = this.maxFoodPickCapacity >= this.pickedFood;
 
-        food && capacityAvailable && (food.amount -= this.carryRate);
-        food && capacityAvailable && (this.pickedFood += this.carryRate);
+        food && capacityAvailable && (food.amount -= this.carryRate * this.app.gameSpeed);
+        food && capacityAvailable && (this.pickedFood += this.carryRate * this.app.gameSpeed);
     }
 
     #dropFood(controls) {
         if (!controls.drop) return;
         const anthill = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
-        (anthill && this.pickedFood > 0) && (anthill.food += this.pickedFood);
+        (anthill && this.pickedFood > 0) && (anthill.food += this.pickedFood * this.app.gameSpeed);
         this.pickedFood = 0;
     }
 
     #age() {
-        if (this.app.request - (this.requestFlags.age ?? 0) < 500) return;
+        if (this.app.request - (this.requestFlags.age ?? 0) < (500 / this.app.gameSpeed)) return;
         this.requestFlags.age = this.app.request;
         this.age += 1;
         if (this.age > this.maxAge) {

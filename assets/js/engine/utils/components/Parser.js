@@ -8,20 +8,30 @@ export default class Parser {
 
     static save(collection) {
         const saveData = collection.map((ant) => ant.brain.brain);
-        const cache = saveData[0];
+
+        const cache = (localStorage.getItem('bestBrain'))
+            ? JSON.parse(localStorage.getItem('bestBrain'))
+            : saveData[0];
 
         if (saveData.length > 1) {
-            saveData.shift();
+            // if brain saved then remove the loaded brain from the collection
+            // since it is the cache already
+            (!localStorage.getItem('bestBrain')) && saveData.shift();
+            // loop all brains and merge them into one
             saveData.forEach((brain, index) => {
-                Brain.pairBrains(cache, brain, 0.01);
+                console.log(cache, brain);
+                Brain.pairBrains(cache, brain, 0.02);
             });
+
         }
         console.log('saved', cache);
         localStorage.setItem('bestBrain', JSON.stringify(cache));
     }
 
     static load() {
-        console.log(JSON.parse(localStorage.getItem('bestBrain')));
-        return JSON.parse(localStorage.getItem('bestBrain'));
+        if (localStorage.getItem('bestBrain')) {
+            console.log('loaded', JSON.parse(localStorage.getItem('bestBrain')));
+            return JSON.parse(localStorage.getItem('bestBrain'));
+        }
     }
 }

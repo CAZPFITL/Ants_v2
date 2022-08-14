@@ -147,7 +147,11 @@ export class Level {
     }
 }
 
-class MathMe {
+export class MathMe {
+    static sigmoid(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
     static random() {
         return Math.random() * 2 - 1
     }

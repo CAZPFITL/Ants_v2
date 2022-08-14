@@ -1,7 +1,7 @@
 export default class Physics {
     constructor(app, callback = (fn) => fn()) {
         this.app = app;
-        this.stopRange = 0.05;
+        this.stopRange = 0.05 * this.app.gameSpeed;
         callback(()=> {
             this.app.log.registerEvent(
                 `New Physics Created`,
