@@ -85,6 +85,21 @@ export default class Gui {
         return isInside;
     }
 
+    static checkHoverCollection({collection, event, viewport, isHover, isOut, caller}) {
+        for (const key in collection) {
+            if (
+                Gui.isHover(collection[key], {x: event.clientX, y: event.clientY}) ||
+                Gui.isHover(collection[key], Gui.viewportCoords(event, viewport))
+            ) {
+                isHover(key);
+            } else {
+                if (caller === key) {
+                    isOut(key);
+                }
+            }
+        }
+    }
+
     static createPolygon(entity) {
         const shape = entity.shape();
         if (shape.length < 1) return;
@@ -128,22 +143,27 @@ export default class Gui {
         }
         return false;
     }
+
     /**
      * Screen instantiable objects
      */
-    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000', center = true}) {
-        // create a button to be used in the canvas
-        this.square({ctx, x, y, width, height, color: bg, stroke});
+    static button({ctx, font, x, y, width, height, text, bg = '#ffffff', color = '#000', stroke = '#000', center = true, widthStroke = 1}) {
+        this.square({ctx, x, y, width, height, color: bg, stroke, widthStroke});
         this.text({ctx, font, color, text, x, y, width, height, center});
     }
 
-    static square({ctx, x, y, width, height, color = '#FFF', stroke = false}) {
+    static square({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.fillStyle = color;
         ctx.fill();
-        stroke && (ctx.strokeStyle = stroke);
-        stroke && ctx.stroke();
+        if (stroke) {
+            const cache = ctx.lineWidth;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = widthStroke;
+            ctx.stroke();
+            ctx.lineWidth = cache;
+        }
     }
 
     static text({ctx, font, color, text, x, y, width, height, center = false}) {
