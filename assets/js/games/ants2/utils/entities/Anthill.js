@@ -55,7 +55,10 @@ export default class Anthill {
             }
         ))
         // Update players ant
-        this.app.player.updateAnt(this.population[this.population.length - 1]);
+        if (this.app.game.constructor.name === 'Ants2') {
+            console.log('update ant');
+            this.app.player.updateAnt(this.population[this.population.length - 1]);
+        }
         // update food
         (!free) && (this.food -= this.antCoste);
         // update ant counter
@@ -73,7 +76,7 @@ export default class Anthill {
             // update antCounter value
             this.antCounter = this.population.length;
             // Update players ant
-            this.population.length > 0 && this.app.player.updateAnt(this.population[this.population.length - 1]);
+            this.app.player?.ant === ant && this.population.length > 0 && this.app.player.updateAnt(this.population[this.population.length - 1]);
         }
     }
 

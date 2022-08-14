@@ -16,7 +16,7 @@ export default class Player {
                 eat: 0,
                 run: 0,
                 mark: 0
-            } : null;
+            } : false;
         this.#addListeners();
     }
 
@@ -62,6 +62,13 @@ export default class Player {
                     break;
                 case event.key === ' ' && this.app.game.constructor.name === 'Ants2':
                     this.controls.pick = 1;
+                    break;
+                case event.key === 'k':
+                    this.app.log.registerEvent(
+                        `Player Kill Ant #${this.ant.id}`,
+                        `\x1b[31;1m| \x1b[0mPlayer Removed \x1b[31;1m${this.ant.constructor.name}${this.ant.id ? ` #${this.ant.id}` : ''}`
+                    );
+                    this.ant.home.removeAnt(this.ant);
                     break;
             }
         });

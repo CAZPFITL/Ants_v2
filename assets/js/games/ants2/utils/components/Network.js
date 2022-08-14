@@ -1,11 +1,9 @@
 export default class NeuralNetwork {
-    constructor(app, neuronCount) {
-        this.app = app;
+    constructor(neuronCount) {
+        // this.app = app;
         this.getNetworkData({neuronCount});
     }
-    /**
-     * Class methods
-     */
+
     // Crossover script for the network
     getNetworkData({neuronCount}) {
         this.levels = [];
@@ -16,9 +14,7 @@ export default class NeuralNetwork {
             ));
         }
     }
-    /**
-     * Static methods
-     */
+
     // feed forward propagation of the network
     static feedForward(givenInputs, network) {
         // get the level outputs
@@ -38,7 +34,7 @@ export default class NeuralNetwork {
     }
 
     // Mutation script for the network
-    static mutate(network, amount=1) {
+    static mutate(network, amount = 0.01) {
         for (let i = 0; i < network.levels.length; i++) {
             for (let j = 0; j < network.levels[i].biases.length; j++) {
                 network.levels[i].biases[j] = MathMe.lerp(
@@ -51,7 +47,7 @@ export default class NeuralNetwork {
                 for (let k = 0; k < network.levels[i].weights[j].length; k++) {
                     network.levels[i].weights[j][k] = MathMe.lerp(
                         network.levels[i].weights[j][k],
-                        MathMe.r(),
+                        MathMe.random(),
                         amount
                     );
                 }
@@ -59,13 +55,14 @@ export default class NeuralNetwork {
         }
     }
 
-    static evolveFromParents(network1, network2) {
+    // Evolve from parents
+    static evolveFromParents(network1, network2, amount = 0.01) {
         for (let i = 0; i < network1.levels.length; i++) {
             for (let j = 0; j < network1.levels[i].biases.length; j++) {
                 network1.levels[i].biases[j] = MathMe.lerp(
                     network1.levels[i].biases[j],
                     network2.levels[i].biases[j],
-                    0.5
+                    amount
                 );
             }
             for (let j = 0; j < network1.levels[i].weights.length; j++) {
@@ -73,16 +70,18 @@ export default class NeuralNetwork {
                     network1.levels[i].weights[j][k] = MathMe.lerp(
                         network1.levels[i].weights[j][k],
                         network2.levels[i].weights[j][k],
-                        0.5
+                        amount
                     );
                 }
             }
         }
+
+        return network1;
     }
 }
 
 // this class works as a layer of the neural network
-class Level {
+export class Level {
     // constructor takes the number of inputs and outputs
     constructor(inputCount, outputCount) {
         // create the arrays
@@ -120,37 +119,45 @@ class Level {
         }
 
         // // loop through all the outputs
-        // for (let i = 0; i < level.outputs.length; i++) {
-        //     let sum = 0;
-        //     //loop through all the inputs
-        //     for (let j = 0; j < level.inputs.length; j++) {
-        //         sum += level.inputs[j] * level.weights[j][i];
-        //     }
-        //     // compares
-        //     if(sum > level.biases[i]){
-        //         level.outputs[i] = 1;
-        //     } else {
-        //         level.outputs[i] = 0;
-        //     }
-        // }
-
         for (let i = 0; i < level.outputs.length; i++) {
             let sum = 0;
             //loop through all the inputs
             for (let j = 0; j < level.inputs.length; j++) {
                 sum += level.inputs[j] * level.weights[j][i];
             }
-            // get output
-            level.outputs[i] = MathMe.relu(sum + level.biases[i]);
+            // compares
+            if(sum > level.biases[i]){
+                level.outputs[i] = 1;
+            } else {
+                level.outputs[i] = 0;
+            }
         }
+
+        // for (let i = 0; i < level.outputs.length; i++) {
+        //     let sum = 0;
+        //     //loop through all the inputs
+        //     for (let j = 0; j < level.inputs.length; j++) {
+        //         sum += level.inputs[j] * level.weights[j][i];
+        //     }
+        //     // get output
+        //     level.outputs[i] = MathMe.relu(sum + level.biases[i]);
+        // }
 
         return level.outputs
     }
 }
 
-class MathMe {
-    static random(){
+export class MathMe {
+    static sigmoid(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
+    static random() {
         return Math.random() * 2 - 1
+    }
+
+    static average(a, b) {
+        return (a + b) / 2;
     }
 
     static lerp(a, b, t) {

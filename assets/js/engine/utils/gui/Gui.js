@@ -1,4 +1,3 @@
-import Camera from "./Camera.js";
 import Tools from "./../helpers/Tools.js";
 
 export default class Gui {
@@ -10,7 +9,7 @@ export default class Gui {
         callback(()=> {
             this.app.log.registerEvent(
                 `New Gui Created`,
-                `\x1b[32;1m| \x1b[0mNew \x1b[32mApp Gui\x1b[0m Created`
+                `\x1b[32;1m| \x1b[0mNew \x1b[32;1mApp Gui\x1b[0m Created`
             );
         });
     }
@@ -26,6 +25,7 @@ export default class Gui {
     }
 
     static isClicked(entity, click, callback) {
+        if (!entity) return;
         const {x, y, width, height} = entity;
         if (click.x > x && click.x < x + width && click.y > y && click.y < y + height) {
             callback();
@@ -89,12 +89,12 @@ export default class Gui {
         const shape = entity.shape();
         if (shape.length < 1) return;
         const points = [];
-        shape.forEach(point => {
+        for (let i = 0; i < shape.length; i++) {
             points.push({
-                x: point.x,
-                y: point.y
+                x: shape[i].x,
+                y: shape[i].y
             });
-        });
+        }
         entity.polygons = points;
     }
 
@@ -131,10 +131,10 @@ export default class Gui {
     /**
      * Screen instantiable objects
      */
-    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000'}) {
+    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000', center = true}) {
         // create a button to be used in the canvas
         this.square({ctx, x, y, width, height, color: bg, stroke});
-        this.text({ctx, font, color, text, x, y, width, height, center: true});
+        this.text({ctx, font, color, text, x, y, width, height, center});
     }
 
     static square({ctx, x, y, width, height, color = '#FFF', stroke = false}) {
@@ -171,5 +171,13 @@ export default class Gui {
 
 
         text && (this.text({ctx, font: '12px Mouse', color: '#000', text, x, y: y - height}));
+    }
+
+    static line ({ ctx, x1, y1, x2, y2, color = '#000' }) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = color;
+        ctx.stroke();
     }
 }

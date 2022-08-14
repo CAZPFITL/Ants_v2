@@ -1,11 +1,11 @@
 export default class Physics {
     constructor(app, callback = (fn) => fn()) {
         this.app = app;
-        this.stopRange = 0.05;
+        this.stopRange = 0.05 * this.app.gameSpeed;
         callback(()=> {
             this.app.log.registerEvent(
                 `New Physics Created`,
-                `\x1b[32;1m| \x1b[0mNew \x1b[32mPhysics\x1b[0m Created`
+                `\x1b[32;1m| \x1b[0mNew \x1b[32;1mPhysics\x1b[0m Created`
             );
         });
     }
