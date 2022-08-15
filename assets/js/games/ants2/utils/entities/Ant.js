@@ -18,12 +18,13 @@ export default class Ant {
         // Training
         this.isOnBound = false;
         // Measurements
-        const size = app.tools.random(8, 16);
-        this.x = x;
-        this.y = y;
+        const size = app.tools.random(8, 10);
         this.color = color;
-        this.height = size;
-        this.width = size * 0.5;
+        this.coords = {x, y};
+        this.size = {
+            width: (size * 0.5),
+            height: (size * 1)
+        }
         // State and capabilities
         this.age = 0;
         this.maxAge = app.tools.random(400, 600);
@@ -344,28 +345,28 @@ export default class Ant {
     }
 
     shape() {
-        const rad = Math.hypot(this.width, this.height) / 2;
-        const alpha = Math.atan2(this.width, this.height);
+        const rad = Math.hypot(this.size.width, this.size.height) / 2;
+        const alpha = Math.atan2(this.size.width, this.size.height);
         return [
             {
-                x: this.x - Math.sin(this.angle - alpha) * rad,
-                y: this.y - Math.cos(this.angle - alpha) * rad
+                x: this.coords.x - Math.sin(this.angle - alpha) * rad,
+                y: this.coords.y - Math.cos(this.angle - alpha) * rad
             },
             {
-                x: this.x - Math.sin(this.angle) * rad * 0.9,
-                y: this.y - Math.cos(this.angle) * rad * 0.9
+                x: this.coords.x - Math.sin(this.angle) * rad * 0.9,
+                y: this.coords.y - Math.cos(this.angle) * rad * 0.9
             },
             {
-                x: this.x - Math.sin(this.angle + alpha) * rad,
-                y: this.y - Math.cos(this.angle + alpha) * rad
+                x: this.coords.x - Math.sin(this.angle + alpha) * rad,
+                y: this.coords.y - Math.cos(this.angle + alpha) * rad
             },
             {
-                x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
-                y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad
+                x: this.coords.x - Math.sin(Math.PI + this.angle - alpha) * rad,
+                y: this.coords.y - Math.cos(Math.PI + this.angle - alpha) * rad
             },
             {
-                x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
-                y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad
+                x: this.coords.x - Math.sin(Math.PI + this.angle + alpha) * rad,
+                y: this.coords.y - Math.cos(Math.PI + this.angle + alpha) * rad
             }
         ]
     }
