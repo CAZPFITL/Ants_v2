@@ -40,21 +40,21 @@ export default class GameLevel {
                 // Left
                 { x: topLeft.x, y: topLeft.y },
                 { x: bottomLeft.x, y: topLeft.y },
-                { x: bottomLeft - 1, ...bottomLeft.y },
-                { x: topLeft - 1, ...topLeft.y },
+                { x: bottomLeft.x - 1, y: bottomLeft.y },
+                { x: topLeft.x - 1, y: topLeft.y },
                 // Right
-                topRight,
-                bottomRight,
-                { x: bottomRight + 1, ...bottomRight.y },
-                { x: topRight + 1, ...topRight.y },
+                { x: topRight.x, y: bottomRight.y },
+                { x: bottomRight.x, y: bottomRight.y },
+                { x: bottomRight.x + 1, y: bottomRight.y },
+                { x: topRight.x + 1, y: topRight.y },
                 // Top
-                topLeft,
-                topRight,
+                { x: topLeft.x, y: topLeft.y },
+                { x: topRight.x, y: topRight.y },
                 { x: topRight.x, y: topRight.y - 1 },
                 { x: topLeft.x, y: topLeft.y - 1 },
                 // Bottom
-                bottomLeft,
-                bottomRight,
+                { x: bottomLeft.x, y: bottomLeft.y },
+                { x: bottomRight.x, y: bottomRight.y },
                 { x: bottomRight.x, y: bottomRight.y + 1 },
                 { x: bottomLeft.x, y: bottomLeft.y + 1 }
             ]

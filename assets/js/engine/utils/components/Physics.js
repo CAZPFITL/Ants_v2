@@ -52,16 +52,15 @@ export default class Physics {
     }
 
     worldLimits({x, y}, entity) {
-        const limits = this.app.game.level.size;
-
         // Limit Movement
-        (entity.x > -limits.width / 2 && entity.x < limits.width / 2)
-            ? (entity.x -= x) :
-            (entity.x -= entity.x > 0 ? 0.1 : -0.1);
-
-        (entity.y > -limits.height / 2 && entity.y < limits.height / 2)
-            ? (entity.y -= y) :
-            (entity.y -= entity.y > 0 ? 0.1 : -0.1);
+        (
+            !this.app.gui.get.polysIntersect(entity.polygons, this.app.game.level.boundTargets.polygons.slice(0, 4)) &&
+            !this.app.gui.get.polysIntersect(entity.polygons, this.app.game.level.boundTargets.polygons.slice(5, 8))
+        ) ? (entity.x -= x) : (entity.x -= entity.x > 0 ? 0.1 : -0.1);
+        (
+            !this.app.gui.get.polysIntersect(entity.polygons, this.app.game.level.boundTargets.polygons.slice(8, 11)) &&
+            !this.app.gui.get.polysIntersect(entity.polygons, this.app.game.level.boundTargets.polygons.slice(12, 15))
+        ) ? (entity.y -= y) : (entity.y -= entity.y > 0 ? 0.1 : -0.1);
     }
 
     isInBound(entity) {
