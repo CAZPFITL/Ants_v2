@@ -5,3 +5,41 @@ export const MAIN_MENU = 'MAIN_MENU';
 export const PLAY = 'PLAY';
 export const STOP = 'STOP';
 export const NETWORK = 'NETWORK';
+
+export const COLORS = {
+    WHITE: [
+        '#FFFFFFFF', // 100 - 0
+        '#FFFFFFE5', // 90  - 1
+        '#FFFFFFCC', // 80  - 2
+        '#FFFFFFB3', // 70  - 3
+        '#FFFFFFA0', // 60  - 4
+        '#FFFFFF8F', // 50  - 5
+        '#FFFFFF7C', // 40  - 6
+        '#FFFFFF66', // 30  - 7
+        '#FFFFFF4D', // 20  - 8
+        '#FFFFFF33', // 10  - 9
+    ],
+    BLACK: [
+        '#000000FF', // 100 - 0
+        '#000000E5', // 90  - 1
+        '#000000CC', // 80  - 2
+        '#000000B3', // 70  - 3
+        '#000000A0', // 60  - 4
+        '#0000008F', // 50  - 5
+        '#0000007C', // 40  - 6
+        '#00000066', // 30  - 7
+        '#0000004D', // 20  - 8
+        '#00000033', // 10  - 9
+    ],
+    GREEN: [
+        '#82A91EFF',
+    ],
+    YELLOW: [
+        '#D28B05FF',
+        '#FFA600FF',
+        '#FFBD4FFF',
+    ],
+    BROWN: [
+        '#72604EFF'
+    ],
+}

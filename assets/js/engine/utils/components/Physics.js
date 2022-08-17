@@ -51,7 +51,6 @@ export default class Physics {
     }
 
     worldLimits({x, y}, entity) {
-        console.log(entity)
         const coords = entity.coords;
         const borders = this.app.game.level.boundTargets.polygons;
         // Limit Horizontal Movement

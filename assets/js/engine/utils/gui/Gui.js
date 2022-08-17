@@ -87,10 +87,12 @@ export default class Gui {
 
     static checkHoverCollection({collection, event, viewport, isHover, isOut, caller}) {
         for (const key in collection) {
-            if (
-                Gui.isHover(collection[key], {x: event.clientX, y: event.clientY}) ||
-                Gui.isHover(collection[key], Gui.viewportCoords(event, viewport))
-            ) {
+            if (collection[key].position === 'viewport' &&
+                Gui.isHover(collection[key], Gui.viewportCoords(event, viewport))) {
+                isHover(key);
+            }
+            else if (collection[key].position === 'controls' &&
+                Gui.isHover(collection[key], {x: event.clientX, y: event.clientY})) {
                 isHover(key);
             } else {
                 if (caller === key) {
@@ -175,7 +177,7 @@ export default class Gui {
         return ctx.measureText(text).width;
     }
 
-    static bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke}, negative = false) {
+    static bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke, negative = false}) {
         const normalizedProgress = fill / (cap / 255);
         const progress = negative ? (cap - fill) : fill
 
