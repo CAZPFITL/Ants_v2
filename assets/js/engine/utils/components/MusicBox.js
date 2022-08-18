@@ -53,7 +53,7 @@ export default class MusicBox {
     }
 
     play() {
-        this.song.song.play()
+        this.song?.song && this.song.song.play()
             .catch(err => {
                 console.error(err);
             })

@@ -74,7 +74,12 @@ export default class Player {
         });
         this.app.controls.pushListener(this,'mousedown', (event) => {
             const {x, y} = {x: event.offsetX, y: event.offsetY};
-            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
+            const controls = {
+                ...this.game.gui.screen.buttonsCollection.PLAY.forward,
+                ...this.game.gui.screen.buttonsCollection.PLAY.reverse,
+                ...this.game.gui.screen.buttonsCollection.PLAY.left,
+                ...this.game.gui.screen.buttonsCollection.PLAY.right
+            }
 
             if (this.app.game.constructor.name === 'Ants2') {
                 Object.keys(controls).forEach(key => {
@@ -130,7 +135,12 @@ export default class Player {
         });
         this.app.controls.pushListener(this,'mouseup', (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
-            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
+            const controls = {
+                ...this.game.gui.screen.buttonsCollection.PLAY.forward,
+                ...this.game.gui.screen.buttonsCollection.PLAY.reverse,
+                ...this.game.gui.screen.buttonsCollection.PLAY.left,
+                ...this.game.gui.screen.buttonsCollection.PLAY.right
+            }
 
             if (this.app.game.constructor.name === 'Ants2') {
                 Object.keys(controls).forEach(key => {

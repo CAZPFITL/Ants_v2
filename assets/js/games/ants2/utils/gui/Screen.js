@@ -6,11 +6,9 @@ export default class Screen {
         this.gui = gui;
         this.hoverCollection = {};
         this.decorations = {};
-        this.buttonsStates = {
-            'start': 'normal',
-        };
-        this.buttonsCollection = {}
-        this.colors = {}
+        this.buttonsStates = {};
+        this.buttonsCollection = {};
+        this.colors = {};
         this.#addListeners();
     }
 
@@ -83,8 +81,8 @@ export default class Screen {
                     this.app.musicBox.play();
                 }
             );
-            this.buttons.play.creatingAnt = false
-            this.buttons.play.creatingAnthill = false
+            this.buttonsStates.creatingAnt = 'normal';
+            this.buttonsStates.creatingAnthill = 'normal';
         });
         this.app.controls.pushListener(this, 'mousedown', (e) => {
             // // Show fps
@@ -226,8 +224,8 @@ export default class Screen {
                         height: 50,
                         text: 'Login',
                         font: '16px Mouse',
-                        bg: this.buttonsStates.start === 'hover' ? COLORS.BLACK[5]
-                            : this.buttonsStates.start === 'click' ? COLORS.BLACK[5]
+                        bg: this.buttonsStates.login === 'hover' ? COLORS.BLACK[5]
+                            : this.buttonsStates.login === 'click' ? COLORS.BLACK[5]
                                 : COLORS.BLACK[6],
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 8
@@ -533,7 +531,7 @@ export default class Screen {
         // DRAW COLLECTION
         for (let i = 0; i < collection.length; i++) {
             const item = collection[i];
-            this.app.gui.get[item.type](item.props);
+            if (this.app.gui.get[item.type]) this.app.gui.get[item.type](item.props);
         }
         // HOVER EVENTS
         Object.entries(this.buttonsCollection[this.app.game.state.state] ?? {}).forEach(key => {
