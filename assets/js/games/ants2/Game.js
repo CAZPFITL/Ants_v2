@@ -27,22 +27,22 @@ export default class Ants2 {
     #loadData() {
         // Load Player Controls
         this.app.player = new Player(this.app, this);
-        // // Load Music Box
-        // this.app.musicBox.addSong([{
-        //     name: 'ants_001',
-        //     file: 'assets/audio/ants_001.mp3'
-        // }, {
-        //     name: 'ants_002',
-        //     file: 'assets/audio/ants_002.mp3'
-        // }, {
-        //     name: 'ants_003',
-        //     file: 'assets/audio/ants_003.mp3'
-        // }, {
-        //     name: 'ants_004',
-        //     file: 'assets/audio/ants_004.mp3'
-        // }]);
-        // // Load Main song
-        // this.app.musicBox.changeSong('ants_004');
+        // Load Music Box
+        this.app.musicBox.addSong([{
+            name: 'ants_001',
+            file: 'assets/audio/ants_001.mp3'
+        }, {
+            name: 'ants_002',
+            file: 'assets/audio/ants_002.mp3'
+        }, {
+            name: 'ants_003',
+            file: 'assets/audio/ants_003.mp3'
+        }, {
+            name: 'ants_004',
+            file: 'assets/audio/ants_004.mp3'
+        }]);
+        // Load Main song
+        this.app.musicBox.changeSong('ants_004');
         // this.app.musicBox.autoplay();
         // load Controls listeners
         this.app.controls.addListeners();

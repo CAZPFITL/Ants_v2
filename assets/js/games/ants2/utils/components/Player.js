@@ -72,25 +72,6 @@ export default class Player {
                     break;
             }
         });
-        this.app.controls.pushListener(this,'mousedown', (event) => {
-            const {x, y} = {x: event.offsetX, y: event.offsetY};
-            const controls = {
-                ...this.game.gui.screen.buttonsCollection.PLAY.forward,
-                ...this.game.gui.screen.buttonsCollection.PLAY.reverse,
-                ...this.game.gui.screen.buttonsCollection.PLAY.left,
-                ...this.game.gui.screen.buttonsCollection.PLAY.right
-            }
-
-            if (this.app.game.constructor.name === 'Ants2') {
-                Object.keys(controls).forEach(key => {
-                    this.app.gui.get.isClicked(
-                        controls[key],
-                        {x, y},
-                        () => this.app.player.controls[key] = 1
-                    )
-                });
-            }
-        });
         // Move Player Up Events
         this.app.controls.pushListener(this,'keyup', (event) => {
             switch (true) {
@@ -136,10 +117,10 @@ export default class Player {
         this.app.controls.pushListener(this,'mouseup', (e) => {
             const {x, y} = {x: e.offsetX, y: e.offsetY};
             const controls = {
-                ...this.game.gui.screen.buttonsCollection.PLAY.forward,
-                ...this.game.gui.screen.buttonsCollection.PLAY.reverse,
-                ...this.game.gui.screen.buttonsCollection.PLAY.left,
-                ...this.game.gui.screen.buttonsCollection.PLAY.right
+                forward: this.game.gui.screen.buttonsCollection.PLAY.forward.props,
+                reverse: this.game.gui.screen.buttonsCollection.PLAY.reverse.props,
+                left: this.game.gui.screen.buttonsCollection.PLAY.left.props,
+                right: this.game.gui.screen.buttonsCollection.PLAY.right.props
             }
 
             if (this.app.game.constructor.name === 'Ants2') {
