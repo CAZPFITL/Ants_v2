@@ -35,24 +35,6 @@ export default class Screen {
                 caller: this.hoverCaller,
             });
         });
-        this.app.controls.pushListener(this, 'click', (event) => {
-            const coords = {x: event.offsetX, y: event.offsetY};
-            const buttons = {
-                sound: {coords,...this.buttonsCollection.PLAY.sound},
-                createAnt: {coords,...this.buttonsCollection.PLAY.createAnt},
-                createAnthill: {coords,...this.buttonsCollection.PLAY.createAnthill},
-            }
-            Object.keys(buttons).forEach(key => {
-                this.app.gui.get.isClicked(
-                    buttons[key].props,
-                    buttons[key].coords,
-                    () => {
-                        this.buttonsStates[key] = this.buttonsStates[key] === 'click' ? 'normal' : 'click';
-                        buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click();
-                    }
-                )
-            });
-        });
         this.app.controls.pushListener(this, 'mouseup', (event) => {
             const coords = {x: event.offsetX, y: event.offsetY};
             const viewportCtx = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
@@ -97,6 +79,24 @@ export default class Screen {
                     () => {
                         this.buttonsStates[key] = 'click';
                         buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown();
+                    }
+                )
+            });
+        });
+        this.app.controls.pushListener(this, 'click', (event) => {
+            const coords = {x: event.offsetX, y: event.offsetY};
+            const buttons = {
+                sound: {coords,...this.buttonsCollection.PLAY.sound},
+                createAnt: {coords,...this.buttonsCollection.PLAY.createAnt},
+                createAnthill: {coords,...this.buttonsCollection.PLAY.createAnthill},
+            }
+            Object.keys(buttons).forEach(key => {
+                this.app.gui.get.isClicked(
+                    buttons[key].props,
+                    buttons[key].coords,
+                    () => {
+                        this.buttonsStates[key] = this.buttonsStates[key] === 'click' ? 'normal' : 'click';
+                        buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click();
                     }
                 )
             });
