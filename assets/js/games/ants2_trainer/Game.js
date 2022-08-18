@@ -150,7 +150,7 @@ export default class Ants2Trainer {
             }, {
                 name: 'GameObjects',
                 rule: (entity) => {
-                    if (this.gui.screen.buttons.play.oscillating) {
+                    if (this.gui.screen.buttonsStates?.oscillateMap === 'click') {
                         if (!(this.app.request - (this.flags?.oscillation ?? 0) > 12)) return;
 
                         this.flags.oscillation = this.app.request;

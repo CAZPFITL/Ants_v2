@@ -16,11 +16,11 @@ export default class Screen {
      * Private methods
      */
     #addListeners() {
-        this.app.controls.pushListener(this, 'mousemove', (e) => {
+        this.app.controls.pushListener(this, 'mousemove', (event) => {
             // HOVER COLLECTION
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
-                event: e,
+                event,
                 viewport: this.app.camera.viewport,
                 isHover: (key) => {
                     (this.buttonsStates[key] !== 'click') && (this.buttonsStates[key] = 'hover');
@@ -152,6 +152,7 @@ export default class Screen {
             entity
         } = this.#getPlayDataStrings();
 
+        const height = 190;
         const width = this.app.tools.max([
             this.app.game.gui.controlsCtx.measureText(antSelected).width,
             240
@@ -459,7 +460,7 @@ export default class Screen {
                         x: cardPosition.x,
                         y: cardPosition.y,
                         width: width + 35,
-                        height: 190,
+                        height,
                         color: COLORS.WHITE[4],
                         stroke: COLORS.BLACK[0]
                     }
@@ -542,8 +543,8 @@ export default class Screen {
             }
         };
 
-        // (this.app.player?.followCamera && this.app.player.ant.speed !== 0) &&
-        //     this.app.camera.follow(this.app.player.ant);
+        (this.app.player?.followCamera && this.app.player.ant.speed !== 0) &&
+            this.app.camera.follow(this.app.player.ant);
     }
 
     draw() {
@@ -562,7 +563,6 @@ export default class Screen {
             this.hoverCollection[key[0]] = key[1].props;
         });
         // CANVAS BACKGROUND
-        this.app.gui.ctx.canvas.style.backgroundColor =
-            this.colors[this.app.game.state.state].background;
+        this.app.gui.ctx.canvas.style.backgroundColor = this.colors[this.app.game.state.state].background;
     }
 }

@@ -88,7 +88,7 @@ export default class Camera {
     }
 
     follow(entity) {
-        this.#moveTo([entity.x, entity.y]);
+        this.#moveTo([entity.coords.x, entity.coords.y]);
     }
     /**
      * Draw and Update methods
