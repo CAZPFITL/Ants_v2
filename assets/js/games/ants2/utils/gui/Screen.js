@@ -555,8 +555,19 @@ export default class Screen {
         ];
         // DRAW COLLECTION
         for (let i = 0; i < collection.length; i++) {
-            const item = collection[i];
-            if (this.app.gui.get[item.type]) this.app.gui.get[item.type](item.props);
+            try {
+                const item = collection[i];
+                if (typeof this.app.gui.get[item.type] === 'function') {
+                    this.app.gui.get[item.type](item.props);
+                }
+            } catch (error) {
+                console.error(
+                    'verify item.props are provided with next keys:' +
+                    'position, ctx, x, y, width, height, text, font, bg, stroke, widthStroke, callbacks' +
+                    error
+                );
+                debugger;
+            }
         }
         // HOVER EVENTS
         Object.entries(this.buttonsCollection[this.app.game.state.state] ?? {}).forEach(key => {

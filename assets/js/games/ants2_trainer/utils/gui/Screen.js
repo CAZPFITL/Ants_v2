@@ -18,6 +18,9 @@ export default class Screen {
         this.hoverCollection = {};
         this.buttonsStates = {};
         this.buttonsCollection = {};
+        this.abstractStates = {
+            creating: false,
+        }
         this.#addListeners();
     }
 
@@ -26,6 +29,13 @@ export default class Screen {
      */
     #addListeners() {
         this.app.controls.pushListener(this, 'mousemove', (e) => {
+            // TRANSLATE COORDS - general process
+            const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: e.offsetX,
+                y: e.offsetY
+            }, this.app.camera.viewport);
+
+            // CHECK COLLECTION
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
                 event: e,
@@ -42,6 +52,29 @@ export default class Screen {
                 },
                 caller: this.hoverCaller,
             });
+
+            // // CREATING ENTITY PROCESS
+            // if (this.abstractStates.creating) {
+            //     if (this.creation?.coords) {
+            //         (this.creation.coords = hoverTranslatedCoords);
+            //     } else {
+            //         this.creation.x = hoverTranslatedCoords?.x;
+            //         this.creation.y = hoverTranslatedCoords?.y;
+            //     }
+            // }
+
+            // //CREATING TRACE PROCESS (ONLY INSIDE THE MAP)
+            // if (this.buttonsStates.PLAY.trace) {
+            //     const entity = {
+            //         x: (-this.app.game.level.size.width) / 2,
+            //         y: (-this.app.game.level.size.height) / 2,
+            //         width: this.app.game.level.size.width,
+            //         height: this.app.game.level.size.height
+            //     }
+            //     if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
+            //         this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
+            //     }
+            // }
         });
         this.app.controls.pushListener(this, 'mouseup', (e) => {
             const coords = {x: event.offsetX, y: event.offsetY};
@@ -176,13 +209,17 @@ export default class Screen {
                         height: 50,
                         text: 'Start',
                         font: '18px Mouse',
-                        bg: this.buttonsStates?.start === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.start === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.start === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.start === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 8,
                         callbacks: {
-                            mouseup: () => this.app.game.state.setState(PLAY)
+                            mouseup: () => {
+                                this.buttonsStates.start = 'normal';
+                                this.app.game.state.setState(PLAY);
+                                this.gui.hoverStateOut();
+                            }
                         }
                     }
                 },
@@ -193,18 +230,20 @@ export default class Screen {
                     props: {
                         position: 'controls',
                         ctx: this.app.game.gui.controlsCtx,
-                        x: this.gui.controlsCtx.canvas.width - 120,
+                        x: this.gui.controlsCtx.canvas.width - 60,
                         y: 10,
                         width: 50,
                         height: 50,
                         text: '🐜',
                         font: '16px Mouse',
-                        bg: this.buttonsStates?.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
-                        callbacks: {}
+                        callbacks: {
+                            click: () => this.app.player.anthill.addAnt()
+                        }
                     }
                 },
                 createAnthill: {
@@ -212,18 +251,27 @@ export default class Screen {
                     props: {
                         position: 'controls',
                         ctx: this.app.game.gui.controlsCtx,
-                        x: this.gui.controlsCtx.canvas.width - 60,
+                        x: this.gui.controlsCtx.canvas.width - 120,
                         y: 10,
                         width: 50,
                         height: 50,
                         text: '🏠',
                         font: '16px Mouse',
-                        bg: this.buttonsStates?.createAnthill === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.createAnthill === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.createAnthill === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.createAnthill === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
-                        callbacks: {}
+                        callbacks: {
+                            click: () => {
+                                if (!this.buttonsStates.PLAY.createTrace && !this.buttonsStates.PLAY.loop) {
+                                    this.abstractStates.creating = true;
+                                    this.buttonsStates.PLAY.createAnthill = true;
+                                    this.app.game.level.Anthill({ants: 0, free: true});
+                                    this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                                }
+                            }
+                        }
                     }
                 },
                 createFood: {
@@ -237,12 +285,21 @@ export default class Screen {
                         height: 50,
                         text: '🍓',
                         font: '16px Mouse',
-                        bg: this.buttonsStates?.createFood === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.createFood === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.createFood === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.createFood === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
-                        callbacks: {}
+                        callbacks: {
+                            click: () => {
+                                if (!this.buttonsStates.PLAY.createTrace && !this.buttonsStates.PLAY.loop) {
+                                    this.abstractStates.creating = true;
+                                    this.buttonsStates.creatingFood = true;
+                                    this.app.game.level.Food({amount: 1});
+                                    this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
+                                }
+                            }
+                        }
                     }
                 },
                 createTrace: {
@@ -255,13 +312,15 @@ export default class Screen {
                         width: 50,
                         height: 50,
                         text: 'Trace',
-                        font: "12px Mouse",
-                        bg: this.buttonsStates?.createTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.createTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        font: '16px Mouse',
+                        bg: this.buttonsStates.createFood === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.createFood === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
-                        callbacks: {}
+                        callbacks: {
+                            click: () => this.buttonsStates.createTrace = true
+                        }
                     }
                 },
                 width: {
@@ -274,10 +333,15 @@ export default class Screen {
                         width: 200,
                         height: 20,
                         text: `< Width: ${this.app.game?.level?.size?.width} >`,
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.width === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.width === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        font: '10px Mouse',
+                        bg: this.buttonsStates.width === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.width === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('width')
+                        }
                     }
                 },
                 height: {
@@ -290,10 +354,15 @@ export default class Screen {
                         width: 200,
                         height: 20,
                         text: `< Height: ${this.app.game?.level?.size?.height} >`,
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.height === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.height === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        font: '10px Mouse',
+                        bg: this.buttonsStates.height === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.height === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('height')
+                        }
                     }
                 },
                 minTrace: {
@@ -308,11 +377,17 @@ export default class Screen {
                         text: `< minTrace: ${this.app.factory.binnacle.Traces &&
                         this.app.factory.binnacle.Traces[0] &&
                         this.app.factory.binnacle.Traces[0]?.props?.min || 'N/A'} >`,
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.minTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.minTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : isAnthillIn ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        font: '10px Mouse',
+                        bg: isAnthillIn ?
+                            (this.buttonsStates.minTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.minTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('minTrace')
+                        }
                     }
                 },
                 maxTrace: {
@@ -327,11 +402,17 @@ export default class Screen {
                         text: `< maxTrace: ${this.app.factory.binnacle.Traces &&
                         this.app.factory.binnacle.Traces[0] &&
                         this.app.factory.binnacle.Traces[0]?.props?.max || 'N/A'} >`,
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.maxTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.maxTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : isAnthillIn ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        font: '10px Mouse',
+                        bg: isAnthillIn ?
+                            (this.buttonsStates.maxTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.maxTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('maxTrace')
+                        }
                     }
                 },
                 loopSize: {
@@ -344,11 +425,17 @@ export default class Screen {
                         width: 200,
                         height: 20,
                         text: `< loopSize: ${this.app.game?.flags?.antLooper} >`,
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.loopSize === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.loopSize === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : isAnthillIn ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal
+                        font: '10px Mouse',
+                        bg: isAnthillIn ?
+                            (this.buttonsStates.loopSize === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.loopSize === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('loopSize')
+                        }
                     }
                 },
                 createLoop: {
@@ -361,11 +448,17 @@ export default class Screen {
                         width: 200,
                         height: 20,
                         text: 'Create Loop',
-                        font: '16px Mouse',
-                        bg: this.buttonsStates?.createLoop === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.createLoop === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : isAnthillIn ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal
+                        font: '10px Mouse',
+                        bg: isAnthillIn ?
+                            (this.buttonsStates.createLoop === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.createLoop === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('createLoop')
+                        }
                     }
                 },
                 saveNetworks: {
@@ -378,11 +471,17 @@ export default class Screen {
                         width: 30,
                         height: 20,
                         text: '💾',
-                        font: '10px Mouse',
-                        bg: this.buttonsStates?.saveNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.saveNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : this.app.factory.binnacle?.Ant?.length > 0 ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal
+                        font: "10px Mouse",
+                        bg: this.app.factory.binnacle?.Ant?.length > 0 ?
+                            (this.buttonsStates.saveNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.saveNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('saveNetworks')
+                        }
                     }
                 },
                 loadFromNetworks: {
@@ -395,11 +494,17 @@ export default class Screen {
                         width: 30,
                         height: 20,
                         text: '📁',
-                        font: '10px Mouse',
-                        bg: this.buttonsStates?.loadFromNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.loadFromNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : this.app.factory.binnacle?.Ant?.length > 0 ? '#7a7a79'
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal
+                        font: "10px Mouse",
+                        bg: this.app.factory.binnacle?.Ant?.length > 0 ?
+                            (this.buttonsStates.loadFromNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.loadFromNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
+                            COLORS.BLACK[5],
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('saveNetworks')
+                        }
                     }
                 },
                 clearNetworks: {
@@ -412,26 +517,15 @@ export default class Screen {
                         width: 30,
                         height: 20,
                         text: '🗑',
-                        font: '10px Mouse',
-                        bg: this.buttonsStates?.clearNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.clearNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : this.colors.MAIN_MENU.buttons.variation1.normal,
-                    }
-                },
-                oscillateMap: {
-                    type: 'button',
-                    props: {
-                        position: 'controls',
-                        ctx: this.app.game.gui.controlsCtx,
-                        x: 155,
-                        y: 330,
-                        width: 30,
-                        height: 20,
-                        text: '⌘',
                         font: "10px Mouse",
-                        bg: this.buttonsStates?.oscillateMap === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates?.oscillateMap === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.clearNetworks === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.clearNetworks === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+                        widthStroke: 2,
+                        callbacks: {
+                            click: () => console.log('clearNetworks')
+                        }
                     }
                 }
             }
@@ -541,7 +635,6 @@ export default class Screen {
                         y: window.innerHeight - 10,
                     }
                 },
-
             }
         };
 
@@ -565,9 +658,22 @@ export default class Screen {
         ];
         // DRAW COLLECTION
         for (let i = 0; i < collection.length; i++) {
-            const item = collection[i];
-            if (this.app.gui.get[item.type]) this.app.gui.get[item.type](item.props);
+            try {
+                const item = collection[i];
+                if (typeof this.app.gui.get[item.type] === 'function') {
+                    this.app.gui.get[item.type](item.props);
+                }
+            } catch (error) {
+                console.error(
+                    'verify item.props are provided with next keys:' +
+                    'position, ctx, x, y, width, height, text, font, bg, stroke, widthStroke, callbacks' +
+                    error
+                );
+                debugger;
+            }
         }
+        // CLEAR HOVER COLLECTION
+        this.hoverCollection = {};
         // HOVER EVENTS
         Object.entries(this.buttonsCollection[this.app.game.state.state] ?? {}).forEach(key => {
             this.hoverCollection[key[0]] = key[1].props;

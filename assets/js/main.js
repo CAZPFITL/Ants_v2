@@ -5,4 +5,4 @@ import Ants2Trainer from './games/ants2_trainer/Game.js';
 // Loading this a white screen should be displayed and no errors should be thrown
 class Test {}
 
-new App(true, Ants2);
+new App(true, Ants2Trainer);
