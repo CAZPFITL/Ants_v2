@@ -569,6 +569,8 @@ export default class Screen {
                 debugger;
             }
         }
+        // CLEAR HOVER COLLECTION
+        this.hoverCollection = {};
         // HOVER EVENTS
         Object.entries(this.buttonsCollection[this.app.game.state.state] ?? {}).forEach(key => {
             this.hoverCollection[key[0]] = key[1].props;

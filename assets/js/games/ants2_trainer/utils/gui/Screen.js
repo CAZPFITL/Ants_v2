@@ -7,6 +7,8 @@ import {
     NETWORK, COLORS
 } from "../../../ants2/env.js";
 
+// https://github.com/CAZPFITL/Ants_v2/blob/9ed65ec9c0d938772531936c120af9beb6799a49/assets/js/games/ants2_trainer/utils/gui/Screen.js#L311
+
 export default class Screen {
     /**
      * @param app {object}
@@ -294,11 +296,12 @@ export default class Screen {
                             click: () => {
                                 if (!this.buttonsStates.PLAY.createTrace && !this.buttonsStates.PLAY.loop) {
                                     this.abstractStates.creating = true;
-                                    this.buttonsStates.creatingFood = true;
+                                    this.buttonsStates.createFood = 'click';
                                     this.app.game.level.Food({amount: 1});
                                     this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
                                 }
-                            }
+                            },
+                            mouseup: () => this.buttonsStates.createFood = 'normal'
                         }
                     }
                 },
@@ -319,7 +322,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => this.buttonsStates.createTrace = true
+                            click: () => this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal' ? 'click' : 'normal',
                         }
                     }
                 },
@@ -340,7 +343,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('width')
+                            click: () => console.log('width'),
+                            mouseup: () => this.buttonsStates.height = 'normal'
                         }
                     }
                 },
@@ -361,7 +365,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('height')
+                            click: () => console.log('height'),
+                            mouseup: () => this.buttonsStates.height = 'normal'
                         }
                     }
                 },
@@ -386,7 +391,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('minTrace')
+                            click: () => console.log('minTrace'),
+                            mouseup: () => this.buttonsStates.minTrace = 'normal'
                         }
                     }
                 },
@@ -411,7 +417,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('maxTrace')
+                            click: () => console.log('maxTrace'),
+                            mouseup: () => this.buttonsStates.maxTrace = 'normal'
                         }
                     }
                 },
@@ -434,7 +441,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('loopSize')
+                            mousedown: () => this.buttonsStates.loopSize = 'click',
+                            mouseup: () => this.buttonsStates.loopSize = 'normal'
                         }
                     }
                 },
@@ -457,7 +465,11 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('createLoop')
+                            mousedown: () => {
+                                if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                        this.buttonsStates.createLoop = this.buttonsStates.createLoop === 'click' ? 'normal' : 'click';
+                                }
+                            }
                         }
                     }
                 },
@@ -480,7 +492,13 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('saveNetworks')
+                            mousedown: () => {
+                                if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                    this.buttonsStates.saveNetworks = 'click';
+                                    Parser.save(this.app.factory.binnacle.Ant);
+                                }
+                            },
+                            mouseup: () => this.buttonsStates.saveNetworks = 'normal'
                         }
                     }
                 },
@@ -503,7 +521,20 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('saveNetworks')
+                            callbacks: {
+                                click: () => {
+                                    if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
+                                        this.buttonsStates.loading = this.buttonsStates.loading === 'normal' ? 'click' : 'normal';
+                                        if(this.buttonsStates.play.loading === 'click') {
+                                            this.app.game.LOADED_BRAINS = Parser.load();
+                                            window.a = this.app.game.LOADED_BRAINS;
+                                            window.b = this.app.player.ant;
+                                        } else {
+                                            this.app.game.LOADED_BRAINS = false;
+                                        }
+                                    }
+                                },
+                            }
                         }
                     }
                 },
@@ -524,7 +555,11 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('clearNetworks')
+                            mousedown: () => {
+                                this.buttonsStates.clearNetworks = 'click';
+                                localStorage.removeItem('_best');
+                            },
+                            mouseup: () => this.buttonsStates.clearNetworks = 'normal'
                         }
                     }
                 }
