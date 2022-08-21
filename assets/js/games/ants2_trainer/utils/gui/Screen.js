@@ -23,13 +23,50 @@ export default class Screen {
         this.abstractStates = {
             creating: false,
         }
-        this.#addListeners();
+        this.#addListeners({
+            mousemove: (e, hoverTranslatedCoords) => {
+                // CREATING ENTITY PROCESS
+                if (this.abstractStates.creating) {
+                    if (this.creation?.coords) {
+                        (this.creation.coords = hoverTranslatedCoords);
+                    } else {
+                        this.creation.x = hoverTranslatedCoords?.x;
+                        this.creation.y = hoverTranslatedCoords?.y;
+                    }
+                }
+
+                //CREATING TRACE PROCESS (ONLY INSIDE THE MAP)
+                if (this.buttonsStates.trace) {
+                    const entity = {
+                        x: (-this.app.game.level.size.width) / 2,
+                        y: (-this.app.game.level.size.height) / 2,
+                        width: this.app.game.level.size.width,
+                        height: this.app.game.level.size.height
+                    }
+                    if (this.app.gui.get.isHover(entity, hoverTranslatedCoords) && this.app.factory.binnacle['Traces'][0]) {
+                        this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
+                    }
+                }
+            },
+            mouseup: (e) => {
+                console.log('abstract mouseup event registered');
+            },
+            mousedown: (e) => {
+                console.log('abstract mousedown event registered');
+            },
+            click: (e) => {
+                console.log('abstract click event registered');
+            },
+            keyup: (e) => {
+                console.log('abstract onkeyup event registered');
+            },
+            keydown: (e) => {
+                console.log('abstract onkeydown event registered');
+            }
+        });
     }
 
-    /**
-     * Add Event Listeners
-     */
-    #addListeners() {
+    #addListeners(abstractEvents) {
         this.app.controls.pushListener(this, 'mousemove', (e) => {
             // TRANSLATE COORDS - general process
             const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
@@ -54,29 +91,7 @@ export default class Screen {
                 },
                 caller: this.hoverCaller,
             });
-
-            // // CREATING ENTITY PROCESS
-            // if (this.abstractStates.creating) {
-            //     if (this.creation?.coords) {
-            //         (this.creation.coords = hoverTranslatedCoords);
-            //     } else {
-            //         this.creation.x = hoverTranslatedCoords?.x;
-            //         this.creation.y = hoverTranslatedCoords?.y;
-            //     }
-            // }
-
-            // //CREATING TRACE PROCESS (ONLY INSIDE THE MAP)
-            // if (this.buttonsStates.PLAY.trace) {
-            //     const entity = {
-            //         x: (-this.app.game.level.size.width) / 2,
-            //         y: (-this.app.game.level.size.height) / 2,
-            //         width: this.app.game.level.size.width,
-            //         height: this.app.game.level.size.height
-            //     }
-            //     if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
-            //         this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
-            //     }
-            // }
+            abstractEvents.mousemove(e, hoverTranslatedCoords);
         });
         this.app.controls.pushListener(this, 'mouseup', (e) => {
             const coords = {x: event.offsetX, y: event.offsetY};
@@ -95,6 +110,7 @@ export default class Screen {
                     }
                 )
             });
+            abstractEvents.mouseup(e);
         });
         this.app.controls.pushListener(this, 'mousedown', (event) => {
             const coords = {x: event.offsetX, y: event.offsetY};
@@ -113,13 +129,16 @@ export default class Screen {
                     }
                 )
             });
+            abstractEvents.mousedown(event);
+        });
+        this.app.controls.pushListener(this, 'keydown', (event) => {
+            abstractEvents.keydown(event);
+        });
+        this.app.controls.pushListener(this, 'keyup', (event) => {
+            abstractEvents.keyup(event);
         });
     }
 
-    /**
-     * Get Play Data Strings
-     * @returns {{color: string, pickedBarText: string, energyText: string, antSelected: string, entity: object, font: string}}
-     */
     #getPlayDataStrings() {
         const ant = this.app.player?.ant
         const anthill = this.app.player?.anthill
@@ -144,9 +163,6 @@ export default class Screen {
         }
     }
 
-    /**
-     * Update method
-     */
     update() {
         const isAnthillIn = Boolean(this.app.factory.binnacle?.Anthill?.length)
 
@@ -711,6 +727,7 @@ export default class Screen {
         this.hoverCollection = {};
         // HOVER EVENTS
         Object.entries(this.buttonsCollection[this.app.game.state.state] ?? {}).forEach(key => {
+            if (!key[0] || !key[1]) return;
             this.hoverCollection[key[0]] = key[1].props;
         });
         // CANVAS BACKGROUND
