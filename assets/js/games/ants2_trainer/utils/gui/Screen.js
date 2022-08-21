@@ -23,6 +23,16 @@ export default class Screen {
         this.abstractStates = {
             creating: false,
         }
+        this.updateExtend = () => {
+            if (this.app.game.state.state === PLAY && this.app.game.level) {
+                if (!this.app.player?.ant?.speed) return;
+                this.app.player.followCamera &&
+                this.app.player.ant.speed !== 0 &&
+                this.app.camera.follow(this.app.player?.ant);
+            }
+
+            return Boolean(this.app.factory.binnacle?.Anthill?.length);
+        };
         this.#addListeners({
             mousemove: (e, hoverTranslatedCoords) => {
                 // CREATING ENTITY PROCESS
@@ -48,36 +58,24 @@ export default class Screen {
                     }
                 }
             },
-            mouseup: (e) => {
-                console.log('abstract mouseup event registered');
-            },
-            mousedown: (e) => {
-                console.log('abstract mousedown event registered');
-            },
-            click: (e) => {
-                console.log('abstract click event registered');
-            },
-            keyup: (e) => {
-                console.log('abstract onkeyup event registered');
-            },
-            keydown: (e) => {
-                console.log('abstract onkeydown event registered');
-            }
+            mouseup: (e) => true,
+            mousedown: (e) => true,
+            click: (e) => true,
+            keyup: (e) => true,
+            keydown: (e) => true
         });
     }
 
     #addListeners(abstractEvents) {
-        this.app.controls.pushListener(this, 'mousemove', (e) => {
-            // TRANSLATE COORDS - general process
+        this.app.controls.pushListener(this, 'mousemove', (event) => {
             const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
-                x: e.offsetX,
-                y: e.offsetY
+                x: event.offsetX,
+                y: event.offsetY
             }, this.app.camera.viewport);
 
-            // CHECK COLLECTION
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
-                event: e,
+                event,
                 viewport: this.app.camera.viewport,
                 isHover: (key) => {
                     (this.buttonsStates[key] !== 'click') && (this.buttonsStates[key] = 'hover');
@@ -91,51 +89,65 @@ export default class Screen {
                 },
                 caller: this.hoverCaller,
             });
-            abstractEvents.mousemove(e, hoverTranslatedCoords);
+            abstractEvents.mousemove(event, hoverTranslatedCoords);
         });
-        this.app.controls.pushListener(this, 'mouseup', (e) => {
-            const coords = {x: event.offsetX, y: event.offsetY};
-            const viewportCoords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
-            const _buttons = {
-                forward: {coords, ...this.buttonsCollection.PLAY.forward},
-                start: {coords: viewportCoords, ...this.buttonsCollection.MAIN_MENU.start}
+        this.app.controls.pushListener(this, 'mouseup', (event) => {
+            const buttons = {
+                ...this.buttonsCollection.MAIN_MENU,
+                ...this.buttonsCollection.PLAY
             }
-            Object.keys(_buttons).forEach(key => {
+
+            Object.keys(buttons).forEach(key => {
+                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                    ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
+                    : {x: event.offsetX, y: event.offsetY};
+
                 this.app.gui.get.isClicked(
-                    _buttons[key].props,
-                    _buttons[key].coords,
-                    () => {
-                        this.buttonsStates[key] = 'normal';
-                        _buttons[key].props?.callbacks?.mouseup && _buttons[key].props.callbacks.mouseup();
-                    }
+                    buttons[key].props,
+                    ctx,
+                    () => buttons[key].props?.callbacks?.mouseup && buttons[key].props.callbacks.mouseup()
                 )
             });
-            abstractEvents.mouseup(e);
+            abstractEvents.mouseup(event);
         });
         this.app.controls.pushListener(this, 'mousedown', (event) => {
-            const coords = {x: event.offsetX, y: event.offsetY};
-            const viewportCoords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
-            const _buttons = {
-                forward: {coords, ...this.buttonsCollection.PLAY.forward},
-                start: {coords: viewportCoords, ...this.buttonsCollection.MAIN_MENU.start}
+            const buttons = {
+                ...this.buttonsCollection.MAIN_MENU,
+                ...this.buttonsCollection.PLAY
             }
-            Object.keys(_buttons).forEach(key => {
+
+            Object.keys(buttons).forEach(key => {
+                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                    ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
+                    : {x: event.offsetX, y: event.offsetY};
+
                 this.app.gui.get.isClicked(
-                    _buttons[key].props,
-                    _buttons[key].coords,
-                    () => {
-                        this.buttonsStates[key] = 'click';
-                        _buttons[key].props?.callbacks?.mousedown && _buttons[key].props.callbacks.mousedown();
-                    }
+                    buttons[key].props,
+                    ctx,
+                    () => buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown()
                 )
             });
             abstractEvents.mousedown(event);
         });
-        this.app.controls.pushListener(this, 'keydown', (event) => {
-            abstractEvents.keydown(event);
-        });
-        this.app.controls.pushListener(this, 'keyup', (event) => {
-            abstractEvents.keyup(event);
+        this.app.controls.pushListener(this, 'click', (event) => {
+            const buttons = {
+                ...this.buttonsCollection.MAIN_MENU,
+                ...this.buttonsCollection.PLAY
+            }
+
+            Object.keys(buttons).forEach(key => {
+                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                    ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
+                    : {x: event.offsetX, y: event.offsetY};
+
+                this.app.gui.get.isClicked(
+                    buttons[key].props,
+                    ctx,
+                    () => buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click()
+                )
+            });
+
+            abstractEvents.click(event);
         });
     }
 
@@ -164,19 +176,7 @@ export default class Screen {
     }
 
     update() {
-        const isAnthillIn = Boolean(this.app.factory.binnacle?.Anthill?.length)
-
-        const useControlsCtx = this.app.game.state.state === PLAY
-            || this.app.game.state.state === GAME_OVER
-            || this.app.game.state.state === NETWORK
-            && this.app.game.level;
-
-        const ctx = (useControlsCtx) ? this.app.game.gui.controlsCtx : this.app.gui.ctx;
-
-        const cardPosition = {
-            x: 10,
-            y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
-        }
+        const isAnthillIn = this.updateExtend();
 
         const {
             color,
@@ -186,12 +186,6 @@ export default class Screen {
             energyText,
             entity
         } = this.#getPlayDataStrings();
-
-        const height = 360;
-        const width = this.app.tools.max([
-            ctx.measureText(antSelected).width * 2,
-            240
-        ]) + 10;
 
         this.colors = {
             MAIN_MENU: {
@@ -214,6 +208,7 @@ export default class Screen {
                 background: COLORS.WHITE[0],
             }
         };
+
         this.buttonsCollection = {
             MAIN_MENU: {
                 start: {
@@ -282,9 +277,9 @@ export default class Screen {
                         widthStroke: 2,
                         callbacks: {
                             click: () => {
-                                if (!this.buttonsStates.PLAY.createTrace && !this.buttonsStates.PLAY.loop) {
+                                if (!this.buttonsStates.createTrace && !this.buttonsStates.loop) {
                                     this.abstractStates.creating = true;
-                                    this.buttonsStates.PLAY.createAnthill = true;
+                                    this.buttonsStates.createAnthill = 'click';
                                     this.app.game.level.Anthill({ants: 0, free: true});
                                     this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
                                 }
@@ -332,13 +327,17 @@ export default class Screen {
                         height: 50,
                         text: 'Trace',
                         font: '16px Mouse',
-                        bg: this.buttonsStates.createFood === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates.createFood === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                        bg: this.buttonsStates.createTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                            : this.buttonsStates.createTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                 : this.colors.MAIN_MENU.buttons.variation1.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal' ? 'click' : 'normal',
+                            click: (e) => {
+                                console.log('adsasd');
+                                this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal' ? 'click' : 'normal'
+                                console.log(e)
+                            },
                         }
                     }
                 },
@@ -407,7 +406,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('minTrace'),
+                            mousedown: () => this.buttonsStates.minTrace = 'click',
                             mouseup: () => this.buttonsStates.minTrace = 'normal'
                         }
                     }
@@ -433,7 +432,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('maxTrace'),
+                            mousedown: () => this.buttonsStates.maxTrace = 'click',
                             mouseup: () => this.buttonsStates.maxTrace = 'normal'
                         }
                     }
@@ -581,6 +580,7 @@ export default class Screen {
                 }
             }
         };
+
         this.decorations = {
             MAIN_MENU: {
                 main_card: {
@@ -616,10 +616,10 @@ export default class Screen {
                     type: 'square',
                     props: {
                         ctx: this.app.game.gui.controlsCtx,
-                        x: cardPosition.x,
-                        y: cardPosition.y,
-                        width,
-                        height,
+                        x: 10,
+                        y: 10,
+                        width: 250,
+                        height: 360,
                         color: COLORS.WHITE[4],
                         stroke: COLORS.BLACK[0]
                     }
@@ -632,16 +632,16 @@ export default class Screen {
                         color,
                         text: antSelected,
                         antSelected,
-                        x: cardPosition.x + 15,
-                        y: cardPosition.y + 30,
+                        x: 10 + 15,
+                        y: 10 + 30,
                     }
                 },
                 food_bar: {
                     type: 'bar',
                     props: {
-                        ctx,
-                        x: cardPosition.x + 15,
-                        y: cardPosition.y + 65,
+                        ctx: this.app.game.gui.controlsCtx,
+                        x: 10 + 15,
+                        y: 10 + 65,
                         text: pickedBarText,
                         cap: 220,
                         fill: (entity?.pickedFood ?? 0) / 220,
@@ -653,9 +653,9 @@ export default class Screen {
                 energy_bar: {
                     type: 'bar',
                     props: {
-                        ctx,
-                        x: cardPosition.x + 15,
-                        y: cardPosition.y + 65 + 40,
+                        ctx: this.app.game.gui.controlsCtx,
+                        x: 10 + 15,
+                        y: 10 + 65 + 40,
                         text: energyText,
                         cap: 220,
                         fill: (entity?.energy ?? 0) / 220,
@@ -667,9 +667,9 @@ export default class Screen {
                 size_selectors: {
                     type: 'square',
                     props: {
-                        ctx,
-                        x: cardPosition.x + 15,
-                        y: cardPosition.y + 130,
+                        ctx: this.app.game.gui.controlsCtx,
+                        x: 10 + 15,
+                        y: 10 + 130,
                         width: 220,
                         height: 220,
                         color: 'rgba(80,62,50,0.75)',
@@ -679,7 +679,7 @@ export default class Screen {
                 ant_counter: {
                     type: 'text',
                     props: {
-                        ctx,
+                        ctx: this.app.game.gui.controlsCtx,
                         font,
                         text: `${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`,
                         x: window.innerWidth - (this.app.gui.ctx.measureText(`${this?.app?.factory?.binnacle?.Ant?.length ?? 0} Ants`).width * 2.2) - 10,
@@ -689,16 +689,7 @@ export default class Screen {
             }
         };
 
-        this.app.log.printLog(ctx, font);
-
-        // UPDATE CONTROLS
-        if (this.app.game.state.state === PLAY && this.app.game.level) {
-            // UPDATE CAMERA
-            if (!this.app.player?.ant?.speed) return;
-            this.app.player.followCamera &&
-            this.app.player.ant.speed !== 0 &&
-            this.app.camera.follow(this.app.player?.ant);
-        }
+        this.app.log.printLog(this.app.game.gui.controlsCtx, font);
     }
 
     draw() {
