@@ -140,16 +140,18 @@ export default class Screen {
                 if (!this.abstractStates.creating) {
                     // CREATE TRACE
                     this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.createTrace,
+                        this.buttonsCollection.PLAY.createTrace.props,
                         {x: e.offsetX, y: e.offsetY},
                         () => {
-                            this.buttonsStates.createTrace = !this.buttonsStates.createTrace
+                            this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal'
+                                ? 'click'
+                                : 'normal'
                         }
                     )
 
                     // CLEAR NETWORKS
                     this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.clearNetworks,
+                        this.buttonsCollection.PLAY.clearNetworks.props,
                         {x: e.offsetX, y: e.offsetY},
                         () => {
                             this.buttonsStates.clearing = 0;
@@ -158,7 +160,7 @@ export default class Screen {
                     )
                     // SAVE NETWORKS
                     this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.saveNetworks,
+                        this.buttonsCollection.PLAY.saveNetworks.props,
                         {x: e.offsetX, y: e.offsetY},
                         () => {
                             if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
@@ -169,7 +171,7 @@ export default class Screen {
                     )
                     // LOAD FROM NETWORKS
                     this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.loadFromNetworks,
+                        this.buttonsCollection.PLAY.loadFromNetworks.props,
                         {x: e.offsetX, y: e.offsetY},
                         () => {
                             if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
@@ -192,44 +194,6 @@ export default class Screen {
                     //         this.buttonsStates.oscillating = !this.buttonsStates.oscillating;
                     //     }
                     // )
-                    if (!this.buttonsStates.createTrace && !this.abstractStates.looping) {
-                        // CREATE ANTHILL - (mouseup)
-                        this.app.gui.get.isClicked(
-                            this.buttonsCollection.PLAY.createAnthill,
-                            {x: e.offsetX, y: e.offsetY},
-                            () => {
-                                this.abstractStates.creating = true;
-                                this.buttonsStates.createAnthill = true;
-                                this.app.game.level.Anthill({ants: 0, free: true});
-                                this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
-                            }
-                        )
-
-                        // CREATE FOOD - (mouseup)
-                        this.app.gui.get.isClicked(
-                            this.buttonsCollection.PLAY.createFood,
-                            {x: e.offsetX, y: e.offsetY},
-                            () => {
-                                this.abstractStates.creating = true;
-                                this.buttonsStates.createFood = true
-                                this.app.game.level.Food({amount: 1});
-                                this.creation = this.app.factory.binnacle.Food[this.app.factory.binnacle.Food.length - 1];
-                            }
-                        )
-
-                        // CREATE ANT - (mouseup)
-                        if (this.app.player.anthill) {
-                            this.app.gui.get.isClicked(
-                                this.buttonsCollection.PLAY.createAnt,
-                                {x: e.offsetX, y: e.offsetY},
-                                () => {
-                                    this.app.player.anthill.addAnt();
-                                }
-                            )
-                        }
-                    }
-                    this.buttonsStates.clearing = false;
-
                 } else {
                     const objX = (this.creation?.size?.width ?? this.creation.width);
                     const objY = (this.creation?.size?.height ?? this.creation.height);
@@ -289,7 +253,7 @@ export default class Screen {
             const buttons = this.#getButtons()
 
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
@@ -305,7 +269,8 @@ export default class Screen {
             const buttons = this.#getButtons()
 
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                if (!buttons[key].props?.ctx) return;
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
@@ -321,7 +286,7 @@ export default class Screen {
             const buttons = this.#getButtons()
 
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
@@ -363,7 +328,9 @@ export default class Screen {
     #getButtons() {
         const output = {};
         Object.entries(this.buttonsCollection).forEach(key =>
-            Object.entries(key[1]).forEach(button => output[button[0]] = button[1]));
+            Object.entries(key[1]).forEach(button => {
+                if (typeof button[1] === 'object') output[button[0]] = button[1];
+            }));
         return output;
     }
 
@@ -447,7 +414,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => this.app.player.anthill.addAnt()
+                            mouseup: () => this.app.player.anthill.addAnt()
                         }
                     }
                 },
@@ -468,8 +435,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => {
-                                if (!this.buttonsStates.createTrace && !this.buttonsStates.loop) {
+                            mouseup: () => {
+                                if (this.buttonsStates.createTrace !== 'click' && !this.buttonsStates.loop) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createAnthill = 'click';
                                     this.app.game.level.Anthill({ants: 0, free: true});
@@ -496,8 +463,8 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => {
-                                if (!this.buttonsStates.PLAY.createTrace && !this.buttonsStates.PLAY.loop) {
+                            mouseup: () => {
+                                if (this.buttonsStates.createTrace !== 'click' && !this.abstractStates.looping) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createFood = 'click';
                                     this.app.game.level.Food({amount: 1});
@@ -524,10 +491,10 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: (e) =>
-                                this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal'
-                                    ? 'click'
-                                    : 'normal'
+                            mouseup: (e) =>
+                                this.buttonsStates.createTrace = this.buttonsStates.createTrace !== 'normal'
+                                    ? 'normal'
+                                    : 'click'
                         }
                     }
                 },

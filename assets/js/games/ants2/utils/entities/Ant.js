@@ -281,11 +281,13 @@ export default class Ant {
 
     #eatFood(controls) {
         if (!(controls.eat && this.pickedFood > 1 && this.energy < 100)) {
-            this.game.gui.screen.buttonsCollection.PLAY.eat = 0
+            this.game.gui.screen.buttonsCollection.PLAY.eat &&
+            (this.game.gui.screen.buttonsCollection.PLAY.eat = 0)
             return
         }
 
-        this.game.gui.screen.buttonsCollection.PLAY.eat = 1 * this.app.gameSpeed;
+        this.game.gui.screen.buttonsCollection.PLAY.eat &&
+        (this.game.gui.screen.buttonsCollection.PLAY.eat = 1 * this.app.gameSpeed);
         controls.pick = 0;
 
         (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);

@@ -135,7 +135,7 @@ export default class Ants2Trainer {
                 name: 'Anthill',
                 rule: (entity) => {
                     // CREATE LOOP
-                    if (entity && this.app.game.gui.screen.buttons.play.looping) {
+                    if (entity && this.app.game.gui.screen.abstractStates.looping) {
                         if (entity.antCounter >= this.flags.antLooper) {
                             return;
                         }
