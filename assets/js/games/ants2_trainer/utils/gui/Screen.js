@@ -21,10 +21,20 @@ export default class Screen {
         this.buttonsStates = {};
         this.buttonsCollection = {};
         this.abstractStates = {
-            creating: false,
             looping: false,
         }
         this.updateExtend = () => {
+            if (this.buttonsStates.createLoop === 'click') {
+                this.homes = this.app.factory.binnacle['Anthill'] ?? []
+                const total = this.app?.factory?.binnacle?.Ant?.length ?? 0;
+
+                for (let i = 0; i <= this.homes.length; i++) {
+                    if (this.homes[i]?.addAnt && total < this.app.game.flags.antLooper) {
+                        this.homes[i].addAnt()
+                    }
+                }
+            }
+
             if (this.app.game.state.state === PLAY && this.app.game.level) {
                 if (!this.app.player?.ant?.speed) return;
                 this.app.player.followCamera &&
