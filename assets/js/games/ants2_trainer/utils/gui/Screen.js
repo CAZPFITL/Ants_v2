@@ -31,8 +31,6 @@ export default class Screen {
                 this.app.player.ant.speed !== 0 &&
                 this.app.camera.follow(this.app.player?.ant);
             }
-
-            return Boolean(this.app.factory.binnacle?.Anthill?.length);
         };
         this.#addListeners({
             mousemove: (e, hoverTranslatedCoords) => {
@@ -45,159 +43,21 @@ export default class Screen {
                         this.creation.y = hoverTranslatedCoords?.y;
                     }
                 }
-
-                //CREATING TRACE PROCESS
-                // if (this.buttonsStates.createTrace) {
-                //     const entity = {
-                //         x: (-this.app.game.level.size.width) / 2,
-                //         y: (-this.app.game.level.size.height) / 2,
-                //         width: this.app.game.level.size.width,
-                //         height: this.app.game.level.size.height
-                //     }
-                //     if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
-                //         this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
-                //     }
-                // }
-
-                // DRAG RESIZE WIDTH
-                if (this.buttonsStates.width === 'click') {
-                    this.app.game.level.size.width += e.movementX;
-                    this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
-                }
-
-                // DRAG RESIZE HEIGHT
-                if (this.buttonsStates.height === 'click') {
-                    const increment = e.movementX;
-                    this.app.game.level.size.height += increment;
-                    this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
-                }
-
-                // DRAG MIN TRACE - (click, drag and drop)
-                if (this.buttonsStates.minTrace) {
-                    if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
-                        const ref = this.app.factory.binnacle['Traces'][0].props.min;
-                        const refMax = this.app.factory.binnacle['Traces'][0].props.max;
-                        if (ref >= 1 && ref <= refMax) {
-                            this.app.factory.binnacle['Traces'][0].props.min += e.movementX;
-                        }
-                        if (ref > refMax) {
-                            this.app.factory.binnacle['Traces'][0].props.min = refMax;
-                        }
-                        if (ref < 1) {
-                            this.app.factory.binnacle['Traces'][0].props.min = 1;
-                        }
-                    }
-                }
-
-                // DRAG UPDATE MAX TRACE - (click, drag and drop)
-                if (this.buttonsStates.maxTrace) {
-                    if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
-                        const ref = this.app.factory.binnacle['Traces'][0].props.max;
-                        const refMin = this.app.factory.binnacle['Traces'][0].props.min;
-                        if (ref >= refMin && ref <= 30) {
-                            this.app.factory.binnacle['Traces'][0].props.max += e.movementX;
-                        }
-                        if (ref > 30) {
-                            this.app.factory.binnacle['Traces'][0].props.max = 30;
-                        }
-                        if (ref < refMin) {
-                            this.app.factory.binnacle['Traces'][0].props.max = refMin;
-                        }
-                    }
-                }
-
-                // DRAG UPDATE LOOP SIZE - (click, drag and drop)
-                if (this.buttonsStates.loopSize) {
-                    const ref = this.app.game.flags.antLooper;
-                    const refMax = 3000
-                    const refMin = 20;
-                    if (ref >= refMin && ref <= refMax) {
-                        this.app.game.flags.antLooper += e.movementX;
-                    }
-                    if (ref > refMax) {
-                        this.app.game.flags.antLooper = refMax;
-                    }
-                    if (ref < refMin) {
-                        this.app.game.flags.antLooper = refMin;
-                    }
-                }
-
             },
             mouseup: (e) => {
                 // CLEAR STATES
                 this.buttonsStates.createAnt = 'normal';
-                this.buttonsStates.createAnthill = 'normal';
-                this.buttonsStates.createFood = 'normal';
-                this.buttonsStates.createTrace = 'normal';
                 this.buttonsStates.width = 'normal';
                 this.buttonsStates.height = 'normal';
                 this.buttonsStates.minTrace = 'normal';
                 this.buttonsStates.maxTrace = 'normal';
                 this.buttonsStates.loopSize = 'normal';
-                this.buttonsStates.createLoop = 'normal';
                 this.buttonsStates.saveNetworks = 'normal';
 
-                if (!this.abstractStates.creating) {
-                    // CREATE TRACE
-                    this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.createTrace.props,
-                        {x: e.offsetX, y: e.offsetY},
-                        () => {
-                            this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'normal'
-                                ? 'click'
-                                : 'normal'
-                        }
-                    )
-
-                    // CLEAR NETWORKS
-                    this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.clearNetworks.props,
-                        {x: e.offsetX, y: e.offsetY},
-                        () => {
-                            this.buttonsStates.clearing = 0;
-                            localStorage.removeItem('_best');
-                        }
-                    )
-                    // SAVE NETWORKS
-                    this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.saveNetworks.props,
-                        {x: e.offsetX, y: e.offsetY},
-                        () => {
-                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
-                                this.buttonsStates.saveNetworks = 'normal';
-                                Parser.save(this.app.factory.binnacle.Ant);
-                            }
-                        }
-                    )
-                    // LOAD FROM NETWORKS
-                    this.app.gui.get.isClicked(
-                        this.buttonsCollection.PLAY.loadFromNetworks.props,
-                        {x: e.offsetX, y: e.offsetY},
-                        () => {
-                            if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
-                                this.buttonsStates.loadFromNetworks = !this.buttonsStates.loadFromNetworks;
-                                if(this.buttonsStates.loadFromNetworks) {
-                                    this.app.game.LOADED_BRAINS = Parser.load();
-                                    window.a = this.app.game.LOADED_BRAINS;
-                                    window.b = this.app.player.ant;
-                                } else {
-                                    this.app.game.LOADED_BRAINS = false;
-                                }
-                            }
-                        }
-                    )
-                    // OSCILLATE MAP
-                    // this.app.gui.get.isClicked(
-                    //     this.buttonsCollection.PLAY.oscillateMap,
-                    //     {x: e.offsetX, y: e.offsetY},
-                    //     () => {
-                    //         this.buttonsStates.oscillating = !this.buttonsStates.oscillating;
-                    //     }
-                    // )
-                } else {
+                if (this.abstractStates.creating) {
                     const objX = (this.creation?.size?.width ?? this.creation.width);
                     const objY = (this.creation?.size?.height ?? this.creation.height);
-                    const entity = {
+                    const map = {
                         x: (-this.app.game.level.size.width + objX) / 2,
                         y: (-this.app.game.level.size.height + objY) / 2,
                         width: this.app.game.level.size.width - objX,
@@ -207,23 +67,42 @@ export default class Screen {
                         {x: e.offsetX, y: e.offsetY},
                         this.app.camera.viewport
                     );
-                    if (this.app.gui.get.isHover(entity, click)) {
+                    if (this.app.gui.get.isHover(map, click)) {
                         this.creation = null;
                         this.abstractStates.creating = false;
-                        this.buttonsStates.createAnthill = false;
-                        this.buttonsStates.createFood = false;
+                        this.buttonsStates.createAnthill = 'normal';
+                        this.buttonsStates.createFood = 'normal';
                     }
                 }
             },
-            mousedown: (e) => {
-
-            },
+            mousedown: (e) => true,
             click: (e) => true,
         });
     }
 
     #addListeners(abstractEvents) {
         this.app.controls.pushListener(this, 'mousemove', (event) => {
+            const buttons = this.#getButtons()
+            const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: event.offsetX,
+                y: event.offsetY
+            }, this.app.camera.viewport);
+
+            // ABSTRACT MOVE
+            abstractEvents.mousemove(event, hoverTranslatedCoords);
+            // MOUSE MOVE
+            Object.keys(buttons).forEach((key) => {
+                const ctx = buttons[key].props.position === 'viewport'
+                    ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
+                    : {x: event.offsetX, y: event.offsetY};
+
+                this.app.gui.get.isClicked(
+                    buttons[key].props,
+                    ctx,
+                    () => buttons[key].props?.callbacks?.mousemove && buttons[key].props.callbacks.mousemove(event, hoverTranslatedCoords)
+                )
+            });
+            // HOVER READ
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
                 event,
@@ -244,10 +123,6 @@ export default class Screen {
                 },
                 caller: this.hoverCaller,
             });
-            abstractEvents.mousemove(event, this.app.gui.get.viewportCoords({
-                x: event.offsetX,
-                y: event.offsetY
-            }, this.app.camera.viewport));
         });
         this.app.controls.pushListener(this, 'mouseup', (event) => {
             const buttons = this.#getButtons()
@@ -260,7 +135,7 @@ export default class Screen {
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.mouseup && buttons[key].props.callbacks.mouseup()
+                    () => buttons[key].props?.callbacks?.mouseup && buttons[key].props.callbacks.mouseup(event)
                 )
             });
             abstractEvents.mouseup(event);
@@ -277,7 +152,7 @@ export default class Screen {
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown()
+                    () => buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown(event)
                 )
             });
             abstractEvents.mousedown(event);
@@ -293,7 +168,7 @@ export default class Screen {
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click()
+                    () => buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click(event)
                 )
             });
 
@@ -354,7 +229,13 @@ export default class Screen {
                         hover: COLORS.YELLOW[2],
                         click: COLORS.YELLOW[0],
                         normal: COLORS.YELLOW[1],
-                        stroke: COLORS.BLACK[0],
+                        stroke: COLORS.BLACK[0]
+                    },
+                    disabled: {
+                        hover: COLORS.BLACK[8],
+                        click: COLORS.BLACK[8],
+                        normal: COLORS.BLACK[8],
+                        stroke: COLORS.BLACK[0]
                     }
                 },
                 mainCard: {
@@ -408,9 +289,11 @@ export default class Screen {
                         height: 50,
                         text: '🐜',
                         font: '16px Mouse',
-                        bg: this.buttonsStates.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        bg: this.app.factory.binnacle['Traces'] ?
+                            (this.buttonsStates.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal)
+                            : this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
@@ -436,7 +319,7 @@ export default class Screen {
                         widthStroke: 2,
                         callbacks: {
                             mouseup: () => {
-                                if (this.buttonsStates.createTrace !== 'click' && !this.buttonsStates.loop) {
+                                if (this.buttonsStates.createAnthill !== 'click' && !this.buttonsStates.loop) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createAnthill = 'click';
                                     this.app.game.level.Anthill({ants: 0, free: true});
@@ -485,16 +368,31 @@ export default class Screen {
                         height: 50,
                         text: 'Trace',
                         font: '16px Mouse',
-                        bg: this.buttonsStates.createTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-                            : this.buttonsStates.createTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                : this.colors.MAIN_MENU.buttons.variation1.normal,
+                        bg: this.app.factory.binnacle['Traces'] ?
+                            (this.buttonsStates.createTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+                                : this.buttonsStates.createTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal)
+                            : this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            mouseup: (e) =>
-                                this.buttonsStates.createTrace = this.buttonsStates.createTrace !== 'normal'
-                                    ? 'normal'
-                                    : 'click'
+                            mousemove: (event, hoverTranslatedCoords) => {
+                                // CREATING TRACE PROCESS
+                                if (this.buttonsStates.createTrace === 'click' && this.app.factory.binnacle['Anthill']) {
+                                    const entity = {
+                                        x: (-this.app.game.level.size.width) / 2,
+                                        y: (-this.app.game.level.size.height) / 2,
+                                        width: this.app.game.level.size.width,
+                                        height: this.app.game.level.size.height
+                                    }
+                                    if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
+                                        this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
+                                    }
+                                }
+                            },
+                            mouseup: (e) => {
+                                this.buttonsStates.createTrace = this.buttonsStates.createTrace === 'click' ? 'normal' : 'click';
+                            }
                         }
                     }
                 },
@@ -515,6 +413,13 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
+                            mousemove: (event) => {
+                                // DRAG RESIZE WIDTH
+                                if (this.buttonsStates.width === 'click') {
+                                    this.app.game.level.size.width += event.movementX;
+                                    this.app.game.level.coords.x = -this.app.game.level.size.width / 2 ?? 100;
+                                }
+                            },
                             mousedown: () => this.buttonsStates.width = 'click'
                         }
                     }
@@ -536,6 +441,14 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
+                            mousemove: (event) => {
+                                // DRAG RESIZE HEIGHT
+                                if (this.buttonsStates.height === 'click') {
+                                    const increment = event.movementX;
+                                    this.app.game.level.size.height += increment;
+                                    this.app.game.level.coords.y = -this.app.game.level.size.height / 2 ?? 100;
+                                }
+                            },
                             mousedown: () => this.buttonsStates.height = 'click'
                         }
                     }
@@ -553,14 +466,32 @@ export default class Screen {
                         this.app.factory.binnacle.Traces[0] &&
                         this.app.factory.binnacle.Traces[0]?.props?.min || 'N/A'} >`,
                         font: '10px Mouse',
-                        bg: isAnthillIn ?
+                        bg: this.app.factory.binnacle['Traces'] ?
                             (this.buttonsStates.minTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
                                 : this.buttonsStates.minTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                     : this.colors.MAIN_MENU.buttons.variation1.normal) :
-                            COLORS.BLACK[5],
+                            this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
+                            mousemove: (event) => {
+                                // DRAG MIN TRACE - (click, drag and drop)
+                                if (this.buttonsStates.minTrace === 'click') {
+                                    if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
+                                        const ref = this.app.factory.binnacle['Traces'][0].props.min;
+                                        const refMax = this.app.factory.binnacle['Traces'][0].props.max;
+                                        if (ref >= 1 && ref <= refMax) {
+                                            this.app.factory.binnacle['Traces'][0].props.min += event.movementX;
+                                        }
+                                        if (ref > refMax) {
+                                            this.app.factory.binnacle['Traces'][0].props.min = refMax;
+                                        }
+                                        if (ref < 1) {
+                                            this.app.factory.binnacle['Traces'][0].props.min = 1;
+                                        }
+                                    }
+                                }
+                            },
                             mousedown: () => this.buttonsStates.minTrace = 'click',
                         }
                     }
@@ -578,14 +509,32 @@ export default class Screen {
                         this.app.factory.binnacle.Traces[0] &&
                         this.app.factory.binnacle.Traces[0]?.props?.max || 'N/A'} >`,
                         font: '10px Mouse',
-                        bg: isAnthillIn ?
+                        bg: this.app.factory.binnacle['Traces'] ?
                             (this.buttonsStates.maxTrace === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
                                 : this.buttonsStates.maxTrace === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                     : this.colors.MAIN_MENU.buttons.variation1.normal) :
-                            COLORS.BLACK[5],
+                            this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
+                            mousemove: (event) => {
+                                // DRAG UPDATE MAX TRACE - (click, drag and drop)
+                                if (this.buttonsStates.maxTrace === 'click') {
+                                    if (this.app.factory.binnacle['Traces'] && this.app.factory.binnacle['Traces'][0]) {
+                                        const ref = this.app.factory.binnacle['Traces'][0].props.max;
+                                        const refMin = this.app.factory.binnacle['Traces'][0].props.min;
+                                        if (ref >= refMin && ref <= 30) {
+                                            this.app.factory.binnacle['Traces'][0].props.max += event.movementX;
+                                        }
+                                        if (ref > 30) {
+                                            this.app.factory.binnacle['Traces'][0].props.max = 30;
+                                        }
+                                        if (ref < refMin) {
+                                            this.app.factory.binnacle['Traces'][0].props.max = refMin;
+                                        }
+                                    }
+                                }
+                            },
                             mousedown: () => this.buttonsStates.maxTrace = 'click'
                         }
                     }
@@ -601,14 +550,31 @@ export default class Screen {
                         height: 20,
                         text: `< loopSize: ${this.app.game?.flags?.antLooper} >`,
                         font: '10px Mouse',
-                        bg: isAnthillIn ?
+                        bg: this.app.factory.binnacle['Traces'] ?
                             (this.buttonsStates.loopSize === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
                                 : this.buttonsStates.loopSize === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
                                     : this.colors.MAIN_MENU.buttons.variation1.normal) :
-                            COLORS.BLACK[5],
+                            this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
+                            mousemove: (event) => {
+                                // DRAG UPDATE LOOP SIZE - (click, drag and drop)
+                                if (this.buttonsStates.loopSize === 'click') {
+                                    const ref = this.app.game.flags.antLooper;
+                                    const refMax = 3000
+                                    const refMin = 20;
+                                    if (ref >= refMin && ref <= refMax) {
+                                        this.app.game.flags.antLooper += event.movementX;
+                                    }
+                                    if (ref > refMax) {
+                                        this.app.game.flags.antLooper = refMax;
+                                    }
+                                    if (ref < refMin) {
+                                        this.app.game.flags.antLooper = refMin;
+                                    }
+                                }
+                            },
                             mousedown: () => this.buttonsStates.loopSize = 'click'
                         }
                     }
@@ -624,20 +590,16 @@ export default class Screen {
                         height: 20,
                         text: 'Create Loop',
                         font: '10px Mouse',
-                        bg: isAnthillIn ?
+                        bg: this.app.factory.binnacle['Anthill'] ?
                             (this.buttonsStates.createLoop === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
                                 : this.buttonsStates.createLoop === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-                                    : this.colors.MAIN_MENU.buttons.variation1.normal) :
-                            COLORS.BLACK[5],
+                                    : this.colors.MAIN_MENU.buttons.variation1.normal)
+                            : this.colors.MAIN_MENU.buttons.disabled.normal,
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            mousedown: () => {
-                                if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
-                                        this.buttonsStates.createLoop = this.buttonsStates.createLoop === 'click'
-                                            ? 'normal'
-                                            : 'click';
-                                }
+                            mouseup: (event) => {
+                                this.buttonsStates.createLoop = this.buttonsStates.createLoop === 'click' ? 'normal' : 'click';
                             }
                         }
                     }
@@ -693,7 +655,7 @@ export default class Screen {
                                 click: () => {
                                     if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
                                         this.buttonsStates.loading = this.buttonsStates.loading === 'normal' ? 'click' : 'normal';
-                                        if(this.buttonsStates.play.loading === 'click') {
+                                        if (this.buttonsStates.play.loading === 'click') {
                                             this.app.game.LOADED_BRAINS = Parser.load();
                                             window.a = this.app.game.LOADED_BRAINS;
                                             window.b = this.app.player.ant;
