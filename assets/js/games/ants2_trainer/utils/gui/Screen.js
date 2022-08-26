@@ -22,6 +22,7 @@ export default class Screen {
         this.buttonsCollection = {};
         this.abstractStates = {
             looping: false,
+            tracing: false
         }
         this.updateExtend = () => {
             if (this.buttonsStates.createLoop === 'click') {
@@ -63,6 +64,7 @@ export default class Screen {
                 this.buttonsStates.maxTrace = 'normal';
                 this.buttonsStates.loopSize = 'normal';
                 this.buttonsStates.saveNetworks = 'normal';
+                this.abstractStates.tracing = false;
 
                 if (this.abstractStates.creating) {
                     const objX = (this.creation?.size?.width ?? this.creation.width);
@@ -85,7 +87,9 @@ export default class Screen {
                     }
                 }
             },
-            mousedown: (e) => true,
+            mousedown: (e) => {
+                if (this.buttonsStates.createTrace) this.abstractStates.tracing = true;
+            },
             click: (e) => true,
         });
     }
@@ -101,17 +105,9 @@ export default class Screen {
             // ABSTRACT MOVE
             abstractEvents.mousemove(event, hoverTranslatedCoords);
             // MOUSE MOVE
-            Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.position === 'viewport'
-                    ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
-                    : {x: event.offsetX, y: event.offsetY};
-
-                this.app.gui.get.isClicked(
-                    buttons[key].props,
-                    ctx,
-                    () => buttons[key].props?.callbacks?.mousemove && buttons[key].props.callbacks.mousemove(event, hoverTranslatedCoords)
-                )
-            });
+            Object.keys(buttons).forEach((key) =>
+                buttons[key].props?.callbacks?.mousemove &&
+                buttons[key].props.callbacks.mousemove(event, hoverTranslatedCoords));
             // HOVER READ
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
@@ -357,7 +353,7 @@ export default class Screen {
                         widthStroke: 2,
                         callbacks: {
                             mouseup: () => {
-                                if (this.buttonsStates.createTrace !== 'click' && !this.abstractStates.looping) {
+                                if (this.buttonsStates.createFood !== 'click' && !this.abstractStates.looping) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createFood = 'click';
                                     this.app.game.level.Food({amount: 1});
@@ -395,7 +391,8 @@ export default class Screen {
                                         width: this.app.game.level.size.width,
                                         height: this.app.game.level.size.height
                                     }
-                                    if (this.app.gui.get.isHover(entity, hoverTranslatedCoords)) {
+                                    if (this.app.gui.get.isHover(entity, hoverTranslatedCoords) &&
+                                    this.abstractStates.tracing) {
                                         this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
                                     }
                                 }
