@@ -25,7 +25,7 @@ export default class Player {
      */
     #addListeners() {
         // Change Controlled Entity
-        this.app.controls.pushListener(this,'click', (event) => {
+        this.app.controls.pushListener(this, 'click', (event) => {
             const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
             const ant = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
             ant && this.followCamera && this.app.camera.follow(ant);
@@ -34,7 +34,7 @@ export default class Player {
             anthill && this.app.player.updateAnthill(anthill);
         });
         // Move Player Down events
-        this.app.controls.pushListener(this,'keydown', (event) => {
+        this.app.controls.pushListener(this, 'keydown', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 1;
@@ -73,7 +73,7 @@ export default class Player {
             }
         });
         // Move Player Up Events
-        this.app.controls.pushListener(this,'keyup', (event) => {
+        this.app.controls.pushListener(this, 'keyup', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 0;

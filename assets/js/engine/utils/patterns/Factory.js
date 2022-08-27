@@ -2,7 +2,7 @@ export default class Factory {
     constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.binnacle = {};
-        callback(()=> {
+        callback(() => {
             this.app.log.registerEvent(
                 `New Factory Created`,
                 `\x1b[32;1m| \x1b[0mNew \x1b[32;1mFactory\x1b[0m Created`
@@ -36,7 +36,7 @@ export default class Factory {
         );
     }
 
-    restart(){
+    restart() {
         for (let key in this.app.factory.binnacle) {
             this.app.factory.binnacle[key] instanceof Array &&
             this.app.factory.binnacle[key].forEach((entity) => {
