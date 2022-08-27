@@ -25,17 +25,6 @@ export default class Screen {
             tracing: false
         }
         this.updateExtend = () => {
-            if (this.buttonsStates.createLoop === 'click') {
-                this.homes = this.app.factory.binnacle['Anthill'] ?? []
-                const total = this.app?.factory?.binnacle?.Ant?.length ?? 0;
-
-                for (let i = 0; i <= this.homes.length; i++) {
-                    if (this.homes[i]?.addAnt && total < this.app.game.flags.antLooper) {
-                        this.homes[i].addAnt()
-                    }
-                }
-            }
-
             if (this.app.game.state.state === PLAY && this.app.game.level) {
                 if (!this.app.player?.ant?.speed) return;
                 this.app.player.followCamera &&
@@ -630,7 +619,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            mousedown: () => {
+                            click: () => {
                                 if ((this.app.factory.binnacle?.Anthill?.length ?? 0) > 0) {
                                     this.buttonsStates.saveNetworks = 'click';
                                     Parser.save(this.app.factory.binnacle.Ant);
@@ -692,10 +681,7 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            mousedown: () => {
-                                this.buttonsStates.clearNetworks = 'click';
-                                localStorage.removeItem('_best');
-                            }
+                            click: () => this.buttonsStates.clearNetworks = 'click'
                         }
                     }
                 }
