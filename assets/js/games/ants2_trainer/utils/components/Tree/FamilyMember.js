@@ -54,7 +54,7 @@ export default class Member {
      * @param y {number} - The y position of the Family Member
      * @param color {string} - The color of the Family Member
      */
-    draw(ctx = this.app.gui.ctx, x= this.x, y = this.y) {
+    draw(ctx = this.app.gui.ctx, x = this.x, y = this.y) {
         this.selected && console.log(this.selected)
         if (this.app.game.state.state === 'NETWORK') {
             const isSelected = this.tree.memberSelected === this;

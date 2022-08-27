@@ -87,94 +87,94 @@ export default class Ant {
             )
         }
         this.brain = new Brain([
-                {
-                    id: 'follow trace with nose',
-                    neuronCount: [
-                        this.sensors.eyes.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        10, // neurons in third layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.eyes,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'follow trace with nose',
-                    neuronCount: [
-                        this.sensors.nose.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.nose,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'go away from bounds with nose',
-                    neuronCount: [
-                        this.sensors.nose.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.nose,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'follow trace with antennas',
-                    neuronCount: [
-                        this.sensors.antennas.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.antennas,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'go away from bounds with antennas',
-                    neuronCount: [
-                        this.sensors.antennas.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.antennas,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                }
-            ], this.controls);
+            {
+                id: 'follow trace with nose',
+                neuronCount: [
+                    this.sensors.eyes.rayCount, // inputs
+                    6, // neurons in first layer
+                    8, // neurons in second layer
+                    10, // neurons in third layer
+                    8, // neurons in second layer
+                    6, // neurons in third layer
+                    4
+                ],
+                inputs: this.sensors.eyes,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            },
+            {
+                id: 'follow trace with nose',
+                neuronCount: [
+                    this.sensors.nose.rayCount, // inputs
+                    6, // neurons in first layer
+                    8, // neurons in second layer
+                    6, // neurons in third layer
+                    4
+                ],
+                inputs: this.sensors.nose,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            },
+            {
+                id: 'go away from bounds with nose',
+                neuronCount: [
+                    this.sensors.nose.rayCount, // inputs
+                    6, // neurons in first layer
+                    8, // neurons in second layer
+                    6, // neurons in third layer
+                    4
+                ],
+                inputs: this.sensors.nose,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            },
+            {
+                id: 'follow trace with antennas',
+                neuronCount: [
+                    this.sensors.antennas.rayCount, // inputs
+                    6, // neurons in first layer
+                    8, // neurons in second layer
+                    6, // neurons in third layer
+                    4
+                ],
+                inputs: this.sensors.antennas,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            },
+            {
+                id: 'go away from bounds with antennas',
+                neuronCount: [
+                    this.sensors.antennas.rayCount, // inputs
+                    6, // neurons in first layer
+                    8, // neurons in second layer
+                    6, // neurons in third layer
+                    4
+                ],
+                inputs: this.sensors.antennas,
+                outputs: [
+                    'forward',
+                    'left',
+                    'right',
+                    'reverse',
+                ]
+            }
+        ], this.controls);
 
         // if (this.app.game.gui.screen?.buttons?.play?.loading && this.app?.game?.LOADED_BRAINS) {
         //     this.brain.mutate(this.app.game.LOADED_BRAINS, 0.5);

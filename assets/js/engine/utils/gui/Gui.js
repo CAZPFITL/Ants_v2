@@ -6,7 +6,7 @@ export default class Gui {
         this.get = Gui;
         this.ctx = Gui.createCanvas('gameCanvas');
         this.app.factory.addGameEntity(this);
-        callback(()=> {
+        callback(() => {
             this.app.log.registerEvent(
                 `New Gui Created`,
                 `\x1b[32;1m| \x1b[0mNew \x1b[32;1mApp Gui\x1b[0m Created`
@@ -43,7 +43,7 @@ export default class Gui {
         );
     }
 
-    static viewportCoords = ({x, y}, viewport)  => ({
+    static viewportCoords = ({x, y}, viewport) => ({
         x: x / viewport.scale[0] + viewport.left,
         y: y / viewport.scale[1] + viewport.top
     })
@@ -91,8 +91,7 @@ export default class Gui {
             if (collection[key]?.position === 'viewport' &&
                 Gui.isHover(collection[key], Gui.viewportCoords(event, viewport))) {
                 isHover(key);
-            }
-            else if (collection[key]?.position === 'controls' &&
+            } else if (collection[key]?.position === 'controls' &&
                 Gui.isHover(collection[key], {x: event.clientX, y: event.clientY})) {
                 isHover(key);
             } else {
@@ -150,7 +149,20 @@ export default class Gui {
     /**
      * Screen instantiable objects
      */
-    static button({ctx, font, x, y, width, height, text, bg = '#ffffff', color = '#000', stroke = '#000', center = true, widthStroke = 1}) {
+    static button({
+                      ctx,
+                      font,
+                      x,
+                      y,
+                      width,
+                      height,
+                      text,
+                      bg = '#ffffff',
+                      color = '#000',
+                      stroke = '#000',
+                      center = true,
+                      widthStroke = 1
+                  }) {
         this.square({ctx, x, y, width, height, color: bg, stroke, widthStroke});
         this.text({ctx, font, color, text, x, y, width, height, center});
     }
@@ -178,7 +190,19 @@ export default class Gui {
         return ctx.measureText(text).width;
     }
 
-    static bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke, negative = false}) {
+    static bar({
+                   ctx,
+                   x,
+                   y,
+                   text,
+                   cap,
+                   fill,
+                   height = 10,
+                   fillColor,
+                   barColor = 'transparent',
+                   stroke,
+                   negative = false
+               }) {
         const normalizedProgress = fill / (cap / 255);
         const progress = negative ? (cap - fill) : fill
 
@@ -196,7 +220,7 @@ export default class Gui {
         text && (this.text({ctx, font: '12px Mouse', color: '#000', text, x, y: y - height}));
     }
 
-    static line ({ ctx, x1, y1, x2, y2, color = '#000' }) {
+    static line({ctx, x1, y1, x2, y2, color = '#000'}) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);

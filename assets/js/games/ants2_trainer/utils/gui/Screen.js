@@ -381,7 +381,7 @@ export default class Screen {
                                         height: this.app.game.level.size.height
                                     }
                                     if (this.app.gui.get.isHover(entity, hoverTranslatedCoords) &&
-                                    this.abstractStates.tracing) {
+                                        this.abstractStates.tracing) {
                                         this.app.factory.binnacle['Traces'][0].markTrace(hoverTranslatedCoords);
                                     }
                                 }

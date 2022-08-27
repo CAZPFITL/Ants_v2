@@ -126,7 +126,7 @@ export class Level {
                 sum += level.inputs[j] * level.weights[j][i];
             }
             // compares
-            if(sum > level.biases[i]){
+            if (sum > level.biases[i]) {
                 level.outputs[i] = 1;
             } else {
                 level.outputs[i] = 0;

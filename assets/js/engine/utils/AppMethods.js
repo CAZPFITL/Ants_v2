@@ -38,7 +38,7 @@ export default class AppMethods {
 
     loadEngine(Game, verbose = false) {
         !verbose && this.toggleStats();
-        document.body.appendChild( this.stats.dom );
+        document.body.appendChild(this.stats.dom);
         this.request = requestAnimationFrame(this.camera.loop);
         this.loadGame(Game)
     }

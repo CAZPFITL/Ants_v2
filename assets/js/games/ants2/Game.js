@@ -21,6 +21,7 @@ export default class Ants2 {
         this.state = new States(app, this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU, NETWORK]);
         this.app.factory.addGameEntity(this);
     }
+
     /**
      * Private methods
      */
@@ -63,7 +64,7 @@ export default class Ants2 {
     }
 
     #restart() {
-        this.app.factory.binnacle = { GameObjects: this.app.factory.binnacle.GameObjects };
+        this.app.factory.binnacle = {GameObjects: this.app.factory.binnacle.GameObjects};
     }
 
     /**
