@@ -69,4 +69,11 @@ export default class Physics {
         return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
             !(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
     }
+    
+    isInBound(entity) {
+        const coords = entity.coords;
+        const limits = this.app.game.level.size;
+        return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
+            !(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
+    }
 }
