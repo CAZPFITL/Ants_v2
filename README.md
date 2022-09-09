@@ -43,3 +43,4 @@ With this superset of the game Ants 2.0 you can train your own AI to help you.
 - https://thecodest.co/blog/tricks-to-speed-up-javascript-application
 - https://www.smashingmagazine.com/2012/11/writing-fast-memory-efficient-javascript/
 - https://dobrian.github.io/cmp/topics/sample-recording-and-playback-with-web-audio-api/1.loading-and-playing-sound-files.html
+- https://www.youtube.com/watch?v=slTEz6555Ts&ab_channel=KlaytonKowalski

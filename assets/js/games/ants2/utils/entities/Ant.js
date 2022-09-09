@@ -263,7 +263,7 @@ export default class Ant {
             this.energy -= 0.003 * this.app.gameSpeed;
         }
         if (controls.run) {
-            this.maxSpeed = this.maxSpeed * 1.2;
+            this.maxSpeed = this.maxSpeed * 3;
             this.energy -= 0.006 * this.app.gameSpeed;
         } else {
             this.maxSpeed = this.maxSpeed;
@@ -276,19 +276,17 @@ export default class Ant {
         if (!controls.mark || !this.app.factory.binnacle?.Traces)
             return;
 
-        this.app.factory.binnacle.Traces[0].markTrace(this);
+        this.app.factory.binnacle.Traces[0].markTrace({x: this.coords.x, y: this.coords.y});
     }
 
     #eatFood(controls) {
         if (!(controls.eat && this.pickedFood > 1 && this.energy < 100)) {
-            this.game.gui.screen.buttonsCollection.PLAY.eat &&
-            (this.game.gui.screen.buttonsCollection.PLAY.eat = 0)
+            controls.eat = 0;
             return
         }
 
-        this.game.gui.screen.buttonsCollection.PLAY.eat &&
-        (this.game.gui.screen.buttonsCollection.PLAY.eat = 1 * this.app.gameSpeed);
         controls.pick = 0;
+        controls.eat = 1;
 
         (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);
         (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate * this.app.gameSpeed);
@@ -306,11 +304,12 @@ export default class Ant {
 
     #carryFood(controls) {
         if (!(controls.pick && this.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
-            this.game.gui.screen.buttonsCollection.PLAY.pick = 0;
+            controls.pick = 0;
+
             return
         }
 
-        this.game.gui.screen.buttonsCollection.PLAY.pick = 1;
+        controls.pick = 1;
         controls.eat = 0;
 
         const food = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);

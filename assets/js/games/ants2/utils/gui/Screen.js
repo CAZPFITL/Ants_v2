@@ -19,6 +19,19 @@ export default class Screen {
 
     #addListeners(abstractEvents) {
         this.app.controls.pushListener(this, 'mousemove', (event) => {
+            const buttons = this.#getButtons()
+            const hoverTranslatedCoords = this.app.gui.get.viewportCoords({
+                x: event.offsetX,
+                y: event.offsetY
+            }, this.app.camera.viewport);
+
+            // ABSTRACT MOVE
+            abstractEvents.mousemove(event, hoverTranslatedCoords);
+            // MOUSE MOVE
+            Object.keys(buttons).forEach((key) =>
+                buttons[key].props?.callbacks?.mousemove &&
+                buttons[key].props.callbacks.mousemove(event, hoverTranslatedCoords));
+            // HOVER READ
             this.app.gui.get.checkHoverCollection({
                 collection: this.hoverCollection,
                 event,
@@ -39,23 +52,22 @@ export default class Screen {
                 },
                 caller: this.hoverCaller,
             });
-            abstractEvents.mousemove(event, this.app.gui.get.viewportCoords({
-                x: event.offsetX,
-                y: event.offsetY
-            }, this.app.camera.viewport));
         });
         this.app.controls.pushListener(this, 'mouseup', (event) => {
             const buttons = this.#getButtons()
 
+            console.log(event)
+            console.log(buttons)
+
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.mouseup && buttons[key].props.callbacks.mouseup()
+                    () => buttons[key].props?.callbacks?.mouseup && buttons[key].props.callbacks.mouseup(event)
                 )
             });
             abstractEvents.mouseup(event);
@@ -64,14 +76,15 @@ export default class Screen {
             const buttons = this.#getButtons()
 
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                if (!buttons[key].props?.ctx) return;
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown()
+                    () => buttons[key].props?.callbacks?.mousedown && buttons[key].props.callbacks.mousedown(event)
                 )
             });
             abstractEvents.mousedown(event);
@@ -80,14 +93,14 @@ export default class Screen {
             const buttons = this.#getButtons()
 
             Object.keys(buttons).forEach((key) => {
-                const ctx = buttons[key].props.ctx === this.app.gui.ctx
+                const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
                     : {x: event.offsetX, y: event.offsetY};
 
                 this.app.gui.get.isClicked(
                     buttons[key].props,
                     ctx,
-                    () => buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click()
+                    () => buttons[key].props?.callbacks?.click && buttons[key].props.callbacks.click(event)
                 )
             });
 
@@ -129,8 +142,10 @@ export default class Screen {
 
     #getButtons() {
         const output = {};
-        Object.entries(this.buttonsCollection).forEach(key =>
-            Object.entries(key[1]).forEach(button => output[button[0]] = button[1]));
+        Object.entries(this.buttonsCollection).forEach(key => {
+            if(key[0] !== this.app.game.state.state) return;
+            Object.entries(key[1]).forEach(button => output[button[0]] = button[1]);
+        })
         return output;
     }
 
