@@ -12,6 +12,7 @@ export default class GameLevel {
         this.color = '#523f32';
         this.boundTargets = {};
         this.addedRules = addedRules;
+        this.map = null;
         this.loadEntitiesList = game.constructor.name === 'Ants2' && [
             {
                 name: 'Food',

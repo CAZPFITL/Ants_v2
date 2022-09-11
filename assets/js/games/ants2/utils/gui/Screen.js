@@ -1,4 +1,4 @@
-import {PLAY, MAIN_MENU, GAME_OVER, COLORS} from "../../env.js";
+import {PLAY, COLORS} from "../../env.js";
 
 export default class Screen {
     constructor(app, gui) {
@@ -8,10 +8,82 @@ export default class Screen {
         this.decorations = {};
         this.buttonsStates = {};
         this.buttonsCollection = {};
-        this.colors = {};
+        this.abstractStates = {};
+        this.screenData = () => {
+            const dec = this.app.tools.xDec
+            const player = {
+                name: `Ant #${this.app.player?.ant?.id ?? 'N/A'} Anthill #${this.app.player?.anthill?.id ?? 'N/A'}`,
+                energy: dec((this.app.player?.ant?.energy ?? 1) * 10, 2) ?? 0,
+                maxFoodPickCapacity: this.app.player?.ant?.maxFoodPickCapacity ?? 100,
+                maxPickedFood: this.app.player?.ant?.maxPickedFood ?? 0,
+                pickedFood: this.app.player?.ant?.pickedFood ?? 0,
+            };
+            let antHill = this.app.factory.binnacle?.Anthill
+            antHill = (antHill instanceof Array) ? antHill : {};
+            const ants = antHill?.antCounter ?? "n/a";
+            const food = dec(antHill?.food ?? 0, 0);
+            const color = '#000000';
+            const font = "20px Mouse";
+            const antSelected = `Player: ${player.name}`;
+
+            this.declareElements({
+                color,
+                font,
+                antSelected,
+                anthillAnts: `Anthill Ants: ${ants}`,
+                anthillFood: `Anthill Food: ${food}`,
+                pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
+                energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
+                entity: this.app.player?.ant,
+                height: 190,
+                width: this.app.tools.max([
+                    this.app.game.gui.controlsCtx.measureText(antSelected).width,
+                    240
+                ]),
+                cardPosition: {
+                    x: 10,
+                    y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
+                }
+            });
+
+            this.followPlayer();
+
+            this.app.log.printLog(this.app.game.gui.controlsCtx, font);
+        };
         this.#addListeners({
-            mousemove: (e) => true,
-            mouseup: (e) => true,
+            mousemove: (e, hoverTranslatedCoords) => {
+                // CREATING ENTITY PROCESS
+                if (this.abstractStates.creating) {
+                    if (this.creation?.coords) {
+                        (this.creation.coords = hoverTranslatedCoords);
+                    } else {
+                        this.creation.x = hoverTranslatedCoords?.x;
+                        this.creation.y = hoverTranslatedCoords?.y;
+                    }
+                }
+            },
+            mouseup: (e) => {
+                if (this.abstractStates.creating) {
+                    const objX = (this.creation?.size?.width ?? this.creation.width);
+                    const objY = (this.creation?.size?.height ?? this.creation.height);
+                    const map = {
+                        x: (-this.app.game.level.size.width + objX) / 2,
+                        y: (-this.app.game.level.size.height + objY) / 2,
+                        width: this.app.game.level.size.width - objX,
+                        height: this.app.game.level.size.height - objY
+                    }
+                    const click = this.app.gui.get.viewportCoords(
+                        {x: e.offsetX, y: e.offsetY},
+                        this.app.camera.viewport
+                    );
+                    if (this.app.gui.get.isHover(map, click)) {
+                        this.creation = null;
+                        this.abstractStates.creating = false;
+                        this.buttonsStates.createAnthill = 'normal';
+                        this.buttonsStates.createFood = 'normal';
+                    }
+                }
+            },
             mousedown: (e) => true,
             click: (e) => true,
         });
@@ -55,10 +127,6 @@ export default class Screen {
         });
         this.app.controls.pushListener(this, 'mouseup', (event) => {
             const buttons = this.#getButtons()
-
-            console.log(event)
-            console.log(buttons)
-
             Object.keys(buttons).forEach((key) => {
                 const ctx = buttons[key].props.position === 'viewport'
                     ? this.app.gui.get.clickCoords(event, this.app.camera.viewport)
@@ -108,69 +176,39 @@ export default class Screen {
         });
     }
 
-    #getPlayDataStrings() {
-        let antHill = this.app.factory.binnacle?.Anthill
-        const ant = this.app.player?.ant
-        const anthill = this.app.player?.anthill
-
-        antHill = (antHill instanceof Array) ? antHill : {};
-
-        const dec = this.app.tools.xDec
-        const {ants, food, player} = {
-            ants: antHill?.antCounter ?? "n/a",
-            food: dec(antHill?.food ?? 0, 0),
-            player: {
-                name: `Ant #${ant?.id ?? 'N/A'} Anthill #${anthill?.id ?? 'N/A'}`,
-                energy: dec((ant?.energy ?? 1) * 10, 2) ?? 0,
-                maxFoodPickCapacity: ant?.maxFoodPickCapacity ?? 100,
-                maxPickedFood: ant?.maxPickedFood ?? 0,
-                pickedFood: ant?.pickedFood ?? 0,
-            }
-        }
-
-        return {
-            color: '#000000',
-            font: "20px Mouse",
-            anthillAnts: `Anthill Ants: ${ants}`,
-            anthillFood: `Anthill Food: ${food}`,
-            antSelected: `Player: ${player.name}`,
-            pickedBarText: `Picked Food: ${dec(player.pickedFood, 0)} / ${dec(player.maxFoodPickCapacity, 0)}`,
-            energyText: `Energy: ${dec(player.energy / 10, 0)} / ${100}`,
-            entity: ant
-        }
-    }
-
     #getButtons() {
         const output = {};
         Object.entries(this.buttonsCollection).forEach(key => {
-            if(key[0] !== this.app.game.state.state) return;
+            if (key[0] !== this.app.game.state.state) return;
             Object.entries(key[1]).forEach(button => output[button[0]] = button[1]);
         })
         return output;
     }
 
-    update() {
-        const cardPosition = {
-            x: 10,
-            y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10,
+    followPlayer() {
+        // Follow player
+        if (this.app.game.state.state === PLAY && this.app.game.level) {
+            if (!this.app.player?.ant?.speed) return;
+            this.app.player.followCamera &&
+            this.app.player.ant.speed !== 0 &&
+            this.app.camera.follow(this.app.player?.ant);
         }
+    }
 
+    declareElements(props) {
         const {
-            color,
+            cardPosition,
+            height,
+            width,
             font,
+            color,
+            antSelected,
             anthillAnts,
             anthillFood,
-            antSelected,
             pickedBarText,
             energyText,
             entity
-        } = this.#getPlayDataStrings();
-
-        const height = 190;
-        const width = this.app.tools.max([
-            this.app.game.gui.controlsCtx.measureText(antSelected).width,
-            240
-        ]);
+        } = props;
 
         this.colors = {
             MAIN_MENU: {
@@ -410,7 +448,15 @@ export default class Screen {
                         stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
                         widthStroke: 2,
                         callbacks: {
-                            click: () => console.log('create anthill')
+                            mouseup: () => {
+                                if (this.buttonsStates.createAnthill !== 'click') {
+                                    console.log('asd')
+                                    this.abstractStates.creating = true;
+                                    this.buttonsStates.createAnthill = 'click';
+                                    this.app.game.level.Anthill({ants: 0, free: true});
+                                    this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+                                }
+                            }
                         }
                     }
                 },
@@ -558,9 +604,11 @@ export default class Screen {
                 }
             }
         };
+    }
 
-        (this.app.player?.followCamera && this.app.player.ant.speed !== 0) &&
-        this.app.camera.follow(this.app.player.ant);
+    update() {
+        // Draw screen data
+        this.screenData();
     }
 
     draw() {

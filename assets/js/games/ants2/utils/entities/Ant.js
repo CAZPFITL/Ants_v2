@@ -276,7 +276,14 @@ export default class Ant {
         if (!controls.mark || !this.app.factory.binnacle?.Traces)
             return;
 
-        this.app.factory.binnacle.Traces[0].markTrace({x: this.coords.x, y: this.coords.y});
+        this.app.factory.binnacle.Traces[0].markTrace({
+            x: this.coords.x,
+            y: this.coords.y
+        }, {
+            min: 20,
+            max: 20,
+            spreadMark: 1
+        });
     }
 
     #eatFood(controls) {
@@ -305,7 +312,6 @@ export default class Ant {
     #carryFood(controls) {
         if (!(controls.pick && this.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
             controls.pick = 0;
-
             return
         }
 
@@ -322,8 +328,10 @@ export default class Ant {
     #dropFood(controls) {
         if (!controls.drop) return;
         const anthill = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
-        (anthill && this.pickedFood > 0) && (anthill.food += this.pickedFood * this.app.gameSpeed);
-        this.pickedFood = 0;
+        if (anthill && this.pickedFood > 0) {
+            anthill.food += this.pickedFood * this.app.gameSpeed;
+            this.pickedFood = 0;
+        }
     }
 
     #age() {
@@ -338,10 +346,10 @@ export default class Ant {
 
     #highlight() {
         if (this.app.game.constructor.name === 'Ants2') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.35)';
+            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.8)';
         }
         if (this.app.game.constructor.name === 'Ants2Trainer') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.35)';
+            this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.3)';
         }
     }
 

@@ -20,10 +20,7 @@ export default class Screen {
         this.hoverCollection = {};
         this.buttonsStates = {};
         this.buttonsCollection = {};
-        this.abstractStates = {
-            looping: false,
-            tracing: false
-        }
+        this.abstractStates = {};
         this.updateExtend = () => {
             if (this.app.game.state.state === PLAY && this.app.game.level) {
                 if (!this.app.player?.ant?.speed) return;
@@ -301,7 +298,7 @@ export default class Screen {
                     props: {
                         position: 'controls',
                         ctx: this.app.game.gui.controlsCtx,
-                        x: this.gui.controlsCtx.canvas.width - 120,
+                        x: this.gui.controlsCtx.canvas.width - 220,
                         y: 10,
                         width: 50,
                         height: 50,
@@ -314,6 +311,7 @@ export default class Screen {
                         widthStroke: 2,
                         callbacks: {
                             mouseup: () => {
+                                console.log('asdasd')
                                 if (this.buttonsStates.createAnthill !== 'click' && !this.buttonsStates.loop) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createAnthill = 'click';

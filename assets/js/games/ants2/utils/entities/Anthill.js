@@ -11,6 +11,7 @@ export default class Anthill {
         this.no_update = false;
         const width = app.tools.random(50, 50);
         const height = app.tools.random(50, 50);
+        Traces.createTraces(this.app, this);
         this.population = [];
         this.polygons = [];
         this.antCounter = 0;
@@ -23,7 +24,6 @@ export default class Anthill {
         this.antCoste = 10;
         this.app.player.anthill = this;
         this.loadEntities(ants, false);
-        Traces.createTraces(this.app, this);
     }
 
     /**
@@ -56,7 +56,6 @@ export default class Anthill {
         ))
         // Update players ant
         if (this.app.game.constructor.name === 'Ants2') {
-            console.log('update ant');
             this.app.player.updateAnt(this.population[this.population.length - 1]);
         }
         // update food
