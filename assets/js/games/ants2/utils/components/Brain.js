@@ -15,12 +15,13 @@ import NeuralNetwork from "./Network.js";
  * ]
  */
 export default class Brain {
-	constructor(procedural, tasks, controls) {
+	constructor(tasks, controls) {
 		this.tasks = tasks;
 		this.brain = [];
 		this.controls = controls;
 		this.outputs = controls;
-		this.procedural = procedural;
+		this.foodFound = false;
+		this.anthillFound = false;
 		this.mainNeuralNetwork = [];
 		this.#init(controls);
 	}
@@ -71,75 +72,46 @@ export default class Brain {
 		}
 	}
 
-	think(sense) {
-		if (!this.procedural) {
-			// INPUTS
-			sense();
-
-			const senses = this.tasks.map((x, index) => {
-				return {
-					inputs: x.inputs.readings,
-					outputs: x.outputs,
-				}
-			});
-
-			Brain.restartOutputs(this.outputs);
-
-			// get outputs from all tasks
-			for (let i = 0; i < senses.length; i++) {
-				// extract analog input
-				const offsets = senses[i].inputs.map(sensor =>
-					sensor == null
-						? 0
-						: 1 - sensor.offset
-				);
-				// get outputs from analog inputs
-				const outputs = NeuralNetwork.feedForward(offsets, this.brain[i]);
-
-				for (let j = 0; j < senses[i].outputs.length; j++) {
-					this.outputs[senses[i].outputs[j]].push(outputs[j]); // this
-				}
+	think() {
+		// INPUTS
+		const senses = this.tasks.map(x => {
+			return {
+				inputs: x.inputs.readings,
+				outputs: x.outputs,
 			}
+		});
 
-			//OUTPUTS
-			// average outputs collections from different processes
-			for (let i = 0; i < Object.keys(this.outputs).length; i++) {
-				const element = this.outputs[Object.keys(this.outputs)[i]];
-				if (element instanceof Array) {
-					const value = (element.reduce((a, b) => a + b, 0)) / element.length;
-					this.outputs[Object.keys(this.outputs)[i]] = typeof value === 'number' && !isNaN(value) ? value : 0;
-				}
+		Brain.restartOutputs(this.outputs);
+
+		// get outputs from all tasks
+		for (let i = 0; i < senses.length; i++) {
+			// extract analog input
+			const offsets = senses[i].inputs.map(sensor =>
+				sensor == null
+					? 0
+					: 1 - sensor.offset
+			);
+			// get outputs from analog inputs
+			const outputs = NeuralNetwork.feedForward(offsets, this.brain[i]);
+
+			for (let j = 0; j < senses[i].outputs.length; j++) {
+				this.outputs[senses[i].outputs[j]].push(outputs[j]); // this
 			}
+		}
 
-			// loop through all the outputs and equals in controls namesake
-			for (let i = 0; i < Object.keys(this.outputs).length; i++) {
-				this.controls[Object.keys(this.outputs)[i]] = this.outputs[Object.keys(this.outputs)[i]];
+		//OUTPUTS
+		// average outputs collections from different processes
+		for (let i = 0; i < Object.keys(this.outputs).length; i++) {
+			const element = this.outputs[Object.keys(this.outputs)[i]];
+			if (element instanceof Array) {
+				const value = (element.reduce((a, b) => a + b, 0)) / element.length;
+				this.outputs[Object.keys(this.outputs)[i]] = typeof value === 'number' && !isNaN(value) ? value : 0;
 			}
-		} else {
-			sense();
+		}
 
-			const senses = this.tasks.map(x => {
-				return {
-					inputs: x.inputs.readings,
-					outputs: x.outputs,
-				}
-			});
-
-
-			this.information = [];
-
-			Brain.restartOutputs(this.outputs);
-
-			// get outputs from all tasks
-			for (let i = 0; i < senses.length; i++) {
-				this.information.push(senses[i].inputs.map(sensor =>
-					sensor == null
-						? 0
-						: 1 - sensor.offset
-				));
-			}
-
-			// console.table(this.information);
+		// loop through all the outputs and equals in controls namesake
+		for (let i = 0; i < Object.keys(this.outputs).length; i++) {
+			this.controls[Object.keys(this.outputs)[i]] = this.outputs[Object.keys(this.outputs)[i]];
 		}
 	}
 }

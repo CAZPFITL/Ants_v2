@@ -22,6 +22,7 @@ export default class Ants2 {
         this.flags = {
             logStart: 0,
             logFlag: 0,
+            logCounter: 0,
         };
         this.state = new States(app, this, LOAD_GAME_DATA, [LOAD_GAME_DATA, LOAD_GAME_LEVEL, PLAY, MAIN_MENU, NETWORK]);
         this.app.factory.addGameEntity(this);

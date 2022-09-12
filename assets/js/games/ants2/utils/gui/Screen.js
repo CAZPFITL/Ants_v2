@@ -18,7 +18,6 @@ export default class Screen {
 				maxPickedFood: this.app.player?.ant?.maxPickedFood ?? 0,
 				pickedFood: this.app.player?.ant?.pickedFood ?? 0,
 			};
-
 			this.declareElements({
 				dec,
 				player,
@@ -28,9 +27,7 @@ export default class Screen {
 				width: this.app.tools.max([this.app.game.gui.controlsCtx.measureText(`Player: ${player.name}`).width, 240]),
 				cardPosition: {x: 10, y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10}
 			});
-
 			this.followPlayer();
-
 			this.app.log.printLog(this.app.game.gui.controlsCtx, "20px Mouse");
 		};
 		this.#addListeners({
@@ -170,7 +167,6 @@ export default class Screen {
 	}
 
 	followPlayer() {
-		// Follow player
 		if (this.app.game.state.state === PLAY && this.app.game.level) {
 			if (!this.app.player?.ant?.speed) return;
 			this.app.player.followCamera &&
@@ -603,7 +599,6 @@ export default class Screen {
 	}
 
 	update() {
-		// Draw screen data
 		this.screenData();
 	}
 
