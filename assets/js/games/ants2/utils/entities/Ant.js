@@ -45,6 +45,7 @@ export default class Ant {
         this._friction = this.friction;
         this._maxSpeed = this.maxSpeed;
         this._turnSpeed = this.turnSpeed;
+        this.target = {x: 0, y: 0};
         this.monoMoveState = new State(this.app, this, 'think', [
             'think',
             'search',
@@ -141,13 +142,18 @@ export default class Ant {
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
         this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
         this.friction = this._friction / this.app.gameSpeed;
-
-        const follow = () => {
-
-        }
+        // d=√((x2 – x1)² + (y2 – y1)²)
+        this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
 
         if (this.controls.monoMove === 1) {
-            follow();
+            // control direction
+            const x = this.coords.x - this.home.target.x;
+            const y = this.coords.y - this.home.target.y;
+
+            this.angle = this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed;
+
+            // control speed
+            this.speed = this.distanceToTarget / 10;
         } else {
             // Trigger Movement
             if (controls.reverse) this.app.physics.slowdown(this);
@@ -159,7 +165,7 @@ export default class Ant {
 
         // collisions
         this.app.physics.move(this, [
-			...this.app.game.level.wallPolygons,
+            ...this.app.game.level.wallPolygons,
             ...this.app.factory.binnacle.Food ?? []
         ]);
     }

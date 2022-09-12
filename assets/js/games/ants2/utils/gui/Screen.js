@@ -78,6 +78,9 @@ export default class Screen {
 				x: event.offsetX,
 				y: event.offsetY
 			}, this.app.camera.viewport);
+
+			this.app.player.anthill.target = hoverTranslatedCoords;
+
 			// ABSTRACT MOVE
 			abstractEvents.mousemove(event, hoverTranslatedCoords);
 			// MOUSE MOVE
