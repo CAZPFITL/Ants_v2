@@ -38,25 +38,11 @@ export default class Physics {
 		// absolute stop the entity
 		if ((entity.speed > -this.stopRange) && (entity.speed < this.stopRange)) entity.speed = 0;
 
-		// World Limits
-		this.worldLimits({
-			x: Math.sin(entity.angle) * entity.speed,
-			y: Math.cos(entity.angle) * entity.speed
-		}, entity);
+		entity.coords.x -= Math.sin(entity.angle) * entity.speed;
+		entity.coords.y -= Math.cos(entity.angle) * entity.speed;
 
 		this.entityLimits(entity, crashTypes);
-	}
 
-	worldLimits({x, y}, entity) {
-		const borders = this.app.game.level.boundTargets.walls;
-		// Limit Horizontal Movement
-		entity.coords.x -= (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(0, 2)) &&
-			!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(2, 4)))
-			? x : entity.coords.x > 0 ? entity.speed : -entity.speed;
-		// Limit Vertical Movement
-		entity.coords.y -= (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(4, 6)) &&
-			!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(6, 8)))
-			? y : entity.coords.y > 0 ? entity.speed : -entity.speed;
 	}
 
 	entityLimits(entity, crashTypes) {
