@@ -31,7 +31,7 @@ export default class Physics {
     }
 
     // TODO remove entity and create methods for calculations
-    move(entity) {
+    move(entity, crashTypes) {
         // limit the speed to maxSpeed
         if (entity.speed > entity.maxSpeed) entity.speed = entity.maxSpeed;
         if (entity.speed < -entity.maxSpeed) entity.speed = -entity.maxSpeed;
@@ -48,19 +48,25 @@ export default class Physics {
             x: Math.sin(entity.angle) * entity.speed,
             y: Math.cos(entity.angle) * entity.speed
         }, entity);
+
+        this.entityLimits(entity, crashTypes);
     }
 
     worldLimits({x, y}, entity) {
         const coords = entity.coords;
-        const borders = this.app.game.level.boundTargets.polygons;
+        const borders = this.app.game.level.boundTargets.walls;
         // Limit Horizontal Movement
-        (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(0, 4)) &&
-            !this.app.gui.get.polysIntersect(entity.polygons, borders.slice(5, 8)))
+        (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(0, 2)) &&
+            !this.app.gui.get.polysIntersect(entity.polygons, borders.slice(2, 4)))
             ? (coords.x -= x) : (coords.x -= coords.x > 0 ? 0.1 : -0.1);
         // Limit Vertical Movement
-        (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(8, 11)) &&
-            !this.app.gui.get.polysIntersect(entity.polygons, borders.slice(12, 15)))
+        (!this.app.gui.get.polysIntersect(entity.polygons, borders.slice(4, 6)) &&
+            !this.app.gui.get.polysIntersect(entity.polygons, borders.slice(6, 8)))
             ? (coords.y -= y) : (coords.y -= coords.y > 0 ? 0.1 : -0.1);
+    }
+
+    entityLimits(entity, crashTypes){
+
     }
 
     isInBound(entity) {

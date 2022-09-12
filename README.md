@@ -10,7 +10,15 @@ For this you can control 1 ant at the time.
 With this you need to command your brothers to follow your orders,
 leaving a trace will lead them to the food to grab all they can.
 
-You can help them or lead them to the next treasure.
+- To create an Ant you need 10 units of food, this will help to gather food faster.
+
+- To get food you need to found a piece of it and press 'space-bar' or the food button on screen to carry all the ant can take
+
+- Once our ant have the food on his back, we can:
+  - eat it with 'e' key or click the eat button on screen
+  - take it to home and drop it with 'q' or click the drop button on screen
+
+- To create a new anthill we need a new queen, to create a new queen we need to click the queen button on screen with 1000 units of food on the actual anthill
 
 <img src="https://user-images.githubusercontent.com/15793619/182758935-c32c511f-71cb-41ae-9550-c4389b53eb6d.png" width="500" height="auto" />
 

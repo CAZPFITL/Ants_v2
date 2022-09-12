@@ -311,7 +311,6 @@ export default class Screen {
                         widthStroke: 2,
                         callbacks: {
                             mouseup: () => {
-                                console.log('asdasd')
                                 if (this.buttonsStates.createAnthill !== 'click' && !this.buttonsStates.loop) {
                                     this.abstractStates.creating = true;
                                     this.buttonsStates.createAnthill = 'click';

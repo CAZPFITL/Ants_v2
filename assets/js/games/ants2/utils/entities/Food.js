@@ -117,7 +117,8 @@ export default class Food {
                 barColor: 'rgba(0,0,0,0.5)',
                 cap: this.initialSize,
                 fill: this.amount,
-            }, false);
+                negative: false
+            });
         }
     }
 }

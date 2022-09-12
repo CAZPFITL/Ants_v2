@@ -86,87 +86,99 @@ export default class Ant {
                 this.color
             )
         }
-        this.brain = new Brain([
+        // this.brain = new Brain(false, [
+        //     {
+        //         id: 'follow trace with nose',
+        //         neuronCount: [
+        //             this.sensors.eyes.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             10, // neurons in third layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        //         inputs: this.sensors.eyes,
+        //         outputs: [
+        //             'forward',
+        //             'left',
+        //             'right',
+        //             'reverse',
+        //         ]
+        //     },
+        //     {
+        //         id: 'follow trace with nose',
+        //         neuronCount: [
+        //             this.sensors.nose.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        //         inputs: this.sensors.nose,
+        //         outputs: [
+        //             'forward',
+        //             'left',
+        //             'right',
+        //             'reverse',
+        //         ]
+        //     },
+        //     {
+        //         id: 'go away from bounds with nose',
+        //         neuronCount: [
+        //             this.sensors.nose.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        //         inputs: this.sensors.nose,
+        //         outputs: [
+        //             'forward',
+        //             'left',
+        //             'right',
+        //             'reverse',
+        //         ]
+        //     },
+        //     {
+        //         id: 'follow trace with antennas',
+        //         neuronCount: [
+        //             this.sensors.antennas.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        //         inputs: this.sensors.antennas,
+        //         outputs: [
+        //             'forward',
+        //             'left',
+        //             'right',
+        //             'reverse',
+        //         ]
+        //     },
+        //     {
+        //         id: 'go away from bounds with antennas',
+        //         neuronCount: [
+        //             this.sensors.antennas.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        //         inputs: this.sensors.antennas,
+        //         outputs: [
+        //             'forward',
+        //             'left',
+        //             'right',
+        //             'reverse',
+        //         ]
+        //     }
+        // ], this.controls);
+        this.brain = new Brain(true, [
             {
-                id: 'follow trace with nose',
-                neuronCount: [
-                    this.sensors.eyes.rayCount, // inputs
-                    6, // neurons in first layer
-                    8, // neurons in second layer
-                    10, // neurons in third layer
-                    8, // neurons in second layer
-                    6, // neurons in third layer
-                    4
-                ],
+                id: 'look',
                 inputs: this.sensors.eyes,
-                outputs: [
-                    'forward',
-                    'left',
-                    'right',
-                    'reverse',
-                ]
-            },
-            {
-                id: 'follow trace with nose',
-                neuronCount: [
-                    this.sensors.nose.rayCount, // inputs
-                    6, // neurons in first layer
-                    8, // neurons in second layer
-                    6, // neurons in third layer
-                    4
-                ],
-                inputs: this.sensors.nose,
-                outputs: [
-                    'forward',
-                    'left',
-                    'right',
-                    'reverse',
-                ]
-            },
-            {
-                id: 'go away from bounds with nose',
-                neuronCount: [
-                    this.sensors.nose.rayCount, // inputs
-                    6, // neurons in first layer
-                    8, // neurons in second layer
-                    6, // neurons in third layer
-                    4
-                ],
-                inputs: this.sensors.nose,
-                outputs: [
-                    'forward',
-                    'left',
-                    'right',
-                    'reverse',
-                ]
-            },
-            {
-                id: 'follow trace with antennas',
-                neuronCount: [
-                    this.sensors.antennas.rayCount, // inputs
-                    6, // neurons in first layer
-                    8, // neurons in second layer
-                    6, // neurons in third layer
-                    4
-                ],
-                inputs: this.sensors.antennas,
-                outputs: [
-                    'forward',
-                    'left',
-                    'right',
-                    'reverse',
-                ]
-            },
-            {
-                id: 'go away from bounds with antennas',
-                neuronCount: [
-                    this.sensors.antennas.rayCount, // inputs
-                    6, // neurons in first layer
-                    8, // neurons in second layer
-                    6, // neurons in third layer
-                    4
-                ],
-                inputs: this.sensors.antennas,
                 outputs: [
                     'forward',
                     'left',
@@ -194,8 +206,8 @@ export default class Ant {
         this.brain.think(() => {
             // PERCEIVE
             this.#watch();
-            this.#touch();
-            this.#smell();
+            // this.#touch();
+            // this.#smell();
             // REACT
             this.#move(controls);
             this.#mark(controls);
@@ -208,16 +220,17 @@ export default class Ant {
     }
 
     #watch() {
+
         this.sensors.eyes.update([
-            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
+			...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
+            ...(this.app.factory.binnacle.Food ?? []),
+            ...this.app.game.level.wallPolygons
         ]);
     }
 
     #touch() {
         this.sensors.antennas.update([
             ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
         ]);
     }
 
@@ -225,10 +238,9 @@ export default class Ant {
         // this sensors should read for traces
         this.sensors.nose.update([
             // What can I find?
-            // ...(this.app.factory.binnacle.Food ?? []),
-            // ...(this.app.factory.binnacle.Ant ?? []),
+            ...(this.app.factory.binnacle.Food ?? []),
+            ...(this.app.factory.binnacle.Ant ?? []),
             ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
         ]);
 
         this.nose = {
@@ -263,13 +275,13 @@ export default class Ant {
             this.energy -= 0.003 * this.app.gameSpeed;
         }
         if (controls.run) {
-            this.maxSpeed = this.maxSpeed * 3;
+            this.maxSpeed = this.maxSpeed * 5;
             this.energy -= 0.006 * this.app.gameSpeed;
         } else {
             this.maxSpeed = this.maxSpeed;
         }
         // Make Move
-        this.app.physics.move(this)
+        this.app.physics.move(this, [])
     }
 
     #mark(controls) {
