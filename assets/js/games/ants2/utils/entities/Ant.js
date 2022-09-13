@@ -150,10 +150,14 @@ export default class Ant {
             const x = this.coords.x - this.home.target.x;
             const y = this.coords.y - this.home.target.y;
 
-            this.angle = this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed;
+            // Calculate direction to target selected.
+            const angle = this.angle - Math.atan2(x, y);
+            const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
+            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : - this.angle + this.turnSpeed;
 
-            // control speed
+            this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
             this.speed = this.distanceToTarget / 10;
+
         } else {
             // Trigger Movement
             if (controls.reverse) this.app.physics.slowdown(this);
