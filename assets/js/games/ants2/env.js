@@ -3,8 +3,22 @@ export const LOAD_GAME_LEVEL = 'LOAD_GAME_LEVEL';
 export const GAME_OVER = 'GAME_OVER';
 export const MAIN_MENU = 'MAIN_MENU';
 export const PLAY = 'PLAY';
+export const INSTRUCTIONS = 'INSTRUCTIONS';
+export const CONTROLS = 'CONTROLS';
 export const STOP = 'STOP';
 export const NETWORK = 'NETWORK';
+
+export const STATES = [
+    LOAD_GAME_DATA,
+    LOAD_GAME_LEVEL,
+    GAME_OVER,
+    PLAY,
+    MAIN_MENU,
+    NETWORK,
+    CONTROLS,
+    STOP,
+    INSTRUCTIONS
+];
 
 export const COLORS = {
     WHITE: [
@@ -41,5 +55,39 @@ export const COLORS = {
     ],
     BROWN: [
         '#72604EFF'
-    ],
-}
+    ]
+};
+
+export const gameFlags = {
+    logStart: 0,
+    logFlag: 0,
+    logCounter: 0,
+};
+
+export const gameSongs = [
+    {
+        name: 'ants_001',
+        file: 'assets/audio/ants_001.mp3'
+    }, {
+        name: 'ants_002',
+        file: 'assets/audio/ants_002.mp3'
+    }, {
+        name: 'ants_003',
+        file: 'assets/audio/ants_003.mp3'
+    }, {
+        name: 'ants_004',
+        file: 'assets/audio/ants_004.mp3'
+    }
+];
+
+export const mainSong = 'ants_004';
+
+export const gameInstructionsText = [
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum ',
+    'lorem ipsum lorem ipsum lorem ipsum lorem ipsum lorem ipsum '
+]

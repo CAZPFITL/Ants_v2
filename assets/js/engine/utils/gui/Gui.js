@@ -227,4 +227,18 @@ export default class Gui {
         ctx.strokeStyle = color;
         ctx.stroke();
     }
+
+    static image({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = color;
+        ctx.fill();
+        if (stroke) {
+            const cache = ctx.lineWidth;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = widthStroke;
+            ctx.stroke();
+            ctx.lineWidth = cache;
+        }
+    }
 }

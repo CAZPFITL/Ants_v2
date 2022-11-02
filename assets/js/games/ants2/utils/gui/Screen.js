@@ -1,4 +1,7 @@
-import {PLAY, COLORS} from "../../env.js";
+import {
+	COLORS,
+	gameInstructionsText
+} from "../../env.js";
 
 export default class Screen {
 	constructor(app, gui) {
@@ -170,7 +173,7 @@ export default class Screen {
 	}
 
 	followPlayer() {
-		if (this.app.game.state.state === PLAY && this.app.game.level) {
+		if (this.app.game.state.state === 'PLAY' && this.app.game.level) {
 			if (!this.app.player?.ant?.speed) return;
 			this.app.player.followCamera &&
 			this.app.player.ant.speed !== 0 &&
@@ -201,6 +204,25 @@ export default class Screen {
 			}
 		};
 
+		const mainMenuButtonMeasure = {
+			width: 300,
+			height: 50
+		};
+
+		const mainMenuButtonBase = {
+			x: -(mainMenuButtonMeasure.width / 2),
+			y: -100,
+			space: 30,
+			...mainMenuButtonMeasure
+		};
+
+		const mainMenuCardSize = {
+			width: mainMenuButtonMeasure.width + 150,
+			height: 500,
+		};
+
+		const displacement = (mainMenuButtonBase.height + mainMenuButtonBase.space);
+
 		this.buttonsCollection = {
 			MAIN_MENU: {
 				start: {
@@ -208,10 +230,9 @@ export default class Screen {
 					props: {
 						position: 'viewport',
 						ctx: this.app.gui.ctx,
-						x: -150,
-						y: -20,
-						width: 300,
-						height: 50,
+						...mainMenuButtonBase,
+						x: mainMenuButtonBase.x,
+						y: mainMenuButtonBase.y + (displacement * 0),
 						text: 'Start',
 						font: '16px Mouse',
 						bg: this.buttonsStates.start === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
@@ -221,8 +242,52 @@ export default class Screen {
 						widthStroke: 8,
 						callbacks: {
 							mouseup: () => {
-								this.app.game.state.setState(PLAY);
-								this.app.musicBox.play();
+								this.app.game.state.setState('PLAY');
+								this.app.game.useMusicBox && this.app.musicBox.play();
+							}
+						}
+					}
+				},
+				instructions: {
+					type: 'button',
+					props: {
+						position: 'viewport',
+						ctx: this.app.gui.ctx,
+						...mainMenuButtonBase,
+						x: mainMenuButtonBase.x,
+						y: mainMenuButtonBase.y + (displacement * 1),
+						text: 'Instructions',
+						font: '16px Mouse',
+						bg: this.buttonsStates.instructions === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+							: this.buttonsStates.instructions === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+								: this.colors.MAIN_MENU.buttons.variation1.normal,
+						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+						widthStroke: 8,
+						callbacks: {
+							mouseup: () => {
+								this.app.game.state.setState('INSTRUCTIONS');
+							}
+						}
+					}
+				},
+				controls: {
+					type: 'button',
+					props: {
+						position: 'viewport',
+						ctx: this.app.gui.ctx,
+						...mainMenuButtonBase,
+						x: mainMenuButtonBase.x,
+						y: mainMenuButtonBase.y + (displacement * 2),
+						text: 'Controls',
+						font: '16px Mouse',
+						bg: this.buttonsStates.controls === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+							: this.buttonsStates.controls === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+								: this.colors.MAIN_MENU.buttons.variation1.normal,
+						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+						widthStroke: 8,
+						callbacks: {
+							mouseup: () => {
+								this.app.game.state.setState('CONTROLS');
 							}
 						}
 					}
@@ -232,10 +297,9 @@ export default class Screen {
 					props: {
 						position: 'viewport',
 						ctx: this.app.gui.ctx,
-						x: -150,
-						y: 70,
-						width: 300,
-						height: 50,
+						...mainMenuButtonBase,
+						x: mainMenuButtonBase.x,
+						y: mainMenuButtonBase.y + (displacement * 3),
 						text: 'Login',
 						font: '16px Mouse',
 						bg: this.buttonsStates.login === 'hover' ? COLORS.BLACK[5]
@@ -244,7 +308,7 @@ export default class Screen {
 						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
 						widthStroke: 8
 					}
-				}
+				},
 			},
 			PLAY: {
 				forward: {
@@ -480,16 +544,35 @@ export default class Screen {
 			}
 		};
 
+		const instrucctions = {}
+
+		for(let i = 0; i < gameInstructionsText.length; i++) {
+			const index = 'text_' + i;
+			instrucctions[index] = {
+				type: 'text',
+				props: {
+					ctx: this.app.gui.ctx,
+					font: '21px Mouse',
+					text: gameInstructionsText[i],
+					x: 0,
+					y: -160 + (i * 30),
+					color: this.colors.MAIN_MENU.mainCard.text,
+					width: 0,
+					height: 0,
+					center: true
+				}
+			}
+		}
+
 		this.decorations = {
 			MAIN_MENU: {
 				main_card: {
 					type: 'square',
 					props: {
 						ctx: this.app.gui.ctx,
-						x: -300,
-						y: -200,
-						width: 600,
-						height: 400,
+						x: -(mainMenuCardSize.width / 2),
+						y: -(mainMenuCardSize.height / 2),
+						...mainMenuCardSize,
 						color: this.colors.MAIN_MENU.mainCard.background,
 						stroke: this.colors.MAIN_MENU.mainCard.color,
 						widthStroke: 5
@@ -501,11 +584,12 @@ export default class Screen {
 						ctx: this.app.gui.ctx,
 						font: '72px Mouse',
 						text: this.app.game.constructor.name,
-						x: -300,
-						y: -100,
+						x: 0,
+						y: mainMenuButtonBase.y - 50,
+						// y: -(mainMenuButtonMeasure.height * (Object.keys(this.buttonsCollection.MAIN_MENU).length / 2) + 20),
 						color: this.colors.MAIN_MENU.mainCard.text,
-						width: 600,
-						height: 30,
+						width: 0,
+						height: 0,
 						center: true
 					}
 				}
@@ -597,6 +681,49 @@ export default class Screen {
 						y: window.innerHeight - 10,
 					}
 				}
+			},
+			INSTRUCTIONS: {
+				card: {
+					type: 'square',
+					props: {
+						ctx: this.app.gui.ctx,
+						x: -450,
+						y: -(mainMenuCardSize.height / 2),
+						width: 900,
+						height: 500,
+						color: this.colors.MAIN_MENU.mainCard.background,
+						stroke: this.colors.MAIN_MENU.mainCard.color,
+						widthStroke: 5
+					}
+				},
+				title: {
+					type: 'text',
+					props: {
+						ctx: this.app.gui.ctx,
+						font: '31px Mouse',
+						text: 'Game Instructions',
+						x: 0,
+						y: -200,
+						color: this.colors.MAIN_MENU.mainCard.text,
+						width: 0,
+						height: 0,
+						center: true
+					}
+				},
+				...instrucctions,
+				image: {
+					type: 'square',
+					props: {
+						ctx: this.app.gui.ctx,
+						x: -0,
+						y: -0,
+						width: 90,
+						height: 90,
+						color: this.colors.MAIN_MENU.mainCard.background,
+						stroke: this.colors.MAIN_MENU.mainCard.color,
+						widthStroke: 5
+					}
+				}
 			}
 		};
 	}
@@ -608,14 +735,14 @@ export default class Screen {
 	draw() {
 		// DECLARE COLLECTION
 		const collection = [
-			...Object.values(this.decorations[this.app.game.state.state] ?? {}),
-			...Object.values(this.buttonsCollection[this.app.game.state.state] ?? {}),
+			...Object.values(this?.decorations[this?.app?.game?.state?.state] ?? {}),
+			...Object.values(this?.buttonsCollection[this?.app?.game?.state?.state] ?? {}),
 		];
 		// DRAW COLLECTION
 		for (let i = 0; i < collection.length; i++) {
 			try {
 				const item = collection[i];
-				if (typeof this.app.gui.get[item.type] === 'function') {
+				if (typeof this?.app?.gui?.get[item?.type] === 'function') {
 					this.app.gui.get[item.type](item.props);
 				}
 			} catch (error) {
@@ -634,6 +761,8 @@ export default class Screen {
 			this.hoverCollection[key[0]] = key[1].props;
 		});
 		// CANVAS BACKGROUND
+		if (!this?.colors[this?.app?.game?.state?.state]?.background) return;
+
 		this.app.gui.ctx.canvas.style.backgroundColor = this.colors[this.app.game.state.state].background;
 	}
 }
