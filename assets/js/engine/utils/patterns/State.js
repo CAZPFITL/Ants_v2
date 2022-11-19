@@ -4,7 +4,7 @@ export default class State {
         this.caller = caller;
         this.states = [];
         this.state = '';
-        callback(()=> {
+        callback(() => {
             this.app.log.registerEvent(
                 `New ${this.caller.constructor.name} State Created`,
                 `\x1b[32;1m| \x1b[0mNew \x1b[32;1m${this.caller.constructor.name}\x1b[0m State Created`

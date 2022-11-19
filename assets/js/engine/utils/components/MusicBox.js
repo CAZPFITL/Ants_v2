@@ -32,11 +32,11 @@ export default class MusicBox {
                 song: new Audio(song.file)
             });
 
-            this.songs[this.songs.length - 1].song.volume = 0;
+            this.songs[this.songs.length - 1].song.volume = 0.1;
 
             this.song = this.songs[this.songs.length - 1];
 
-            this.song.song.volume = 1;
+            this.song.song.volume =  0.1;
 
             this.app.log.registerEvent(`Song ${song.name} added`, `\x1b[35;1m| \x1b[0mSong ${song.name} added`);
         }
@@ -53,7 +53,7 @@ export default class MusicBox {
     }
 
     play() {
-        this.song.song.play()
+        this.song?.song && this.song.song.play()
             .catch(err => {
                 console.error(err);
             })

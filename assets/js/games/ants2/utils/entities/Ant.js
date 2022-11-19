@@ -1,4 +1,4 @@
-import NeuralNetwork from "../components/Network.js";
+import State from "./../../../../engine/utils/patterns/State.js";
 import Brain from "../components/Brain.js";
 import Sensor from "../components/Sensor.js";
 import {GAME_OVER, PLAY} from "../../env.js";
@@ -13,17 +13,14 @@ export default class Ant {
         // Booleans
         this.no_update = false;
         this.no_draw = false;
-        this.foodFound = false;
-        this.anthillFound = false;
-        // Training
-        this.isOnBound = false;
         // Measurements
-        const size = app.tools.random(8, 16);
-        this.x = x;
-        this.y = y;
+        const size = app.tools.random(8, 10);
         this.color = color;
-        this.height = size;
-        this.width = size * 0.5;
+        this.coords = {x, y};
+        this.size = {
+            width: (size * 0.5),
+            height: (size * 1)
+        }
         // State and capabilities
         this.age = 0;
         this.maxAge = app.tools.random(400, 600);
@@ -48,7 +45,16 @@ export default class Ant {
         this._friction = this.friction;
         this._maxSpeed = this.maxSpeed;
         this._turnSpeed = this.turnSpeed;
+        this.target = {x: 0, y: 0};
+        this.monoMoveState = new State(this.app, this, 'think', [
+            'think',
+            'search',
+            'lead',
+            'follow',
+            'running away',
+            'eating',
 
+        ], (fn) => fn())
         // Shape
         this.polygons = [];
         // Control
@@ -60,174 +66,63 @@ export default class Ant {
             pick: 0,
             drop: 0,
             eat: 0,
-            run: 0
+            run: 0,
+            monoMove: 0
         }
         this.sensors = {
-            nose: new Sensor(
-                this,
-                10,
-                20,
-                Math.PI * 0.8,
-                'rgba(210,255,123,0.58)'
-            ),
-            eyes: new Sensor(
-                this,
-                4,
-                30,
-                Math.PI * 0.5,
-                'rgba(161,252,255,0.52)'
-            ),
             antennas: new Sensor(
                 this,
                 2,
-                20,
-                Math.PI * 0.2,
+                50,
+                Math.PI * 0.35,
                 this.color
             )
         }
-        this.brain = new Brain([
-                {
-                    id: 'follow trace with nose',
-                    neuronCount: [
-                        this.sensors.eyes.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        10, // neurons in third layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.eyes,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'follow trace with nose',
-                    neuronCount: [
-                        this.sensors.nose.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.nose,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'go away from bounds with nose',
-                    neuronCount: [
-                        this.sensors.nose.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.nose,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'follow trace with antennas',
-                    neuronCount: [
-                        this.sensors.antennas.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.antennas,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                },
-                {
-                    id: 'go away from bounds with antennas',
-                    neuronCount: [
-                        this.sensors.antennas.rayCount, // inputs
-                        6, // neurons in first layer
-                        8, // neurons in second layer
-                        6, // neurons in third layer
-                        4
-                    ],
-                    inputs: this.sensors.antennas,
-                    outputs: [
-                        'forward',
-                        'left',
-                        'right',
-                        'reverse',
-                    ]
-                }
-            ], this.controls);
-
-        // if (this.app.game.gui.screen?.buttons?.play?.loading && this.app?.game?.LOADED_BRAINS) {
-        //     this.brain.mutate(this.app.game.LOADED_BRAINS, 0.5);
-        //     this.app.log.registerEvent(
-        //         `${this.name} brain mutated`,
-        //         `\x1b[32;1m| \x1b[0m${this.name} \x1b[32;1mBrain\x1b[0m Mutated`
-        //     );
-        // }
+        // this.brain = new Brain([
+        //     {
+        //         id: 'follow trace with nose',
+        //         neuronCount: [
+        //             this.sensors.eyes.rayCount, // inputs
+        //             6, // neurons in first layer
+        //             8, // neurons in second layer
+        //             10, // neurons in third layer
+        //             8, // neurons in second layer
+        //             6, // neurons in third layer
+        //             4
+        //         ],
+        // ], this.controls);
+        this.brain = new Brain([], this.controls);
     }
 
     /**
      * Private methods
      */
     #neuralProcess() {
+        // FALLBACK TO CATCHER
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
-
-        this.brain.think(() => {
-            // PERCEIVE
-            this.#watch();
-            this.#touch();
-            this.#smell();
-            // REACT
-            this.#move(controls);
-            this.#mark(controls);
-            this.#carryFood(controls);
-            this.#eatFood(controls);
-            this.#metabolism(controls);
-            this.#dropFood(controls);
-            this.#age();
-        });
-    }
-
-    #watch() {
-        this.sensors.eyes.update([
-            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
-        ]);
-    }
-
-    #touch() {
-        this.sensors.antennas.update([
-            ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
-        ]);
+        // SET MONO MOVE ?
+        this.controls.monoMove = 0;
+        this.controls.monoMove = (this.app.player.ant === this) ? 0 : 1;
+        // THINK
+        (this.controls.monoMove === 0) && this.brain.think();
+        // PERCEIVE
+        this.#smell();
+        // LIVE
+        this.#age();
+        this.#metabolism(controls);
+        // EXIST
+        this.#move(controls);
+        this.#mark(controls);
+        this.#carryFood(controls);
+        this.#eatFood(controls);
+        this.#dropFood(controls);
     }
 
     #smell() {
-        // this sensors should read for traces
-        this.sensors.nose.update([
-            // What can I find?
-            // ...(this.app.factory.binnacle.Food ?? []),
-            // ...(this.app.factory.binnacle.Ant ?? []),
+        this.sensors.antennas.update([
             ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            this.app.game.level.boundTargets
+            ...(this.app.factory.binnacle.Food ?? []),
+            ...this.app.game.level.wallPolygons
         ]);
 
         this.nose = {
@@ -235,12 +130,7 @@ export default class Ant {
             y: this.polygons[1].y
         }
 
-        this.foodFound = this.app.gui.get.entityAt(
-            this.nose,
-            this.app.factory.binnacle.Food || false
-        );
-
-        this.anthillFound = this.app.gui.get.entityAt(
+        this.brain.anthillFound = this.app.gui.get.entityAt(
             this.nose,
             this.app.factory.binnacle.Anthill || false
         );
@@ -252,49 +142,74 @@ export default class Ant {
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
         this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
         this.friction = this._friction / this.app.gameSpeed;
+        // d=√((x2 – x1)² + (y2 – y1)²)
+        this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
 
-        // Trigger Movement
-        if (controls.reverse) this.app.physics.slowdown(this);
-        if (controls.left) this.app.physics.turnLeft(this);
-        if (controls.right) this.app.physics.turnRight(this);
-        if (controls.forward) {
-            this.app.physics.speedup(this);
-            this.energy -= 0.003 * this.app.gameSpeed;
-        }
-        if (controls.run) {
-            this.maxSpeed = this.maxSpeed * 1.2;
-            this.energy -= 0.006 * this.app.gameSpeed;
+        if (this.controls.monoMove === 1) {
+            // control direction
+            const x = this.coords.x - this.home.target.x;
+            const y = this.coords.y - this.home.target.y;
+
+            // Calculate direction to target selected.
+            const angle = this.angle - Math.atan2(x, y);
+            const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
+            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : - this.angle + this.turnSpeed;
+
+            this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
+            this.speed = this.distanceToTarget / 10;
+
         } else {
-            this.maxSpeed = this.maxSpeed;
+            // Trigger Movement
+            if (controls.reverse) this.app.physics.slowdown(this);
+            if (controls.left) this.app.physics.turnLeft(this);
+            if (controls.right) this.app.physics.turnRight(this);
+            if (controls.forward) this.app.physics.speedup(this);
+            this.maxSpeed = (controls.run) ? (this.maxSpeed * 5) : this.maxSpeed;
         }
-        // Make Move
-        this.app.physics.move(this)
+
+        // collisions
+        this.app.physics.move(this, [
+            ...this.app.game.level.wallPolygons,
+            ...this.app.factory.binnacle.Food ?? []
+        ]);
     }
 
     #mark(controls) {
         if (!controls.mark || !this.app.factory.binnacle?.Traces)
             return;
 
-        this.app.factory.binnacle.Traces[0].markTrace(this);
+        this.app.factory.binnacle.Traces[0].markTrace({
+            x: this.coords.x,
+            y: this.coords.y
+        }, {
+            min: 20,
+            max: 20,
+            spreadMark: 1
+        });
     }
 
     #eatFood(controls) {
         if (!(controls.eat && this.pickedFood > 1 && this.energy < 100)) {
-            this.game.gui.screen.buttons.play.eat = 0
+            controls.eat = 0;
             return
         }
 
-        this.game.gui.screen.buttons.play.eat = 1 * this.app.gameSpeed;
         controls.pick = 0;
+        controls.eat = 1;
 
         (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);
         (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate * this.app.gameSpeed);
     }
 
     #metabolism(controls) {
+        // living burning calories
         this.energy -= (!controls.forward && !controls.reverse && !controls.left && !controls.right)
             ? this.metabolismSpeed
             : this.metabolismSpeed * 1.5 * this.app.gameSpeed;
+        // running burning calories
+        if (controls.forward) this.energy -= 0.003 * this.app.gameSpeed;
+        if (controls.run) this.energy -= 0.006 * this.app.gameSpeed;
+        // are we dead? :(
         if (this.energy <= 0) {
             this.home.removeAnt(this);
             this.energy = 0;
@@ -302,12 +217,12 @@ export default class Ant {
     }
 
     #carryFood(controls) {
-        if (!(controls.pick && this.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
-            this.game.gui.screen.buttons.play.pick = 0
+        if (!(controls.pick && this.brain.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
+            controls.pick = 0;
             return
         }
 
-        this.game.gui.screen.buttons.play.pick = 1;
+        controls.pick = 1;
         controls.eat = 0;
 
         const food = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
@@ -320,8 +235,10 @@ export default class Ant {
     #dropFood(controls) {
         if (!controls.drop) return;
         const anthill = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
-        (anthill && this.pickedFood > 0) && (anthill.food += this.pickedFood * this.app.gameSpeed);
-        this.pickedFood = 0;
+        if (anthill && this.pickedFood > 0) {
+            anthill.food += this.pickedFood * this.app.gameSpeed;
+            this.pickedFood = 0;
+        }
     }
 
     #age() {
@@ -336,36 +253,36 @@ export default class Ant {
 
     #highlight() {
         if (this.app.game.constructor.name === 'Ants2') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.35)';
+            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.8)';
         }
         if (this.app.game.constructor.name === 'Ants2Trainer') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.35)';
+            this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.3)';
         }
     }
 
     shape() {
-        const rad = Math.hypot(this.width, this.height) / 2;
-        const alpha = Math.atan2(this.width, this.height);
+        const rad = Math.hypot(this.size.width, this.size.height) / 2;
+        const alpha = Math.atan2(this.size.width, this.size.height);
         return [
             {
-                x: this.x - Math.sin(this.angle - alpha) * rad,
-                y: this.y - Math.cos(this.angle - alpha) * rad
+                x: this.coords.x - Math.sin(this.angle - alpha) * rad,
+                y: this.coords.y - Math.cos(this.angle - alpha) * rad
             },
             {
-                x: this.x - Math.sin(this.angle) * rad * 0.9,
-                y: this.y - Math.cos(this.angle) * rad * 0.9
+                x: this.coords.x - Math.sin(this.angle) * rad * 0.9,
+                y: this.coords.y - Math.cos(this.angle) * rad * 0.9
             },
             {
-                x: this.x - Math.sin(this.angle + alpha) * rad,
-                y: this.y - Math.cos(this.angle + alpha) * rad
+                x: this.coords.x - Math.sin(this.angle + alpha) * rad,
+                y: this.coords.y - Math.cos(this.angle + alpha) * rad
             },
             {
-                x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
-                y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad
+                x: this.coords.x - Math.sin(Math.PI + this.angle - alpha) * rad,
+                y: this.coords.y - Math.cos(Math.PI + this.angle - alpha) * rad
             },
             {
-                x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
-                y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad
+                x: this.coords.x - Math.sin(Math.PI + this.angle + alpha) * rad,
+                y: this.coords.y - Math.cos(Math.PI + this.angle + alpha) * rad
             }
         ]
     }

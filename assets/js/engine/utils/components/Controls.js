@@ -2,7 +2,7 @@ export default class Controls {
     constructor(app, callback = (fn) => fn()) {
         this.app = app;
         this.listeners = [];
-        callback(()=> {
+        callback(() => {
             this.app.log.registerEvent(
                 'New Controls Created',
                 '\x1b[32;1m| \x1b[0mNew \x1b[32;1mControls\x1b[0m Created'
@@ -28,7 +28,7 @@ export default class Controls {
     }
 
     addListeners() {
-        for ( let listener in this.listeners ) {
+        for (let listener in this.listeners) {
             document.addEventListener(listener, (e) =>
                 this.listeners[listener].forEach(fn => fn(e))
             );

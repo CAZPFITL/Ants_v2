@@ -6,7 +6,7 @@ export default class Gui {
         this.get = Gui;
         this.ctx = Gui.createCanvas('gameCanvas');
         this.app.factory.addGameEntity(this);
-        callback(()=> {
+        callback(() => {
             this.app.log.registerEvent(
                 `New Gui Created`,
                 `\x1b[32;1m| \x1b[0mNew \x1b[32;1mApp Gui\x1b[0m Created`
@@ -33,6 +33,7 @@ export default class Gui {
     }
 
     static isHover(entity, click) {
+        if (!entity) return;
         const {x, y, width, height} = entity;
         return (
             click.x > x &&
@@ -42,7 +43,7 @@ export default class Gui {
         );
     }
 
-    static viewportCoords = ({x, y}, viewport)  => ({
+    static viewportCoords = ({x, y}, viewport) => ({
         x: x / viewport.scale[0] + viewport.left,
         y: y / viewport.scale[1] + viewport.top
     })
@@ -83,6 +84,22 @@ export default class Gui {
             }
         }
         return isInside;
+    }
+
+    static checkHoverCollection({collection, event, viewport, isHover, isOut, caller}) {
+        for (const key in collection) {
+            if (collection[key]?.position === 'viewport' &&
+                Gui.isHover(collection[key], Gui.viewportCoords(event, viewport))) {
+                isHover(key);
+            } else if (collection[key]?.position === 'controls' &&
+                Gui.isHover(collection[key], {x: event.clientX, y: event.clientY})) {
+                isHover(key);
+            } else {
+                if (caller === key) {
+                    isOut(key);
+                }
+            }
+        }
     }
 
     static createPolygon(entity) {
@@ -128,22 +145,40 @@ export default class Gui {
         }
         return false;
     }
+
     /**
      * Screen instantiable objects
      */
-    static button({ctx, font, x, y, width, height, text, bg = '#ffa600', color = '#000', stroke = '#000', center = true}) {
-        // create a button to be used in the canvas
-        this.square({ctx, x, y, width, height, color: bg, stroke});
+    static button({
+                      ctx,
+                      font,
+                      x,
+                      y,
+                      width,
+                      height,
+                      text,
+                      bg = '#ffffff',
+                      color = '#000',
+                      stroke = '#000',
+                      center = true,
+                      widthStroke = 1
+                  }) {
+        this.square({ctx, x, y, width, height, color: bg, stroke, widthStroke});
         this.text({ctx, font, color, text, x, y, width, height, center});
     }
 
-    static square({ctx, x, y, width, height, color = '#FFF', stroke = false}) {
+    static square({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
         ctx.beginPath();
         ctx.rect(x, y, width, height);
         ctx.fillStyle = color;
         ctx.fill();
-        stroke && (ctx.strokeStyle = stroke);
-        stroke && ctx.stroke();
+        if (stroke) {
+            const cache = ctx.lineWidth;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = widthStroke;
+            ctx.stroke();
+            ctx.lineWidth = cache;
+        }
     }
 
     static text({ctx, font, color, text, x, y, width, height, center = false}) {
@@ -155,7 +190,19 @@ export default class Gui {
         return ctx.measureText(text).width;
     }
 
-    static bar({ctx, x, y, text, cap, fill, height = 10, fillColor, barColor = 'transparent', stroke}, negative = false) {
+    static bar({
+                   ctx,
+                   x,
+                   y,
+                   text,
+                   cap,
+                   fill,
+                   height = 10,
+                   fillColor,
+                   barColor = 'transparent',
+                   stroke,
+                   negative = false
+               }) {
         const normalizedProgress = fill / (cap / 255);
         const progress = negative ? (cap - fill) : fill
 
@@ -173,11 +220,25 @@ export default class Gui {
         text && (this.text({ctx, font: '12px Mouse', color: '#000', text, x, y: y - height}));
     }
 
-    static line ({ ctx, x1, y1, x2, y2, color = '#000' }) {
+    static line({ctx, x1, y1, x2, y2, color = '#000'}) {
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = color;
         ctx.stroke();
+    }
+
+    static image({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
+        ctx.beginPath();
+        ctx.rect(x, y, width, height);
+        ctx.fillStyle = color;
+        ctx.fill();
+        if (stroke) {
+            const cache = ctx.lineWidth;
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = widthStroke;
+            ctx.stroke();
+            ctx.lineWidth = cache;
+        }
     }
 }

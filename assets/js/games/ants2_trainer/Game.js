@@ -90,8 +90,8 @@ export default class Ants2Trainer {
 
                     const checkEntity = (entity) => {
                         const y = entity.requestFlags?.position?.y ?? 0;
-                        const x = entity.requestFlags?.position?.x ?? 0;
 
+                        const x = entity.requestFlags?.position?.x ?? 0;
                         const limits = {
                             top: y - inmovilityRadius,
                             bottom: y + inmovilityRadius,
@@ -99,13 +99,11 @@ export default class Ants2Trainer {
                             right: x + inmovilityRadius,
                         }
 
-                        this.app.game.state.setState('PAUSE');
-
                         if (
-                            entity.x < limits.right &&
-                            entity.x > limits.left &&
-                            entity.y < limits.bottom &&
-                            entity.y > limits.top &&
+                            entity.coords.x < limits.right &&
+                            entity.coords.x > limits.left &&
+                            entity.coords.y < limits.bottom &&
+                            entity.coords.y > limits.top &&
                             entity.age > 1
                         ) {
                             this.app.log.registerEvent(
@@ -119,13 +117,12 @@ export default class Ants2Trainer {
                         }
 
                         entity.requestFlags.position = {
-                            x: entity.x,
-                            y: entity.y
+                            x: entity.coords.x,
+                            y: entity.coords.y
                         };
                     }
 
-                    if (!(this.app.request - (entity.requestFlags?.loop ?? 0) > speed))
-                        return;
+                    if (!(this.app.request - (entity.requestFlags?.loop ?? 0) > speed)) return;
 
                     entity.requestFlags.loop = this.app.request;
 
@@ -135,7 +132,7 @@ export default class Ants2Trainer {
                 name: 'Anthill',
                 rule: (entity) => {
                     // CREATE LOOP
-                    if (entity && this.app.game.gui.screen.buttons.play.looping) {
+                    if (entity && this.app.game.gui.screen.buttonsStates.createLoop === 'click') {
                         if (entity.antCounter >= this.flags.antLooper) {
                             return;
                         }
@@ -150,14 +147,14 @@ export default class Ants2Trainer {
             }, {
                 name: 'GameObjects',
                 rule: (entity) => {
-                    if (this.gui.screen.buttons.play.oscillating) {
+                    if (this.gui.screen.buttonsStates?.oscillateMap === 'click') {
                         if (!(this.app.request - (this.flags?.oscillation ?? 0) > 12)) return;
 
                         this.flags.oscillation = this.app.request;
 
                         this.flags.oscillationCounter++;
 
-                        const {a,b} = {
+                        const {a, b} = {
                             a: Math.floor(Tester.oscillate(0.05 * Math.random(), 0.05 * Math.random(), Math.random(), this.flags.oscillationCounter)),
                             b: Math.floor(Tester.oscillate(0.05 * Math.random(), 0.05 * Math.random(), Math.random(), this.flags.oscillationCounter))
                         }

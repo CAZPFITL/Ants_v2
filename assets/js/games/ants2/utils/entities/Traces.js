@@ -6,8 +6,8 @@ export default class Traces {
         this.requestFlag = 0;
         this.requestFlags = {};
         this.props = {
-            min: 1,
-            max: 1,
+            min: 50,
+            max: 50,
             spreadMark: 4
         }
     }

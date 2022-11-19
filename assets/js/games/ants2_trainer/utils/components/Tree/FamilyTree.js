@@ -62,7 +62,7 @@ export default class FamilyTree {
     setGroup(gen, id = this.getMembersTotal() + 1) {
         if (!this.generations[gen]) this.setGeneration();
         this.generations[gen].push(
-            this.app.factory.create(Group,{
+            this.app.factory.create(Group, {
                 app: this.app,
                 id,
                 tree: this,

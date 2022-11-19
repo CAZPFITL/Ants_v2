@@ -9,7 +9,7 @@ export default class Log {
         this.log = [];
         this.registeredEvents = [];
         this.consoleEvents = [];
-        callback(()=> {
+        callback(() => {
             this.registerEvent(
                 'New Log Created',
                 '\x1b[32;1m| \x1b[0mNew \x1b[32;1mLog\x1b[0m Created'
@@ -55,7 +55,7 @@ export default class Log {
                 text: `${message}...`,
                 x: 16,
                 y: logY + (index * this.lineHeight) + 1,
-                color: `rgba(0,0,0,${0.46 - ((this.log.length - index) * (this.n/100))})`,
+                color: `rgba(0,0,0,${0.46 - ((this.log.length - index) * (this.n / 100))})`,
                 width: this.app.gui.ctx.measureText(message).width,
                 height: this.lineHeight
             });
@@ -65,7 +65,7 @@ export default class Log {
                 text: `${message}...`,
                 x: 15,
                 y: logY + (index * this.lineHeight),
-                color: `rgba(255,0,115,${0.54 - ((this.log.length - index) * (this.n/100))})`,
+                color: `rgba(255,0,115,${0.54 - ((this.log.length - index) * (this.n / 100))})`,
                 width: this.app.gui.ctx.measureText(message).width,
                 height: this.lineHeight
             });

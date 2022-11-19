@@ -1,11 +1,11 @@
 import Tools from '../../../../engine/utils/helpers/Tools.js';
 
 export default class Sensor {
-    constructor(entity, rayCount = 5, rayLength = 50, raySpread = Math.PI * 0.5, color = 'rgba(0,0,0,0.6)') {
+    constructor(entity, rayCount = 5, rayLength = 50, raySpread = Math.PI * 0.5, color = 'rgba(0,0,0,0.9)') {
         this.entity = entity;
         this.tools = Tools;
         this.no_update = false;
-        this.no_draw = true;
+        this.no_draw = false;
         this.rayCount = rayCount;
         this.rayLength = rayLength;
         this.raySpread = raySpread;
@@ -25,11 +25,11 @@ export default class Sensor {
                 this.rayCount === 1 ? 0.5 : i / (this.rayCount - 1)
             ) + this.entity.angle;
             // get start drawing point
-            const start = {x: this.entity.x, y: this.entity.y};
+            const start = {x: (this.entity?.x ?? this.entity?.coords?.x), y: (this.entity?.y?? this.entity?.coords?.y)};
             // get end drawing points
             const end = {
-                x: this.entity.x - Math.sin(rayAngle) * this.rayLength,
-                y: this.entity.y - Math.cos(rayAngle) * this.rayLength
+                x: (this.entity?.x ?? this.entity?.coords?.x) - Math.sin(rayAngle) * this.rayLength,
+                y: (this.entity?.y?? this.entity?.coords?.y) - Math.cos(rayAngle) * this.rayLength
             }
             // push the ray to this.rays
             this.rays.push([start, end]);

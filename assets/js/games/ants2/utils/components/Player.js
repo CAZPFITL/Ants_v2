@@ -25,7 +25,7 @@ export default class Player {
      */
     #addListeners() {
         // Change Controlled Entity
-        this.app.controls.pushListener(this,'click', (event) => {
+        this.app.controls.pushListener(this, 'click', (event) => {
             const coords = this.app.gui.get.clickCoords(event, this.app.camera.viewport);
             const ant = this.app.gui.get.entityAt(coords, this.app.factory.binnacle.Ant);
             ant && this.followCamera && this.app.camera.follow(ant);
@@ -34,7 +34,7 @@ export default class Player {
             anthill && this.app.player.updateAnthill(anthill);
         });
         // Move Player Down events
-        this.app.controls.pushListener(this,'keydown', (event) => {
+        this.app.controls.pushListener(this, 'keydown', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 1;
@@ -72,22 +72,8 @@ export default class Player {
                     break;
             }
         });
-        this.app.controls.pushListener(this,'mousedown', (event) => {
-            const {x, y} = {x: event.offsetX, y: event.offsetY};
-            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
-
-            if (this.app.game.constructor.name === 'Ants2') {
-                Object.keys(controls).forEach(key => {
-                    this.app.gui.get.isClicked(
-                        controls[key],
-                        {x, y},
-                        () => this.app.player.controls[key] = 1
-                    )
-                });
-            }
-        });
         // Move Player Up Events
-        this.app.controls.pushListener(this,'keyup', (event) => {
+        this.app.controls.pushListener(this, 'keyup', (event) => {
             switch (true) {
                 case event.key === 'ArrowUp' && this.app.game.constructor.name === 'Ants2':
                     this.controls.forward = 0;
@@ -126,20 +112,6 @@ export default class Player {
                     // TODO move this to the anthill
                     this.app.player.anthill.addAnt();
                     break;
-            }
-        });
-        this.app.controls.pushListener(this,'mouseup', (e) => {
-            const {x, y} = {x: e.offsetX, y: e.offsetY};
-            const controls = this.game.gui.screen.buttonsCollection.play.movementControls;
-
-            if (this.app.game.constructor.name === 'Ants2') {
-                Object.keys(controls).forEach(key => {
-                    this.app.gui.get.isClicked(
-                        controls[key],
-                        {x, y},
-                        () => this.app.player.controls[key] = 0
-                    )
-                });
             }
         });
     }

@@ -1,5 +1,5 @@
 import Ant from './../../../ants2/utils/entities/Ant.js';
-import { PLAY, GAME_OVER } from "../../env.js";
+import {PLAY, GAME_OVER} from "../../env.js";
 import Traces from "./../../../ants2/utils/entities/Traces.js";
 
 export default class Anthill {
@@ -9,21 +9,21 @@ export default class Anthill {
         this.id = id;
         this.no_draw = false;
         this.no_update = false;
-        const width = app.tools.random(50,50);
-        const height = app.tools.random(50,50);
+        const width = app.tools.random(50, 50);
+        const height = app.tools.random(50, 50);
+        Traces.createTraces(this.app, this);
         this.population = [];
         this.polygons = [];
         this.antCounter = 0;
         this.antCounterHistory = 1;
-        this.size = { width, height }
-        this.coords = { x: 0 / 2, y: 0 };
+        this.size = {width, height}
+        this.coords = {x: 0 / 2, y: 0};
         this.angle = 0;
         this.food = 50;
         this.color = '#381801';
         this.antCoste = 10;
         this.app.player.anthill = this;
         this.loadEntities(ants, false);
-        Traces.createTraces(this.app, this);
     }
 
     /**
@@ -56,7 +56,6 @@ export default class Anthill {
         ))
         // Update players ant
         if (this.app.game.constructor.name === 'Ants2') {
-            console.log('update ant');
             this.app.player.updateAnt(this.population[this.population.length - 1]);
         }
         // update food
