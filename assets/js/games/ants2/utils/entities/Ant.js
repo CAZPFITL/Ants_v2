@@ -46,7 +46,7 @@ export default class Ant {
         this._maxSpeed = this.maxSpeed;
         this._turnSpeed = this.turnSpeed;
         this.target = {x: 0, y: 0};
-        this.monoMoveState = new State(this.app, this, 'think', [
+        this.selfMoveState = new State(this.app, this, 'think', [
             'think',
             'search',
             'lead',
@@ -67,7 +67,7 @@ export default class Ant {
             drop: 0,
             eat: 0,
             run: 0,
-            monoMove: 0
+            selfMove: true // is player controlling? = 0
         }
         this.sensors = {
             antennas: new Sensor(
@@ -78,6 +78,8 @@ export default class Ant {
                 this.color
             )
         }
+
+        // NEURAL PROCESS IS DEPRECATED AT THIS POINT, it will be implemented on unity future version.
         // this.brain = new Brain([
         //     {
         //         id: 'follow trace with nose',
@@ -91,7 +93,7 @@ export default class Ant {
         //             4
         //         ],
         // ], this.controls);
-        this.brain = new Brain([], this.controls);
+        // this.brain = new Brain([], this.controls);
     }
 
     /**
@@ -100,22 +102,26 @@ export default class Ant {
     #neuralProcess() {
         // FALLBACK TO CATCHER
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
-        // SET MONO MOVE ?
-        this.controls.monoMove = 0;
-        this.controls.monoMove = (this.app.player.ant === this) ? 0 : 1;
+
+        // SET SELF MOVE ?
+        this.controls.selfMove = !(this.app.player.ant === this);
+
         // THINK
-        (this.controls.monoMove === 0) && this.brain.think();
+        // (this.controls.selfMove === 0) && this.brain.think();
+
         // PERCEIVE
         this.#smell();
-        // LIVE
-        this.#age();
-        this.#metabolism(controls);
+
         // EXIST
+        controls.mark && this.#mark();
+        controls.pick && this.#carryFood();
+        controls.eat && this.#eatFood();
+        controls.drop && this.#dropFood();
+
+        // LIVE
         this.#move(controls);
-        this.#mark(controls);
-        this.#carryFood(controls);
-        this.#eatFood(controls);
-        this.#dropFood(controls);
+        this.#metabolism(controls);
+        this.#age();
     }
 
     #smell() {
@@ -125,15 +131,88 @@ export default class Ant {
             ...this.app.game.level.wallPolygons
         ]);
 
+        // check if the ants mouth is in the food source,
         this.nose = {
             x: this.polygons[1].x,
             y: this.polygons[1].y
         }
 
-        this.brain.anthillFound = this.app.gui.get.entityAt(
-            this.nose,
-            this.app.factory.binnacle.Anthill || false
-        );
+        // THIS UPDATES THE ANTHILL FOUND. loop through all found able objects
+        this.anthillFound = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
+        this.foundFood = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
+    }
+
+    #eatFood() {
+        // do we have something to eat?
+        if (!(this.pickedFood > 1 && this.energy < 100)) return;
+
+        // yes we have, lets eat. and update energy and food amounts.
+        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);
+        (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate * this.app.gameSpeed);
+    }
+
+    #mark() {
+        if (!this.app.factory.binnacle?.Traces) return; // safe thing.
+
+        // go ahead, trace it up.
+        this.app.factory.binnacle.Traces[0].markTrace({
+            x: this.coords.x,
+            y: this.coords.y
+        }, {
+            min: 20,
+            max: 20,
+            spreadMark: 1
+        });
+    }
+
+    #carryFood() {
+        // can we carry more food?
+        if (!(this.foundFood && this.maxFoodPickCapacity >= this.pickedFood)) return;
+
+        // yes, we can. then update the food and the picked food amounts.
+        this.foundFood.amount -= this.carryRate * this.app.gameSpeed;
+        this.pickedFood += this.carryRate * this.app.gameSpeed;
+    }
+
+    #dropFood() {
+        // do we have something to trow?
+        if (!this.pickedFood > 0) return;
+
+        // yes, we can. then drop the food and update the amounts
+        (this.anthillFound) && (this.anthillFound.food += this.pickedFood * this.app.gameSpeed);
+        this.pickedFood = 0;
+    }
+
+    #age() {
+        // can we age?
+        if (this.app.request - (this.requestFlags.age ?? 0) < (500 / this.app.gameSpeed)) return;
+
+        // yes, we can. then age the ant and update the amounts
+        this.requestFlags.age = this.app.request;
+        this.age += 1;
+
+        // are we dying by age?
+        if (this.age > this.maxAge) {
+            this.home.removeAnt(this);
+            this.energy = 0;
+        }
+    }
+
+    #metabolism(controls) {
+        // living burning calories
+        this.energy -= (!controls.forward && !controls.reverse && !controls.left && !controls.right)
+            ? this.metabolismSpeed
+            : this.metabolismSpeed * 1.5 * this.app.gameSpeed;
+
+        // running burning calories
+        if (controls.forward) this.energy -= 0.003 * this.app.gameSpeed;
+        if (controls.run) this.energy -= 0.006 * this.app.gameSpeed;
+
+        // are we dying by tiredness? :(
+        if (this.energy <= 0) {
+            this.home.removeAnt(this);
+            this.energy = 0;
+        }
     }
 
     #move(controls) {
@@ -142,17 +221,18 @@ export default class Ant {
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
         this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
         this.friction = this._friction / this.app.gameSpeed;
-        // d=√((x2 – x1)² + (y2 – y1)²)
-        this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
 
-        if (this.controls.monoMove === 1) {
-            // control direction
-            const x = this.coords.x - this.home.target.x;
-            const y = this.coords.y - this.home.target.y;
+        // THIS SCRIPT ALLOWS THE SELF MOVING ANTS TO GO IN ONE SPECIFIC DIRECTION.
+        if (this.controls.selfMove) {
+            // d=√((x2 – x1)² + (y2 – y1)²)
+            this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
 
             // Calculate direction to target selected.
+            const x = this.coords.x - this.home.target.x;
+            const y = this.coords.y - this.home.target.y;
             const angle = this.angle - Math.atan2(x, y);
             const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
+
             const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : - this.angle + this.turnSpeed;
 
             this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
@@ -164,91 +244,13 @@ export default class Ant {
             if (controls.left) this.app.physics.turnLeft(this);
             if (controls.right) this.app.physics.turnRight(this);
             if (controls.forward) this.app.physics.speedup(this);
-            this.maxSpeed = (controls.run) ? (this.maxSpeed * 5) : this.maxSpeed;
+            this.maxSpeed = (controls.run) ? (this.maxSpeed * 2) : this.maxSpeed;
         }
 
-        // collisions
+        // LISTED COLLISION OBJECTS
         this.app.physics.move(this, [
-            ...this.app.game.level.wallPolygons,
-            ...this.app.factory.binnacle.Food ?? []
+            ...this.app.game.level.wallPolygons ?? []
         ]);
-    }
-
-    #mark(controls) {
-        if (!controls.mark || !this.app.factory.binnacle?.Traces)
-            return;
-
-        this.app.factory.binnacle.Traces[0].markTrace({
-            x: this.coords.x,
-            y: this.coords.y
-        }, {
-            min: 20,
-            max: 20,
-            spreadMark: 1
-        });
-    }
-
-    #eatFood(controls) {
-        if (!(controls.eat && this.pickedFood > 1 && this.energy < 100)) {
-            controls.eat = 0;
-            return
-        }
-
-        controls.pick = 0;
-        controls.eat = 1;
-
-        (this.pickedFood > 0 && this.energy <= 100) && (this.energy += this.eatingRate * 5 * this.app.gameSpeed);
-        (this.pickedFood > 0 && this.energy <= 100) && (this.pickedFood -= this.eatingRate * this.app.gameSpeed);
-    }
-
-    #metabolism(controls) {
-        // living burning calories
-        this.energy -= (!controls.forward && !controls.reverse && !controls.left && !controls.right)
-            ? this.metabolismSpeed
-            : this.metabolismSpeed * 1.5 * this.app.gameSpeed;
-        // running burning calories
-        if (controls.forward) this.energy -= 0.003 * this.app.gameSpeed;
-        if (controls.run) this.energy -= 0.006 * this.app.gameSpeed;
-        // are we dead? :(
-        if (this.energy <= 0) {
-            this.home.removeAnt(this);
-            this.energy = 0;
-        }
-    }
-
-    #carryFood(controls) {
-        if (!(controls.pick && this.brain.foodFound && !controls.forward && this.pickedFood < this.maxFoodPickCapacity)) {
-            controls.pick = 0;
-            return
-        }
-
-        controls.pick = 1;
-        controls.eat = 0;
-
-        const food = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
-        const capacityAvailable = this.maxFoodPickCapacity >= this.pickedFood;
-
-        food && capacityAvailable && (food.amount -= this.carryRate * this.app.gameSpeed);
-        food && capacityAvailable && (this.pickedFood += this.carryRate * this.app.gameSpeed);
-    }
-
-    #dropFood(controls) {
-        if (!controls.drop) return;
-        const anthill = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
-        if (anthill && this.pickedFood > 0) {
-            anthill.food += this.pickedFood * this.app.gameSpeed;
-            this.pickedFood = 0;
-        }
-    }
-
-    #age() {
-        if (this.app.request - (this.requestFlags.age ?? 0) < (500 / this.app.gameSpeed)) return;
-        this.requestFlags.age = this.app.request;
-        this.age += 1;
-        if (this.age > this.maxAge) {
-            this.home.removeAnt(this);
-            this.energy = 0;
-        }
     }
 
     #highlight() {

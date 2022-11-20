@@ -92,8 +92,8 @@ export default class Food {
     }
 
     #updateSize() {
-        (this.amount >= this.minSize) && (this.width = this.amount);
-        (this.amount >= this.minSize) && (this.height = this.amount);
+        (this.amount >= this.minSize) && (this.size.width = this.amount);
+        (this.amount >= this.minSize) && (this.size.height = this.amount);
         (this.amount <= 0) && this.app.factory.remove(this);
     }
 
@@ -112,7 +112,7 @@ export default class Food {
             this.app.gui.get.bar({
                 ctx: this.app.gui.ctx,
                 x: this.coords.x - this.initialSize / 2,
-                y: this.coords.y - this.height * 1.3,
+                y: this.coords.y - this.size.height * 1.3,
                 fillColor: 'red-green',
                 barColor: 'rgba(0,0,0,0.5)',
                 cap: this.initialSize,

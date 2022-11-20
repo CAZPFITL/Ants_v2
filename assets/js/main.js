@@ -6,4 +6,4 @@ import Ants2Trainer from './games/ants2_trainer/Game.js';
 class Test {
 }
 
-new App(true, Ants2);
+new App(Ants2, true, false);

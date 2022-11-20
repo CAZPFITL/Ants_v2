@@ -44,7 +44,7 @@ export default class Ants2 {
 
     #loadGameLevel() {
         this.level = new GameLevel({
-            app,
+            app: this.app,
             game: this,
             width: 2000,
             height: 1800

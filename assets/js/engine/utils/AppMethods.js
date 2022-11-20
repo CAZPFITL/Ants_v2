@@ -15,7 +15,9 @@ import {
 } from "../env.js";
 
 export default class AppMethods {
-    constructor(Game, verbose) {
+    constructor(Game, onWindow, verbose) {
+        onWindow && (window.app = this);
+
         this.updateCallbacks = [];
         this.verbose = verbose;
 
