@@ -46,8 +46,8 @@ export default class Ants2 {
         this.level = new GameLevel({
             app: this.app,
             game: this,
-            width: 2000,
-            height: 1800
+            width: 500,
+            height: 500
         })
         this.state.setState('MAIN_MENU');
     }
@@ -63,13 +63,13 @@ export default class Ants2 {
         (this.state.state === 'LOAD_GAME_DATA') && this.#loadData();
         (this.state.state === 'LOAD_GAME_LEVEL') && this.#loadGameLevel();
         // TODO CHANGE THIS - this monster is temporal
-        if (
-            this.app.game.state.state === 'PLAY' &&
-            this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
-            this.state.state !== 'GAME_OVER'
-        ) {
-            this.app.game.state.setState('GAME_OVER');
-            (this.state.state === 'GAME_OVER') && this.#restart();
-        }
+        // if (
+        //     this.app.game.state.state === 'PLAY' &&
+        //     this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
+        //     this.state.state !== 'GAME_OVER'
+        // ) {
+        //     this.app.game.state.setState('GAME_OVER');
+        //     (this.state.state === 'GAME_OVER') && this.#restart();
+        // }
     }
 }

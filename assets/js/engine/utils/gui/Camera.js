@@ -63,8 +63,21 @@ export default class Camera {
             const deltaY = Math.max(-this.rate, Math.min(this.rate, event.deltaY));
             const deltaX = Math.max(-this.rate, Math.min(this.rate, event.deltaX));
 
-            if (event.ctrlKey) {
+            if (event.shiftKey) {
+                this.#moveTo([
+                    this.lookAt[0] + Math.floor(deltaY),
+                    this.lookAt[1]
+                ]);
+            } else {
+                this.#moveTo([
+                    this.lookAt[0],
+                    this.lookAt[1] + Math.floor(deltaY)
+                ]);
+            }
+
+            if (event.altKey) {
                 let zoomLevel = this.zoom + Math.floor(deltaY);
+
                 this.#zoomTo(
                     (zoomLevel <= this.minZoom) ?
                         this.minZoom :
@@ -72,11 +85,13 @@ export default class Camera {
                             this.maxZoom :
                             zoomLevel
                 );
-            } else {
+
                 this.#moveTo([
-                    this.lookAt[0] + Math.floor(deltaX),
-                    this.lookAt[1] + Math.floor(deltaY)
+                    this.lookAt[0],
+                    this.lookAt[1] - Math.floor(deltaY)
                 ]);
+
+                this.app.player.ant && this.app.player.followCamera && this.app.camera.follow(this.app.player.ant);
             }
         });
         this.app.controls.pushListener(this, 'keydown', (event) => {

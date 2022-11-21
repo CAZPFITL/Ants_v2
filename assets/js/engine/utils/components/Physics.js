@@ -48,10 +48,14 @@ export default class Physics {
 	entityLimits(entity, crashTypes) {
 		if (!crashTypes instanceof Array || typeof crashTypes !== 'object') return;
 		const iterable = crashTypes instanceof Array ? crashTypes : Object.values(crashTypes);
+		// debugger;
 		for (let i = 0; i < iterable.length; i++) {
 			if (this.app.gui.get.polysIntersect(entity.polygons, iterable[i].polygons)) {
-				entity.coords.x -= entity.coords.x < iterable[i].coords.x ? entity.speed : -entity.speed;
-				entity.coords.y -=  entity.coords.y < iterable[i].coords.y ? entity.speed : -entity.speed;
+				!entity.controls.selfMove && (entity.controls.selfMove = true)
+				console.log(entity.controls.selfMove)
+				// entity.controls.selfMove = true;
+				// entity.coords.x -= entity.coords.x < iterable[i].coords.x ? -entity.speed : entity.speed;
+				// entity.coords.y -=  entity.coords.y < iterable[i].coords.y ? entity.speed : -entity.speed;
 			}
 		}
 	}

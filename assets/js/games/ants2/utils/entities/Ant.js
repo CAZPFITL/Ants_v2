@@ -73,8 +73,8 @@ export default class Ant {
             antennas: new Sensor(
                 this,
                 2,
-                50,
-                Math.PI * 0.35,
+                15,
+                Math.PI * 0.2,
                 this.color
             )
         }
@@ -118,8 +118,13 @@ export default class Ant {
         controls.eat && this.#eatFood();
         controls.drop && this.#dropFood();
 
+        // MOTION
+        this.#move(
+            controls,
+            this.#checkForBound(app.player.ant.sensors.antennas.findings ?? [])
+        );
+
         // LIVE
-        this.#move(controls);
         this.#metabolism(controls);
         this.#age();
     }
@@ -140,6 +145,16 @@ export default class Ant {
         // THIS UPDATES THE ANTHILL FOUND. loop through all found able objects
         this.anthillFound = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
         this.foundFood = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
+    }
+
+    #checkForBound() {
+        let wallFound = false;
+        this.app.player.ant.sensors.antennas.findings.forEach((item, index) => {
+            if (item.type === "wall") {
+                wallFound = true;
+            }
+        })
+        return wallFound;
     }
 
     #eatFood() {
@@ -215,7 +230,7 @@ export default class Ant {
         }
     }
 
-    #move(controls) {
+    #move(controls, wallFound) {
         // update referencable data
         this.acceleration = this._acceleration * this.app.gameSpeed;
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
@@ -223,7 +238,7 @@ export default class Ant {
         this.friction = this._friction / this.app.gameSpeed;
 
         // THIS SCRIPT ALLOWS THE SELF MOVING ANTS TO GO IN ONE SPECIFIC DIRECTION.
-        if (this.controls.selfMove) {
+        if (this.controls.selfMove || wallFound) {
             // d=√((x2 – x1)² + (y2 – y1)²)
             this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
 
@@ -255,7 +270,7 @@ export default class Ant {
 
     #highlight() {
         if (this.app.game.constructor.name === 'Ants2') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.8)';
+            this.color = (this.app.player.ant === this) ? 'rgb(10,50,0)' : 'rgba(0,0,0,0.8)';
         }
         if (this.app.game.constructor.name === 'Ants2Trainer') {
             this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.3)';

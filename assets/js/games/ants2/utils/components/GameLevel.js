@@ -51,60 +51,64 @@ export default class GameLevel {
                 {x: topRight.x, y: topRight.y}
             ]
         }
+        class WallPolygon {
+            constructor({name, type, coords, polygons}) {
+                this.name = name;
+                this.type = type;
+                this.coords = coords;
+                this.polygons = polygons;
+            }
+        }
         this.wallPolygons = [
-            // Left
-            {
-                coords: {
-                    x: bottomLeft.x,
-                    y: 0
-                },
-                polygons: [
-                    {x: topLeft.x, y: topLeft.y},
-                    {x: bottomLeft.x, y: bottomLeft.y},
-                    {x: topLeft.x - 1, y: topLeft.y},
-                    {x: bottomLeft.x - 1, y: bottomLeft.y},
-                ]
-            },
-            // Bottom
-            {
-                coords: {
-                    x: 0,
-                    y: bottomRight.y
-                },
-                polygons: [
-                    {x: bottomLeft.x, y: bottomLeft.y},
-                    {x: bottomRight.x, y: bottomRight.y},
-                    {x: bottomLeft.x, y: bottomLeft.y + 1},
-                    {x: bottomRight.x, y: bottomRight.y + 1},
-                ]
-            },
-            // Right
-            {
-                coords: {
-                    x: bottomRight.x,
-                    y: 0
-                },
-                polygons: [
-                    {x: topRight.x, y: topRight.y},
-                    {x: bottomRight.x, y: bottomRight.y},
-                    {x: topRight.x + 1, y: topRight.y},
-                    {x: bottomRight.x + 1, y: bottomRight.y},
-                ]
-            },
-            // Top
-            {
+            new WallPolygon({
+                name: 'Top',
+                type: 'wall',
                 coords: {
                     x: 0,
                     y: topRight.y
                 },
                 polygons: [
-                    {x: topLeft.x, y: topLeft.y},
-                    {x: topRight.x, y: topRight.y},
-                    {x: topLeft.x, y: topLeft.y - 1},
-                    {x: topRight.x, y: topRight.y - 1}
+                    {x: topRight.x + 1, y: topRight.y},
+                    {x: topLeft.x - 1, y: topLeft.y},
                 ]
-            },
-        ]
+            }),
+            new WallPolygon({
+                name: 'Right',
+                type: 'wall',
+                coords: {
+                    x: bottomRight.x,
+                    y: 0
+                },
+                polygons: [
+                    {x: topRight.x, y: topRight.y - 1},
+                    {x: bottomRight.x, y: bottomRight.y + 1}
+                ]
+            }),
+            new WallPolygon({
+                name: 'Bottom',
+                type: 'wall',
+                coords: {
+                    x: 0,
+                    y: bottomRight.y
+                },
+                polygons: [
+                    {x: bottomRight.x + 1, y: bottomRight.y},
+                    {x: bottomLeft.x - 1, y: bottomLeft.y}
+                ]
+            }),
+            new WallPolygon({
+                name: 'Left',
+                type: 'wall',
+                coords: {
+                    x: bottomLeft.x,
+                    y: 0
+                },
+                polygons: [
+                    {x: topLeft.x, y: topLeft.y - 1},
+                    {x: bottomLeft.x, y: bottomLeft.y + 1}
+                ]
+            }),
+        ];
     }
 
     /**
