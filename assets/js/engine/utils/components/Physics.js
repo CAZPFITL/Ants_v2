@@ -55,21 +55,24 @@ export default class Physics {
 				const xBound = (this.app.game.level.size.width / 2);
 				const yBound = (this.app.game.level.size.height / 2);
 				const halfSize = (entity.generatedSize / 2);
+
+				entity.speed = 0;
+
 				// this works for right
 				if ((entity.coords.x) > xBound - halfSize) {
-					entity.coords.x -= 2;
+					entity.coords.x -= 0.2;
 				}
 				// this works for left
 				else if ((-entity.coords.x) > xBound - halfSize) {
-					entity.coords.x += 2;
+					entity.coords.x += 0.2;
 				}
 				// this works for bottom
-				if ((entity.coords.y) > yBound - halfSize) {
-					entity.coords.y -= 2;
+				else  if ((entity.coords.y) > yBound - halfSize) {
+					entity.coords.y -= 0.2;
 				}
 				// this works for top
 				else if ((-entity.coords.y) > yBound - halfSize) {
-					entity.coords.y += 2;
+					entity.coords.y += 0.2;
 				}
 				return
 			}
