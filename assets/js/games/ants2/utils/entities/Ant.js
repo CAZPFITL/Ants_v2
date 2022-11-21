@@ -233,7 +233,7 @@ export default class Ant {
             const angle = this.angle - Math.atan2(x, y);
             const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
 
-            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : - this.angle + this.turnSpeed;
+            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : -this.angle + this.turnSpeed;
 
             this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
             this.speed = this.distanceToTarget / 10;
