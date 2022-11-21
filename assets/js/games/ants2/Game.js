@@ -46,8 +46,8 @@ export default class Ants2 {
         this.level = new GameLevel({
             app: this.app,
             game: this,
-            width: 1000,
-            height: 1000
+            width: 300,
+            height: 300
         })
         this.state.setState('MAIN_MENU');
     }
