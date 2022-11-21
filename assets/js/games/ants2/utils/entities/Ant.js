@@ -232,7 +232,7 @@ export default class Ant {
         if (controls.right) this.app.physics.turnRight(this);
         if (controls.forward) this.app.physics.speedup(this);
 
-        this.maxSpeed = (controls.run) ? (this.maxSpeed * 2) : this.maxSpeed;
+        this.maxSpeed = (controls.run) ? (this.maxSpeed * 2.5) : this.maxSpeed;
 
         // LISTED COLLISION OBJECTS
         this.app.physics.move(this, [

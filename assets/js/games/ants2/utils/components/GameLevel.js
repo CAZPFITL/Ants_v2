@@ -15,7 +15,7 @@ export default class GameLevel {
         this.loadEntitiesList = game.constructor.name === 'Ants2' && [
             {
                 name: 'Food',
-                props: {amount: 0}
+                props: {amount: 5}
             }, {
                 name: 'Anthill',
                 props: {ants: 1, free: true},
