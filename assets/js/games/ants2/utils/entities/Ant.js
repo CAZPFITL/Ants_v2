@@ -14,22 +14,22 @@ export default class Ant {
         this.no_update = false;
         this.no_draw = false;
         // Measurements
-        const size = app.tools.random(8, 10);
+        this.generatedSize = app.tools.random(8, 10);
         this.color = color;
         this.coords = {x, y};
         this.size = {
-            width: (size * 0.5),
-            height: (size * 1)
+            width: (this.generatedSize * 0.5),
+            height: (this.generatedSize * 1)
         }
         // State and capabilities
         this.age = 0;
         this.maxAge = app.tools.random(400, 600);
-        this.eatingRate = app.tools.random(size, size * 3) * 0.008;
-        this.carryRate = app.tools.random(size, size * 2) * 0.008;
+        this.eatingRate = app.tools.random(this.generatedSize, this.generatedSize * 3) * 0.008;
+        this.carryRate = app.tools.random(this.generatedSize, this.generatedSize * 2) * 0.008;
         this.metabolismSpeed = 0.005;
         this.energy = 100;
         this.pickedFood = 0;
-        this.maxFoodPickCapacity = size * 2;
+        this.maxFoodPickCapacity = this.generatedSize * 2;
         this.requestFlags = {};
         this.nose = {x, y};
         this.player = Boolean(this.app.player?.controls);
@@ -37,9 +37,9 @@ export default class Ant {
         this.speed = 0;
         this.angle = angle;
         // referencable objects
-        this.acceleration = 0.3;
+        this.acceleration = 0.15;
         this.friction = 0.040;
-        this.maxSpeed = 0.6;
+        this.maxSpeed = 0.5;
         this.turnSpeed = 0.05;
         this._acceleration = this.acceleration;
         this._friction = this.friction;
@@ -119,10 +119,7 @@ export default class Ant {
         controls.drop && this.#dropFood();
 
         // MOTION
-        this.#move(
-            controls,
-            this.#checkForBound(app.player.ant.sensors.antennas.findings ?? [])
-        );
+        this.#move(controls);
 
         // LIVE
         this.#metabolism(controls);
@@ -132,8 +129,7 @@ export default class Ant {
     #smell() {
         this.sensors.antennas.update([
             ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            ...(this.app.factory.binnacle.Food ?? []),
-            ...this.app.game.level.wallPolygons
+            ...(this.app.factory.binnacle.Food ?? [])
         ]);
 
         // check if the ants mouth is in the food source,
@@ -145,16 +141,6 @@ export default class Ant {
         // THIS UPDATES THE ANTHILL FOUND. loop through all found able objects
         this.anthillFound = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Anthill']);
         this.foundFood = this.app.gui.get.entityAt(this.nose, this.app.factory.binnacle['Food']);
-    }
-
-    #checkForBound() {
-        let wallFound = false;
-        this.app.player.ant.sensors.antennas.findings.forEach((item, index) => {
-            if (item.type === "wall") {
-                wallFound = true;
-            }
-        })
-        return wallFound;
     }
 
     #eatFood() {
@@ -230,37 +216,23 @@ export default class Ant {
         }
     }
 
-    #move(controls, wallFound) {
+    #move(controls) {
         // update referencable data
         this.acceleration = this._acceleration * this.app.gameSpeed;
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
         this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
         this.friction = this._friction / this.app.gameSpeed;
 
-        // THIS SCRIPT ALLOWS THE SELF MOVING ANTS TO GO IN ONE SPECIFIC DIRECTION.
-        if (this.controls.selfMove || wallFound) {
-            // d=√((x2 – x1)² + (y2 – y1)²)
-            this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
+        // keep the angle between 0 and 360 degrees
+        this.angle = this.app.physics.degrees(this.angle) < 0 ? this.app.physics.radians(360) : this.angle;
+        this.angle = this.app.physics.degrees(this.angle) > 360 ? this.app.physics.radians(0) : this.angle;
 
-            // Calculate direction to target selected.
-            const x = this.coords.x - this.home.target.x;
-            const y = this.coords.y - this.home.target.y;
-            const angle = this.angle - Math.atan2(x, y);
-            const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
+        if (controls.reverse) this.app.physics.slowdown(this);
+        if (controls.left) this.app.physics.turnLeft(this);
+        if (controls.right) this.app.physics.turnRight(this);
+        if (controls.forward) this.app.physics.speedup(this);
 
-            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : -this.angle + this.turnSpeed;
-
-            this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
-            this.speed = this.distanceToTarget / 10;
-
-        } else {
-            // Trigger Movement
-            if (controls.reverse) this.app.physics.slowdown(this);
-            if (controls.left) this.app.physics.turnLeft(this);
-            if (controls.right) this.app.physics.turnRight(this);
-            if (controls.forward) this.app.physics.speedup(this);
-            this.maxSpeed = (controls.run) ? (this.maxSpeed * 2) : this.maxSpeed;
-        }
+        this.maxSpeed = (controls.run) ? (this.maxSpeed * 2) : this.maxSpeed;
 
         // LISTED COLLISION OBJECTS
         this.app.physics.move(this, [

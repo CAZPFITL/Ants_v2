@@ -38,32 +38,34 @@ export default class Physics {
 		// absolute stop the entity
 		if ((entity.speed > -this.stopRange) && (entity.speed < this.stopRange)) entity.speed = 0;
 
-		entity.coords.x -= Math.sin(entity.angle) * entity.speed;
-		entity.coords.y -= Math.cos(entity.angle) * entity.speed;
 
 		this.entityLimits(entity, crashTypes);
+
+		entity.coords.x -= Math.sin(entity.angle) * entity.speed;
+		entity.coords.y -= Math.cos(entity.angle) * entity.speed;
 
 	}
 
 	entityLimits(entity, crashTypes) {
 		if (!crashTypes instanceof Array || typeof crashTypes !== 'object') return;
+
 		const iterable = crashTypes instanceof Array ? crashTypes : Object.values(crashTypes);
-		// debugger;
 		for (let i = 0; i < iterable.length; i++) {
 			if (this.app.gui.get.polysIntersect(entity.polygons, iterable[i].polygons)) {
-				!entity.controls.selfMove && (entity.controls.selfMove = true)
-				console.log(entity.controls.selfMove)
-				// entity.controls.selfMove = true;
-				// entity.coords.x -= entity.coords.x < iterable[i].coords.x ? -entity.speed : entity.speed;
-				// entity.coords.y -=  entity.coords.y < iterable[i].coords.y ? entity.speed : -entity.speed;
+				entity.speed = entity.speed * -10;
+				return
 			}
 		}
 	}
 
-	isInBound(entity) {
-		const coords = entity.coords;
-		const limits = this.app.game.level.size;
-		return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
-			!(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
-	}
+	// isInBound(entity) {
+	// 	const coords = entity.coords;
+	// 	const limits = this.app.game.level.size;
+	// 	return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
+	// 		!(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
+	// }
+
+	degrees = (angle) => angle * (180 / Math.PI);
+
+	radians = (angle) => angle * (Math.PI / 180);
 }

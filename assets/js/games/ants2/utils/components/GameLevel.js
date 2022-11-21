@@ -15,7 +15,7 @@ export default class GameLevel {
         this.loadEntitiesList = game.constructor.name === 'Ants2' && [
             {
                 name: 'Food',
-                props: {amount: 2}
+                props: {amount: 0}
             }, {
                 name: 'Anthill',
                 props: {ants: 1, free: true},
@@ -29,10 +29,10 @@ export default class GameLevel {
      */
     #getBordersEdges() {
         const [topLeft, bottomLeft, topRight, bottomRight] = [
-            {x: (-this.size.width) / 2, y: (-this.size.height) / 2},
             {x: (-this.size.width) / 2, y: (this.size.height) / 2},
+            {x: (-this.size.width) / 2, y: (-this.size.height) / 2},
+            {x: (this.size.width) / 2, y: (this.size.height) / 2},
             {x: (this.size.width) / 2, y: (-this.size.height) / 2},
-            {x: (this.size.width) / 2, y: (this.size.height) / 2}
         ];
         this.boundTargets = {
             // These are the bounds for the ants sensors
@@ -51,6 +51,7 @@ export default class GameLevel {
                 {x: topRight.x, y: topRight.y}
             ]
         }
+
         class WallPolygon {
             constructor({name, type, coords, polygons}) {
                 this.name = name;
@@ -59,53 +60,18 @@ export default class GameLevel {
                 this.polygons = polygons;
             }
         }
+
         this.wallPolygons = [
             new WallPolygon({
-                name: 'Top',
-                type: 'wall',
                 coords: {
                     x: 0,
-                    y: topRight.y
-                },
-                polygons: [
-                    {x: topRight.x + 1, y: topRight.y},
-                    {x: topLeft.x - 1, y: topLeft.y},
-                ]
-            }),
-            new WallPolygon({
-                name: 'Right',
-                type: 'wall',
-                coords: {
-                    x: bottomRight.x,
                     y: 0
                 },
                 polygons: [
-                    {x: topRight.x, y: topRight.y - 1},
-                    {x: bottomRight.x, y: bottomRight.y + 1}
-                ]
-            }),
-            new WallPolygon({
-                name: 'Bottom',
-                type: 'wall',
-                coords: {
-                    x: 0,
-                    y: bottomRight.y
-                },
-                polygons: [
-                    {x: bottomRight.x + 1, y: bottomRight.y},
-                    {x: bottomLeft.x - 1, y: bottomLeft.y}
-                ]
-            }),
-            new WallPolygon({
-                name: 'Left',
-                type: 'wall',
-                coords: {
-                    x: bottomLeft.x,
-                    y: 0
-                },
-                polygons: [
-                    {x: topLeft.x, y: topLeft.y - 1},
-                    {x: bottomLeft.x, y: bottomLeft.y + 1}
+                    {x: topLeft.x, y: topLeft.y},
+                    {x: topRight.x, y: topRight.y},
+                    {x: bottomRight.x, y: bottomRight.y},
+                    {x: bottomLeft.x, y: bottomLeft.y},
                 ]
             }),
         ];
