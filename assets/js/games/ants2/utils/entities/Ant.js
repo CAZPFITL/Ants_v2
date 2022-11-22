@@ -39,7 +39,7 @@ export default class Ant {
         this.acceleration = 0.1;
         this.friction = 0.02;
         this.maxSpeed = 0.3;
-        this.turnSpeed = 0.1;
+        this.turnSpeed = 0.06;
         this.boost = 2;
         this._acceleration = this.acceleration;
         this._friction = this.friction;
@@ -60,6 +60,7 @@ export default class Ant {
         this.polygons = [];
         this.img = new Image((this.generatedSize * 0.5), (this.generatedSize * 1));
         // this.img.src = './assets/images/single-ant.png';
+        this.animation = 0;
         this.frameCounter = 0;
         this.img.src = './assets/images/ant-grid.png';
         // Control
@@ -258,14 +259,15 @@ export default class Ant {
     shape() {
         const rad = Math.hypot(this.size.width / 2, this.size.height) / 2;
         const alpha = Math.atan2(this.size.width / 2, this.size.height);
+        // TODO add two points to the middle legs
         return [
             {
                 x: this.coords.x - Math.sin(this.angle - alpha) * rad,
                 y: this.coords.y - Math.cos(this.angle - alpha) * rad
             },
             {
-                x: this.coords.x - Math.sin(this.angle) * rad * 0.99,
-                y: this.coords.y - Math.cos(this.angle) * rad * 0.99
+                x: this.coords.x - Math.sin(this.angle) * rad * 0.9,
+                y: this.coords.y - Math.cos(this.angle) * rad * 0.9
             },
             {
                 x: this.coords.x - Math.sin(this.angle + alpha) * rad,
@@ -278,11 +280,12 @@ export default class Ant {
             {
                 x: this.coords.x - Math.sin(Math.PI + this.angle + alpha) * rad,
                 y: this.coords.y - Math.cos(Math.PI + this.angle + alpha) * rad
-            }
+            },
+
         ]
     }
 
-    update() {
+    update(appRequest) {
         if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             // Draw me
             this.app.gui.get.createPolygon(this);
@@ -290,17 +293,32 @@ export default class Ant {
             this.#neuralProcess();
             // Let's highlight
             this.#highlight();
+            // Animation zone
+            const graduation = 0.7;
+            const reference = 10 * (graduation - this.speed);
+            // step not reached
+            if (!(appRequest - (this.animation) > reference)) return;
+            // step reached
+            (this.speed > 0)
+                ? (this.frameCounter = (this.frameCounter > 4) ? 0 : ++this.frameCounter)
+                : (this.frameCounter = 0);
+            // update animation counter
+            this.animation = appRequest;
         }
     }
 
     draw(ctx) {
         if (!this.no_draw && this.app.game.state.state === PLAY) {
-            this.app.gui.get.drawPolygon(ctx, this);
-            this.app.gui.get.drawImage(ctx, this, this.app.camera.viewport);
+            // this.app.gui.get.drawPolygon(ctx, this);
+            this.app.gui.get.drawImage(ctx, this);
             // Object.values(this.sensors).forEach(sensor => {
             //     sensor.draw(ctx);
             // })
         }
+    }
+
+    outsideRules(rule) {
+        rule();
     }
 }
 

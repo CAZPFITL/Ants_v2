@@ -129,30 +129,21 @@ export default class Gui {
         ctx.fill();
     }
 
-    static drawImage(ctx, entity, viewport) {
+    static drawImage(ctx, entity) {
         ctx.save();
         ctx.translate(entity.coords.x, entity.coords.y);
         ctx.rotate(-entity.angle);
 
-        // ctx.drawImage(
-        //     entity.img,
-        //     -entity.size.width / 2,
-        //     -entity.size.height / 2,
-        //     entity.size.width,
-        //     entity.size.height,
-        // );
-
-        // console.log(entity.app.screen.ctx);
         ctx.drawImage(
             entity.img,
-            60 * entity.frameCounter, // 60 * 0, 1, 2, o 3... // position x
-            0, // position y (don't change the 0)
-            60, // ok this is cool
-            60, // ok this is cool
+            60 * entity.frameCounter,
+            0,
+            60,
+            60,
             -entity.size.width / 2,
             -entity.size.height / 2,
-            entity.size.width, // ok this is cool clear
-            entity.size.height, // ok this is cool clear
+            entity.size.width,
+            entity.size.height,
         );
 
         ctx.restore();

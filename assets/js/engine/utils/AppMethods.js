@@ -60,7 +60,7 @@ export default class AppMethods {
             if (this.factory.binnacle[key] instanceof Array) {
                 for (let i = 0; i < this.factory.binnacle[key].length; i++) {
                     (Boolean(this.factory.binnacle[key][i].update)) &&
-                    this.factory.binnacle[key][i].update();
+                    this.factory.binnacle[key][i].update(this.request);
                 }
             }
         }
