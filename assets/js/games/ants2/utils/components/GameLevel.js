@@ -15,7 +15,7 @@ export default class GameLevel {
         this.loadEntitiesList = game.constructor.name === 'Ants2' && [
             {
                 name: 'Food',
-                props: {amount: 5}
+                props: {amount: 1}
             }, {
                 name: 'Anthill',
                 props: {ants: 1, free: true},
@@ -122,9 +122,9 @@ export default class GameLevel {
 
     update() {
         this.#getBordersEdges();
-        if (this.game.constructor.name === 'Ants2Trainer') {
-            this.#loadOutsideRules();
-        }
+        this.#loadOutsideRules();
+        // if (this.game.constructor.name === 'Ants2Trainer') {
+        // }
 
     }
 

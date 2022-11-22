@@ -232,7 +232,7 @@ export default class Screen {
 						ctx: this.app.gui.ctx,
 						...mainMenuButtonBase,
 						x: mainMenuButtonBase.x,
-						y: mainMenuButtonBase.y + (displacement * 0),
+						y: mainMenuButtonBase.y + (0),
 						text: 'Start',
 						font: '16px Mouse',
 						bg: this.buttonsStates.start === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
@@ -256,7 +256,7 @@ export default class Screen {
 						ctx: this.app.gui.ctx,
 						...mainMenuButtonBase,
 						x: mainMenuButtonBase.x,
-						y: mainMenuButtonBase.y + (displacement * 1),
+						y: mainMenuButtonBase.y + (displacement),
 						text: 'Instructions',
 						font: '16px Mouse',
 						bg: this.buttonsStates.instructions === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
@@ -311,238 +311,238 @@ export default class Screen {
 					}
 				},
 			},
-			PLAY: {
-				forward: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 120,
-						y: this.gui.controlsCtx.canvas.height - 120,
-						width: 50,
-						height: 50,
-						text: '↑',
-						font: '16px Mouse',
-						bg: this.buttonsStates.forward === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.forward === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.forward = 1,
-							mouseup: () => this.app.player.controls.forward = 0
-						},
-					}
-				},
-				reverse: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 120,
-						y: this.gui.controlsCtx.canvas.height - 60,
-						width: 50,
-						height: 50,
-						text: '↓️',
-						font: '16px Mouse',
-						bg: this.buttonsStates.reverse === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.reverse === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.reverse = 1,
-							mouseup: () => this.app.player.controls.reverse = 0
-						},
-					}
-				},
-				left: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 180,
-						y: this.gui.controlsCtx.canvas.height - 60,
-						width: 50,
-						height: 50,
-						text: '←',
-						font: '16px Mouse',
-						bg: this.buttonsStates.left === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.left === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.left = 1,
-							mouseup: () => this.app.player.controls.left = 0
-						},
-					}
-				},
-				right: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 60,
-						y: this.gui.controlsCtx.canvas.height - 60,
-						width: 50,
-						height: 50,
-						text: '→️',
-						font: '16px Mouse',
-						bg: this.buttonsStates.right === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.right === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.right = 1,
-							mouseup: () => this.app.player.controls.right = 0
-						},
-					}
-				},
-				pick: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 60,
-						y: 70,
-						width: 50,
-						height: 50,
-						text: '🚚',
-						font: '16px Mouse',
-						bg: this.buttonsStates.pick === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.pick === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.pick = 1,
-							mouseup: () => this.app.player.controls.pick = 0
-						},
-					}
-				},
-				eat: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 60,
-						y: 130,
-						width: 50,
-						height: 50,
-						text: '🍏',
-						font: '16px Mouse',
-						bg: this.buttonsStates.eat === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.eat === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mousedown: () => this.app.player.controls.eat = 1,
-							mouseup: () => this.app.player.controls.eat = 0
-						},
-					}
-				},
-				createAnt: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 60,
-						y: 10,
-						width: 50,
-						height: 50,
-						text: '🐜',
-						font: '16px Mouse',
-						bg: this.buttonsStates.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							click: () => this.app.player.anthill.addAnt()
-						}
-					}
-				},
-				createAnthill: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 120,
-						y: 10,
-						width: 50,
-						height: 50,
-						text: '🐝',
-						font: '16px Mouse',
-						bg: this.buttonsStates.createAnthill === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.createAnthill === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							mouseup: () => {
-								if (this.buttonsStates.createAnthill !== 'click') {
-									this.abstractStates.creating = true;
-									this.buttonsStates.createAnthill = 'click';
-									this.app.game.level.Anthill({ants: 0, free: true});
-									this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
-								}
-							}
-						}
-					}
-				},
-				sound: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 60,
-						y: 190,
-						width: 50,
-						height: 50,
-						text: '🔈',
-						font: '16px Mouse',
-						bg: this.buttonsStates.sound === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.sound === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							click: () => this.app.musicBox.song.song.volume = !this.app.musicBox.song.song.volume
-						}
-					}
-				},
-				createQueen: {
-					type: 'button',
-					props: {
-						position: 'controls',
-						ctx: this.app.game.gui.controlsCtx,
-						x: this.gui.controlsCtx.canvas.width - 120,
-						y: 70,
-						width: 50,
-						height: 50,
-						text: '👑',
-						font: '16px Mouse',
-						bg: this.buttonsStates.createQueen === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
-							: this.buttonsStates.createQueen === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
-								: this.colors.MAIN_MENU.buttons.variation1.normal,
-						stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
-						widthStroke: 2,
-						callbacks: {
-							click: () => {
-								if (this.app.player.anthill.food > 999) {
-									console.log('create a queen');
-								} else {
-									console.log('you need more food to create a queen');
-									this.app.player.anthill.food = this.app.player.anthill.food - 1000;
-								}
-							}
-						}
-					}
-				}
-			}
+			// PLAY: {
+			// 	forward: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 120,
+			// 			y: this.gui.controlsCtx.canvas.height - 120,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '↑',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.forward === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.forward === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.forward = 1,
+			// 				mouseup: () => this.app.player.controls.forward = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	reverse: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 120,
+			// 			y: this.gui.controlsCtx.canvas.height - 60,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '↓️',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.reverse === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.reverse === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.reverse = 1,
+			// 				mouseup: () => this.app.player.controls.reverse = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	left: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 180,
+			// 			y: this.gui.controlsCtx.canvas.height - 60,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '←',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.left === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.left === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.left = 1,
+			// 				mouseup: () => this.app.player.controls.left = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	right: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 60,
+			// 			y: this.gui.controlsCtx.canvas.height - 60,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '→️',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.right === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.right === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.right = 1,
+			// 				mouseup: () => this.app.player.controls.right = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	pick: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 60,
+			// 			y: 70,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '🚚',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.pick === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.pick === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.pick = 1,
+			// 				mouseup: () => this.app.player.controls.pick = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	eat: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 60,
+			// 			y: 130,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '🍏',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.eat === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.eat === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mousedown: () => this.app.player.controls.eat = 1,
+			// 				mouseup: () => this.app.player.controls.eat = 0
+			// 			},
+			// 		}
+			// 	},
+			// 	createAnt: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 60,
+			// 			y: 10,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '🐜',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.createAnt === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.createAnt === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				click: () => this.app.player.anthill.addAnt()
+			// 			}
+			// 		}
+			// 	},
+			// 	createAnthill: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 120,
+			// 			y: 10,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '🐝',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.createAnthill === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.createAnthill === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				mouseup: () => {
+			// 					if (this.buttonsStates.createAnthill !== 'click') {
+			// 						this.abstractStates.creating = true;
+			// 						this.buttonsStates.createAnthill = 'click';
+			// 						this.app.game.level.Anthill({ants: 0, free: true});
+			// 						this.creation = this.app.factory.binnacle.Anthill[this.app.factory.binnacle.Anthill.length - 1];
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	},
+			// 	sound: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 60,
+			// 			y: 190,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '🔈',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.sound === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.sound === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				click: () => this.app.musicBox.song.song.volume = !this.app.musicBox.song.song.volume
+			// 			}
+			// 		}
+			// 	},
+			// 	createQueen: {
+			// 		type: 'button',
+			// 		props: {
+			// 			position: 'controls',
+			// 			ctx: this.app.game.gui.controlsCtx,
+			// 			x: this.gui.controlsCtx.canvas.width - 120,
+			// 			y: 70,
+			// 			width: 50,
+			// 			height: 50,
+			// 			text: '👑',
+			// 			font: '16px Mouse',
+			// 			bg: this.buttonsStates.createQueen === 'hover' ? this.colors.MAIN_MENU.buttons.variation1.hover
+			// 				: this.buttonsStates.createQueen === 'click' ? this.colors.MAIN_MENU.buttons.variation1.click
+			// 					: this.colors.MAIN_MENU.buttons.variation1.normal,
+			// 			stroke: this.colors.MAIN_MENU.buttons.variation1.stroke,
+			// 			widthStroke: 2,
+			// 			callbacks: {
+			// 				click: () => {
+			// 					if (this.app.player.anthill.food > 999) {
+			// 						console.log('create a queen');
+			// 					} else {
+			// 						console.log('you need more food to create a queen');
+			// 						this.app.player.anthill.food = this.app.player.anthill.food - 1000;
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 		};
 
 		const instrucctions = {}

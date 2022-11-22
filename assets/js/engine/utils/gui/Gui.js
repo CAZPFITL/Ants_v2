@@ -129,6 +129,35 @@ export default class Gui {
         ctx.fill();
     }
 
+    static drawImage(ctx, entity, viewport) {
+        ctx.save();
+        ctx.translate(entity.coords.x, entity.coords.y);
+        ctx.rotate(-entity.angle);
+
+        // ctx.drawImage(
+        //     entity.img,
+        //     -entity.size.width / 2,
+        //     -entity.size.height / 2,
+        //     entity.size.width,
+        //     entity.size.height,
+        // );
+
+        // console.log(entity.app.screen.ctx);
+        ctx.drawImage(
+            entity.img,
+            60 * entity.frameCounter, // 60 * 0, 1, 2, o 3... // position x
+            0, // position y (don't change the 0)
+            60, // ok this is cool
+            60, // ok this is cool
+            -entity.size.width / 2,
+            -entity.size.height / 2,
+            entity.size.width, // ok this is cool clear
+            entity.size.height, // ok this is cool clear
+        );
+
+        ctx.restore();
+    }
+
     static polysIntersect(poly1, poly2) {
         for (let i = 0; i < poly1.length; i++) {
             for (let j = 0; j < poly2.length; j++) {
@@ -226,19 +255,5 @@ export default class Gui {
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = color;
         ctx.stroke();
-    }
-
-    static image({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
-        ctx.beginPath();
-        ctx.rect(x, y, width, height);
-        ctx.fillStyle = color;
-        ctx.fill();
-        if (stroke) {
-            const cache = ctx.lineWidth;
-            ctx.strokeStyle = stroke;
-            ctx.lineWidth = widthStroke;
-            ctx.stroke();
-            ctx.lineWidth = cache;
-        }
     }
 }

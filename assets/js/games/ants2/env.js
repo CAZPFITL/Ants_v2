@@ -62,6 +62,7 @@ export const gameFlags = {
     logStart: 0,
     logFlag: 0,
     logCounter: 0,
+    antAnimationCounter: 0,
 };
 
 export const gameSongs = [

@@ -54,7 +54,7 @@ export default class Physics {
 			if (this.app.gui.get.polysIntersect(entity.polygons, iterable[i].polygons)) {
 				const xBound = (this.app.game.level.size.width / 2);
 				const yBound = (this.app.game.level.size.height / 2);
-				const halfSize = (entity.generatedSize / 2);
+				const halfSize = (entity.generatedSize / 2) + 0.2;
 
 				entity.speed = 0;
 
