@@ -129,17 +129,17 @@ export default class Gui {
         ctx.fill();
     }
 
-    static drawImage(ctx, entity) {
+    static drawImage(ctx, entity, width, height) {
         ctx.save();
         ctx.translate(entity.coords.x, entity.coords.y);
         ctx.rotate(-entity.angle);
 
         ctx.drawImage(
             entity.img,
-            60 * entity.frameCounter,
+            width * entity.frameCounter,
             0,
-            60,
-            60,
+            width,
+            height,
             -entity.size.width / 2,
             -entity.size.height / 2,
             entity.size.width,

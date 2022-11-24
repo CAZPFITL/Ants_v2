@@ -18,7 +18,7 @@ export default class Ant {
         this.color = color;
         this.coords = {x, y};
         this.size = {
-            width: this.generatedSize,
+            width: this.generatedSize / 1.3333333333,
             height: this.generatedSize
         }
         // State and capabilities
@@ -294,23 +294,23 @@ export default class Ant {
             // Let's highlight
             this.#highlight();
             // Animation zone
-            const graduation = 0.7;
-            const reference = 10 * (graduation - this.speed);
+            const graduation = 0.05;
+            const reference = 10 * (graduation + (this.speed > 0 ? -this.speed : this.speed));
             // step not reached
             if (!(appRequest - (this.animation) > reference)) return;
             // step reached
-            (this.speed > 0)
-                ? (this.frameCounter = (this.frameCounter > 4) ? 0 : ++this.frameCounter)
-                : (this.frameCounter = 0);
+            (this.speed !== 0 || this.angleCache !== this.angle) && (this.frameCounter = (this.frameCounter > 26) ? 0 : ++this.frameCounter);
             // update animation counter
             this.animation = appRequest;
+            this.angleCache = this.angle
+
         }
     }
 
     draw(ctx) {
         if (!this.no_draw && this.app.game.state.state === PLAY) {
             // this.app.gui.get.drawPolygon(ctx, this);
-            this.app.gui.get.drawImage(ctx, this);
+            this.app.gui.get.drawImage(ctx, this, 45, 60);
             // Object.values(this.sensors).forEach(sensor => {
             //     sensor.draw(ctx);
             // })

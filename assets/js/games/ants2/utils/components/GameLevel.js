@@ -34,28 +34,9 @@ export default class GameLevel {
             {x: (this.size.width) / 2, y: (this.size.height) / 2},
             {x: (this.size.width) / 2, y: (-this.size.height) / 2},
         ];
-        this.boundTargets = {
-            // These are the bounds for the ants sensors
-            walls: [
-                // Left
-                {x: topLeft.x, y: topLeft.y},
-                {x: bottomLeft.x, y: bottomLeft.y},
-                // Right
-                {x: topRight.x, y: topRight.y},
-                {x: bottomRight.x, y: bottomRight.y},
-                // Bottom
-                {x: bottomLeft.x, y: bottomLeft.y},
-                {x: bottomRight.x, y: bottomRight.y},
-                // Top
-                {x: topLeft.x, y: topLeft.y},
-                {x: topRight.x, y: topRight.y}
-            ]
-        }
 
         class WallPolygon {
-            constructor({name, type, coords, polygons}) {
-                this.name = name;
-                this.type = type;
+            constructor({coords, polygons}) {
                 this.coords = coords;
                 this.polygons = polygons;
             }
@@ -97,13 +78,12 @@ export default class GameLevel {
         }
     }
 
-    Food({amount, width, height}) {
-        width = width ?? this.size.width;
-        height = height ?? this.size.height;
+    Food({amount}) {
         for (let i = 0; i < amount; i++) {
             this.app.factory.create(Food, {
                 app: this.app,
-                bounds: {width: width / 2, height: height / 2}
+                size: this.app.tools.random(80, 100),
+                bounds: this.size
             });
         }
     }

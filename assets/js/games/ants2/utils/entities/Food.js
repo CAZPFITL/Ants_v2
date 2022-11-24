@@ -1,18 +1,18 @@
 import {GAME_OVER, PLAY} from "../../env.js";
 
 export default class Food {
-    constructor({app, bounds}) {
+    constructor({app, size, bounds}) {
         this.app = app;
         this.no_update = false;
         this.no_draw = false;
-        this.#getFoodData(bounds);
+        this.#getFoodData(app, size, bounds);
     }
 
     /**
      * Private methods
      */
-    #getFoodData({width, height}) {
-        const size = this.app.tools.random(80, 100);
+    #getFoodData(app, size, bounds) {
+        // console.log(app.game.level.size.width)
         this.polygons = [];
         this.size = {
             width: size,
@@ -24,8 +24,8 @@ export default class Food {
         this.requestFlags = {};
         this.maxAge = this.app.tools.random(100, 200);
         this.coords = {
-            x: this.app.tools.random(120, (width - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1),
-            y: this.app.tools.random(120, (height - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1)
+            x: this.app.tools.random(120, ((bounds.width / 2) - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1),
+            y: this.app.tools.random(120, ((bounds.height / 2) - (size * 2))) * (Math.random() >= 0.5 ? 1 : -1)
         };
         this.angle = this.app.tools.random(0, 3.6);
         this.color = '#33211c';
