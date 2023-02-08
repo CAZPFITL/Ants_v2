@@ -303,7 +303,6 @@ export default class Ant {
             // update animation counter
             this.animation = appRequest;
             this.angleCache = this.angle
-
         }
     }
 
@@ -315,10 +314,6 @@ export default class Ant {
             //     sensor.draw(ctx);
             // })
         }
-    }
-
-    outsideRules(rule) {
-        rule();
     }
 }
 

@@ -47,6 +47,7 @@ export default class Physics {
 	}
 
 	entityLimits(entity, crashTypes) {
+		let base = 0.2;
 		if (!crashTypes instanceof Array || typeof crashTypes !== 'object') return;
 
 		const iterable = crashTypes instanceof Array ? crashTypes : Object.values(crashTypes);
@@ -54,25 +55,25 @@ export default class Physics {
 			if (this.app.gui.get.polysIntersect(entity.polygons, iterable[i].polygons)) {
 				const xBound = (this.app.game.level.size.width / 2);
 				const yBound = (this.app.game.level.size.height / 2);
-				const halfSize = (entity.generatedSize / 2) + 0.2;
+				const halfSize = (entity.generatedSize / 2) + base;
 
 				entity.speed = 0;
 
 				// this works for right
 				if ((entity.coords.x) > xBound - halfSize) {
-					entity.coords.x -= 0.2;
+					entity.coords.x -= base;
 				}
 				// this works for left
 				else if ((-entity.coords.x) > xBound - halfSize) {
-					entity.coords.x += 0.2;
+					entity.coords.x += base;
 				}
 				// this works for bottom
 				else  if ((entity.coords.y) > yBound - halfSize) {
-					entity.coords.y -= 0.2;
+					entity.coords.y -= base;
 				}
 				// this works for top
 				else if ((-entity.coords.y) > yBound - halfSize) {
-					entity.coords.y += 0.2;
+					entity.coords.y += base;
 				}
 				return
 			}

@@ -13,7 +13,7 @@ export default class Factory {
     create(object, props) {
         // Create an object collection if it doesn't exist
         (!this.binnacle[object.name]) && (this.binnacle[object.name] = []);
-        // Create an id to be asigned to the object
+        // Create an id to be assigned to the object
         const id = this.binnacle[object.name].length;
         // Instantiate the object
         const instanceFromType = new object({id, ...props})
@@ -23,13 +23,18 @@ export default class Factory {
             `Factory Produced ${object.name}`,
             `\x1b[32;1m| \x1b[0mFactory Produced \x1b[32;1m${object.name}${props.id ? ` #${props.id}` : ''}`
         );
+
+        instanceFromType.outsideRules = (rule)=>rule()
+
         // Return the object
         return instanceFromType;
     }
 
     remove(object) {
         const id = object.constructor.name;
+
         this.binnacle[id] = this.binnacle[id] instanceof Array && this.binnacle[id].filter(item => item !== object);
+
         this.app.log.registerEvent(
             `Factory ${object.constructor.name} removed`,
             `\x1b[31;1m| \x1b[0mFactory Removed \x1b[31;1m${object.constructor.name}${object.id ? ` #${object.id}` : ''}`
@@ -38,8 +43,10 @@ export default class Factory {
 
     restart() {
         for (let key in this.app.factory.binnacle) {
-            this.app.factory.binnacle[key] instanceof Array &&
-            this.app.factory.binnacle[key].forEach((entity) => {
+
+            const element = this.app.factory.binnacle[key];
+
+            element instanceof Array && element.forEach((entity) => {
                 if (key !== 'GameObjects') {
                     this.app.factory.remove(entity);
                 }
@@ -49,9 +56,13 @@ export default class Factory {
 
     // These objects are used to create instances of objects used in games like games in screen controls.
     addGameEntity(entity) {
+
         if (!(this.binnacle.GameObjects instanceof Array)) {
             this.binnacle.GameObjects = [];
         }
+
+        entity.outsideRules = (rule)=>rule()
+
         this.binnacle.GameObjects.push(entity);
     }
 }

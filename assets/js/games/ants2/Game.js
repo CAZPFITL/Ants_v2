@@ -51,13 +51,12 @@ export default class Ants2 {
             game: this,
             width: 500,
             height: 500,
-            addedRules: [{
-                name: 'Ant',
-                rule: (entity) =>
-                    entity.outsideRules(()=>
-                        [])
-                        // console.log('im a rule! i rule ' + entity.name)
-            }]
+            addedRules: [
+                {
+                    name: 'Ant',
+                    rule: (entity) => entity.outsideRules(()=> console.log('im a rule! i rule Ant #' + entity.name))
+                }
+            ]
         })
         this.state.setState('MAIN_MENU');
     }
