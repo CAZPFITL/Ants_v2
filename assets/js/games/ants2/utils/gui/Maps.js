@@ -1,5 +1,6 @@
 class Maps {
     constructor() {
+        this.collection = [];
     }
 }
 
