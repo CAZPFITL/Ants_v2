@@ -108,6 +108,7 @@ export default class Ant {
     #neuralProcess() {
         // FALLBACK TO CATCHER
         const controls = this.player ? this.app.controls.getControls(this) : this.controls;
+        // const controls = this.controls;
 
         // SET SELF MOVE ?
         this.controls.selfMove = !(this.app.player.ant === this);
@@ -233,10 +234,28 @@ export default class Ant {
         this.angle = this.app.physics.degrees(this.angle) < 0 ? this.app.physics.radians(360) : this.angle;
         this.angle = this.app.physics.degrees(this.angle) > 360 ? this.app.physics.radians(0) : this.angle;
 
-        if (controls.reverse) this.app.physics.slowdown(this);
-        if (controls.left) this.app.physics.turnLeft(this);
-        if (controls.right) this.app.physics.turnRight(this);
-        if (controls.forward) this.app.physics.speedup(this);
+        console.log(this.player)
+        if (this.player) {
+            if (controls.reverse) this.app.physics.slowdown(this);
+            if (controls.left) this.app.physics.turnLeft(this);
+            if (controls.right) this.app.physics.turnRight(this);
+            if (controls.forward) this.app.physics.speedup(this);
+        } else {
+            console.log('no')
+            this.app.physics.speedup(this)
+        }
+
+        controls = {
+            forward: this.app.tools.random(0, 1),
+            reverse: this.app.tools.random(0, 1),
+            right: this.app.tools.random(0, 1),
+            left: this.app.tools.random(0, 1),
+            pick: this.app.tools.random(0, 1),
+            drop: this.app.tools.random(0, 1),
+            eat: this.app.tools.random(0, 1),
+            run: this.app.tools.random(0, 1),
+            selfMove: true // is player controlling? = 0
+        }
 
         this.maxSpeed = (controls.run) ? (this.maxSpeed * this.boost) : this.maxSpeed;
 

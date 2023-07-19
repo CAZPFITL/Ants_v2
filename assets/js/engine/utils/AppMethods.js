@@ -33,14 +33,14 @@ export default class AppMethods {
         this.gameSpeed = 1;
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
-        this.stats = new Stats();
+        // this.stats = new Stats();
         this.loadEngine(Game);
         this.game.useMusicBox && (this.musicBox = new MusicBox(this));
     }
 
     loadEngine(Game, verbose = false) {
-        !verbose && this.toggleStats();
-        document.body.appendChild(this.stats.dom);
+        // !verbose && this.toggleStats();
+        // document.body.appendChild(this.stats.dom);
         this.request = requestAnimationFrame(this.camera.loop);
         this.loadGame(Game)
     }

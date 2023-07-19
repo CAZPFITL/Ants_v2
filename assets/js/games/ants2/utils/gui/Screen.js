@@ -28,7 +28,7 @@ export default class Screen {
 				entity: this.app.player?.ant,
 				height: 190,
 				width: this.app.tools.max([this.app.game.gui.controlsCtx.measureText(`Player: ${player.name}`).width, 240]),
-				cardPosition: {x: 10, y: this.app.stats.isShowing ? app.gui.ctx.canvas.height - 200 : 10}
+				cardPosition: {x: 10, y: 10}
 			});
 			this.followPlayer();
 			this.app.log.printLog(this.app.game.gui.controlsCtx, "20px Mouse");

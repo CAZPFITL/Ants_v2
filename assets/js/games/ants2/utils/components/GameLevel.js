@@ -18,7 +18,7 @@ export default class GameLevel {
                 props: {amount: 2}
             }, {
                 name: 'Anthill',
-                props: {ants: 1, free: false},
+                props: {ants: 2, free: false},
             }];
         game.constructor.name === 'Ants2' && this.loadEntities();
         this.app.factory.addGameEntity(this);

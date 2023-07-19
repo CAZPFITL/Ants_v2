@@ -52,10 +52,10 @@ export default class Ants2 {
             width: 500,
             height: 500,
             addedRules: [
-                {
-                    name: 'Ant',
-                    rule: (entity) => entity.outsideRules(()=> console.log('im a rule! i rule Ant #' + entity.name))
-                }
+                // {
+                //     name: 'Ant',
+                //     rule: (entity) => entity.outsideRules(()=> console.log('im a rule! i rule Ant #' + entity.name))
+                // }
             ]
         })
         this.state.setState('MAIN_MENU');
