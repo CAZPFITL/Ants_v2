@@ -32,7 +32,6 @@ export default class Ant {
         this.maxFoodPickCapacity = this.generatedSize * 2;
         this.requestFlags = {};
         this.nose = {x, y};
-        this.player = Boolean(this.app.player?.controls);
         // physics
         this.speed = 0;
         this.angle = angle;
@@ -107,7 +106,9 @@ export default class Ant {
      */
     #neuralProcess() {
         // FALLBACK TO CATCHER
-        const controls = this.player ? this.app.controls.getControls(this) : this.controls;
+        const control = this.app.player.ant === this;
+
+        const controls = control ? this.app.controls.getControls(this) : this.controls;
         // const controls = this.controls;
 
         // SET SELF MOVE ?
@@ -126,7 +127,7 @@ export default class Ant {
         controls.drop && this.#dropFood();
 
         // MOTION
-        this.#move(controls);
+        this.#move(controls, this.controls.selfMove);
 
         // LIVE
         this.#metabolism(controls);
@@ -223,7 +224,7 @@ export default class Ant {
         }
     }
 
-    #move(controls) {
+    #move(controls, selfMove) {
         // update referencable data
         this.acceleration = this._acceleration * this.app.gameSpeed;
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
@@ -234,27 +235,16 @@ export default class Ant {
         this.angle = this.app.physics.degrees(this.angle) < 0 ? this.app.physics.radians(360) : this.angle;
         this.angle = this.app.physics.degrees(this.angle) > 360 ? this.app.physics.radians(0) : this.angle;
 
-        console.log(this.player)
-        if (this.player) {
+        if (!selfMove) {
             if (controls.reverse) this.app.physics.slowdown(this);
             if (controls.left) this.app.physics.turnLeft(this);
             if (controls.right) this.app.physics.turnRight(this);
             if (controls.forward) this.app.physics.speedup(this);
         } else {
-            console.log('no')
-            this.app.physics.speedup(this)
-        }
-
-        controls = {
-            forward: this.app.tools.random(0, 1),
-            reverse: this.app.tools.random(0, 1),
-            right: this.app.tools.random(0, 1),
-            left: this.app.tools.random(0, 1),
-            pick: this.app.tools.random(0, 1),
-            drop: this.app.tools.random(0, 1),
-            eat: this.app.tools.random(0, 1),
-            run: this.app.tools.random(0, 1),
-            selfMove: true // is player controlling? = 0
+            this.app.tools.random(0,1000,true) < this.app.tools.random(500,1000,true) && this.app.physics.speedup(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(250,1000,true) && this.app.physics.slowdown(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(500,1000,true) && this.app.physics.turnLeft(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(250,1000,true) && this.app.physics.turnRight(this)
         }
 
         this.maxSpeed = (controls.run) ? (this.maxSpeed * this.boost) : this.maxSpeed;

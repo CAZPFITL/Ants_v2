@@ -244,7 +244,7 @@ export default class Screen {
 							mouseup: () => {
 								this.app.game.state.setState('PLAY');
 								this.app.game.useMusicBox && this.app.musicBox.play();
-								this.app.camera.zoom = this.app.camera.minZoom;
+								this.app.camera.zoom = this.app.camera.maxZoom / 2.4;
 							}
 						}
 					}

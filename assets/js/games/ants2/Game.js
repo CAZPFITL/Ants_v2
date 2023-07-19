@@ -49,8 +49,8 @@ export default class Ants2 {
         this.level = new GameLevel({
             app: this.app,
             game: this,
-            width: 500,
-            height: 500,
+            width: 800,
+            height: 550,
             addedRules: [
                 // {
                 //     name: 'Ant',

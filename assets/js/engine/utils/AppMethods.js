@@ -30,7 +30,7 @@ export default class AppMethods {
         this.factory = new Factory(this);
         this.gui = new Gui(this);
         this.camera = new Camera(this);
-        this.gameSpeed = 1;
+        this.gameSpeed = 2;
         // External Components
         // 0: fps, 1: ms, 2: mb, 3+: custom
         // this.stats = new Stats();
@@ -46,12 +46,12 @@ export default class AppMethods {
     }
 
     toggleStats() {
-        this.stats.isShowing = !this.stats.isShowing;
-        this.stats.dom.style.display = this.stats.isShowing ? 'block' : 'none';
+        // this.stats.isShowing = !this.stats.isShowing;
+        // this.stats.dom.style.display = this.stats.isShowing ? 'block' : 'none';
     }
 
     loadGame(Game) {
-        this.state.setState(LOAD_GAME);
+        // this.state.setState(LOAD_GAME);
         this.game = new Game(this, () => this.state.setState(PLAY_GAME));
     }
 

@@ -18,10 +18,10 @@ export default class GameLevel {
                 props: {amount: 2}
             }, {
                 name: 'Anthill',
-                props: {ants: 2, free: false},
+                props: {ants: 3000, free: true, level: this},
             }];
-        game.constructor.name === 'Ants2' && this.loadEntities();
         this.app.factory.addGameEntity(this);
+        game.constructor.name === 'Ants2' && this.loadEntities();
     }
 
     /**
@@ -88,13 +88,14 @@ export default class GameLevel {
         }
     }
 
-    Anthill({ants, free = false}) {
+    Anthill({ants, level, free = false}) {
         let collection = this.app.factory.binnacle['Anthill'] ?? [];
         collection = collection.length
         this.app.factory.create(Anthill, {
             app: this.app,
             game: this.game,
             id: collection + 1,
+            level,
             ants,
             free
         });
