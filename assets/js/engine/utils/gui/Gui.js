@@ -129,6 +129,26 @@ export default class Gui {
         ctx.fill();
     }
 
+    static drawImage(ctx, entity, width, height) {
+        ctx.save();
+        ctx.translate(entity.coords.x, entity.coords.y);
+        ctx.rotate(-entity.angle);
+
+        ctx.drawImage(
+            entity.img,
+            width * entity.frameCounter,
+            0,
+            width,
+            height,
+            -entity.size.width / 2,
+            -entity.size.height / 2,
+            entity.size.width,
+            entity.size.height,
+        );
+
+        ctx.restore();
+    }
+
     static polysIntersect(poly1, poly2) {
         for (let i = 0; i < poly1.length; i++) {
             for (let j = 0; j < poly2.length; j++) {
@@ -226,19 +246,5 @@ export default class Gui {
         ctx.lineTo(x2, y2);
         ctx.strokeStyle = color;
         ctx.stroke();
-    }
-
-    static image({ctx, x, y, width, height, color = '#FFF', stroke = false, widthStroke = 1}) {
-        ctx.beginPath();
-        ctx.rect(x, y, width, height);
-        ctx.fillStyle = color;
-        ctx.fill();
-        if (stroke) {
-            const cache = ctx.lineWidth;
-            ctx.strokeStyle = stroke;
-            ctx.lineWidth = widthStroke;
-            ctx.stroke();
-            ctx.lineWidth = cache;
-        }
     }
 }

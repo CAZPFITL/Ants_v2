@@ -152,7 +152,7 @@ export default class Ants2Trainer {
 
                         this.flags.oscillation = this.app.request;
 
-                        this.flags.oscillationCounter++;
+                        this.FVflags.oscillationCounter++;
 
                         const {a, b} = {
                             a: Math.floor(Tester.oscillate(0.05 * Math.random(), 0.05 * Math.random(), Math.random(), this.flags.oscillationCounter)),

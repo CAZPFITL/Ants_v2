@@ -5,7 +5,6 @@ import Player from "./utils/components/Player.js";
 import Maps from "./utils/gui/Maps.js";
 import {
     STATES,
-    gameFlags,
     gameSongs,
     mainSong
 } from "./env.js";
@@ -17,7 +16,11 @@ export default class Ants2 {
         this.loadCallback = loadCallback;
         this.gui = new Gui(this.app, this);
         this.app.factory.addGameEntity(this.gui);
-        this.flags = gameFlags;
+        this.flags = {
+            logStart: 0,
+            logFlag: 0,
+            logCounter: 0
+        };
         this.state = new States(app, this, 'LOAD_GAME_DATA', STATES);
         this.app.factory.addGameEntity(this);
         this.maps = new Maps();
@@ -46,8 +49,14 @@ export default class Ants2 {
         this.level = new GameLevel({
             app: this.app,
             game: this,
-            width: 2000,
-            height: 1800
+            width: 800,
+            height: 550,
+            addedRules: [
+                // {
+                //     name: 'Ant',
+                //     rule: (entity) => entity.outsideRules(()=> console.log('im a rule! i rule Ant #' + entity.name))
+                // }
+            ]
         })
         this.state.setState('MAIN_MENU');
     }
@@ -63,13 +72,13 @@ export default class Ants2 {
         (this.state.state === 'LOAD_GAME_DATA') && this.#loadData();
         (this.state.state === 'LOAD_GAME_LEVEL') && this.#loadGameLevel();
         // TODO CHANGE THIS - this monster is temporal
-        if (
-            this.app.game.state.state === 'PLAY' &&
-            this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
-            this.state.state !== 'GAME_OVER'
-        ) {
-            this.app.game.state.setState('GAME_OVER');
-            (this.state.state === 'GAME_OVER') && this.#restart();
-        }
+        // if (
+        //     this.app.game.state.state === 'PLAY' &&
+        //     this.app.factory.binnacle['Anthill'][0].antCounter === 0 &&
+        //     this.state.state !== 'GAME_OVER'
+        // ) {
+        //     this.app.game.state.setState('GAME_OVER');
+        //     (this.state.state === 'GAME_OVER') && this.#restart();
+        // }
     }
 }

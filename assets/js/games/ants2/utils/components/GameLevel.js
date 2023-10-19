@@ -18,10 +18,10 @@ export default class GameLevel {
                 props: {amount: 2}
             }, {
                 name: 'Anthill',
-                props: {ants: 1, free: true},
+                props: {ants: 3000, free: true, level: this},
             }];
-        game.constructor.name === 'Ants2' && this.loadEntities();
         this.app.factory.addGameEntity(this);
+        game.constructor.name === 'Ants2' && this.loadEntities();
     }
 
     /**
@@ -29,82 +29,33 @@ export default class GameLevel {
      */
     #getBordersEdges() {
         const [topLeft, bottomLeft, topRight, bottomRight] = [
-            {x: (-this.size.width) / 2, y: (-this.size.height) / 2},
             {x: (-this.size.width) / 2, y: (this.size.height) / 2},
+            {x: (-this.size.width) / 2, y: (-this.size.height) / 2},
+            {x: (this.size.width) / 2, y: (this.size.height) / 2},
             {x: (this.size.width) / 2, y: (-this.size.height) / 2},
-            {x: (this.size.width) / 2, y: (this.size.height) / 2}
         ];
-        this.boundTargets = {
-            // These are the bounds for the ants sensors
-            walls: [
-                // Left
-                {x: topLeft.x, y: topLeft.y},
-                {x: bottomLeft.x, y: bottomLeft.y},
-                // Right
-                {x: topRight.x, y: topRight.y},
-                {x: bottomRight.x, y: bottomRight.y},
-                // Bottom
-                {x: bottomLeft.x, y: bottomLeft.y},
-                {x: bottomRight.x, y: bottomRight.y},
-                // Top
-                {x: topLeft.x, y: topLeft.y},
-                {x: topRight.x, y: topRight.y}
-            ]
+
+        class WallPolygon {
+            constructor({coords, polygons}) {
+                this.coords = coords;
+                this.polygons = polygons;
+            }
         }
+
         this.wallPolygons = [
-            // Left
-            {
+            new WallPolygon({
                 coords: {
-                    x: bottomLeft.x,
+                    x: 0,
                     y: 0
                 },
                 polygons: [
                     {x: topLeft.x, y: topLeft.y},
-                    {x: bottomLeft.x, y: bottomLeft.y},
-                    {x: topLeft.x - 1, y: topLeft.y},
-                    {x: bottomLeft.x - 1, y: bottomLeft.y},
-                ]
-            },
-            // Bottom
-            {
-                coords: {
-                    x: 0,
-                    y: bottomRight.y
-                },
-                polygons: [
-                    {x: bottomLeft.x, y: bottomLeft.y},
-                    {x: bottomRight.x, y: bottomRight.y},
-                    {x: bottomLeft.x, y: bottomLeft.y + 1},
-                    {x: bottomRight.x, y: bottomRight.y + 1},
-                ]
-            },
-            // Right
-            {
-                coords: {
-                    x: bottomRight.x,
-                    y: 0
-                },
-                polygons: [
                     {x: topRight.x, y: topRight.y},
                     {x: bottomRight.x, y: bottomRight.y},
-                    {x: topRight.x + 1, y: topRight.y},
-                    {x: bottomRight.x + 1, y: bottomRight.y},
+                    {x: bottomLeft.x, y: bottomLeft.y},
                 ]
-            },
-            // Top
-            {
-                coords: {
-                    x: 0,
-                    y: topRight.y
-                },
-                polygons: [
-                    {x: topLeft.x, y: topLeft.y},
-                    {x: topRight.x, y: topRight.y},
-                    {x: topLeft.x, y: topLeft.y - 1},
-                    {x: topRight.x, y: topRight.y - 1}
-                ]
-            },
-        ]
+            }),
+        ];
     }
 
     /**
@@ -127,24 +78,24 @@ export default class GameLevel {
         }
     }
 
-    Food({amount, width, height}) {
-        width = width ?? this.size.width;
-        height = height ?? this.size.height;
+    Food({amount}) {
         for (let i = 0; i < amount; i++) {
             this.app.factory.create(Food, {
                 app: this.app,
-                bounds: {width: width / 2, height: height / 2}
+                size: this.app.tools.random(80, 100),
+                bounds: this.size
             });
         }
     }
 
-    Anthill({ants, free = false}) {
+    Anthill({ants, level, free = false}) {
         let collection = this.app.factory.binnacle['Anthill'] ?? [];
         collection = collection.length
         this.app.factory.create(Anthill, {
             app: this.app,
             game: this.game,
             id: collection + 1,
+            level,
             ants,
             free
         });
@@ -152,9 +103,9 @@ export default class GameLevel {
 
     update() {
         this.#getBordersEdges();
-        if (this.game.constructor.name === 'Ants2Trainer') {
-            this.#loadOutsideRules();
-        }
+        this.#loadOutsideRules();
+        // if (this.game.constructor.name === 'Ants2Trainer') {
+        // }
 
     }
 

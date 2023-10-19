@@ -38,28 +38,56 @@ export default class Physics {
 		// absolute stop the entity
 		if ((entity.speed > -this.stopRange) && (entity.speed < this.stopRange)) entity.speed = 0;
 
-		entity.coords.x -= Math.sin(entity.angle) * entity.speed;
-		entity.coords.y -= Math.cos(entity.angle) * entity.speed;
 
 		this.entityLimits(entity, crashTypes);
+
+		entity.coords.x -= Math.sin(entity.angle) * entity.speed;
+		entity.coords.y -= Math.cos(entity.angle) * entity.speed;
 
 	}
 
 	entityLimits(entity, crashTypes) {
+		let base = 0.2;
 		if (!crashTypes instanceof Array || typeof crashTypes !== 'object') return;
+
 		const iterable = crashTypes instanceof Array ? crashTypes : Object.values(crashTypes);
 		for (let i = 0; i < iterable.length; i++) {
 			if (this.app.gui.get.polysIntersect(entity.polygons, iterable[i].polygons)) {
-				entity.coords.x -= entity.coords.x < iterable[i].coords.x ? entity.speed : -entity.speed;
-				entity.coords.y -=  entity.coords.y < iterable[i].coords.y ? entity.speed : -entity.speed;
+				const xBound = (this.app.game.level.size.width / 2);
+				const yBound = (this.app.game.level.size.height / 2);
+				const halfSize = (entity.generatedSize / 2) + base;
+
+				entity.speed = 0;
+
+				// this works for right
+				if ((entity.coords.x) > xBound - halfSize) {
+					entity.coords.x -= base;
+				}
+				// this works for left
+				else if ((-entity.coords.x) > xBound - halfSize) {
+					entity.coords.x += base;
+				}
+				// this works for bottom
+				else  if ((entity.coords.y) > yBound - halfSize) {
+					entity.coords.y -= base;
+				}
+				// this works for top
+				else if ((-entity.coords.y) > yBound - halfSize) {
+					entity.coords.y += base;
+				}
+				return
 			}
 		}
 	}
 
-	isInBound(entity) {
-		const coords = entity.coords;
-		const limits = this.app.game.level.size;
-		return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
-			!(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
-	}
+	// isInBound(entity) {
+	// 	const coords = entity.coords;
+	// 	const limits = this.app.game.level.size;
+	// 	return !(coords.x > -limits.width / 2 && coords.x < limits.width / 2) ||
+	// 		!(coords.y > -limits.height / 2 && coords.y < limits.height / 2);
+	// }
+
+	degrees = (angle) => angle * (180 / Math.PI);
+
+	radians = (angle) => angle * (Math.PI / 180);
 }

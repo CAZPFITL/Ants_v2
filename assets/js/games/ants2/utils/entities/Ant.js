@@ -14,38 +14,38 @@ export default class Ant {
         this.no_update = false;
         this.no_draw = false;
         // Measurements
-        const size = app.tools.random(8, 10);
+        this.generatedSize = app.tools.random(8, 10);
         this.color = color;
         this.coords = {x, y};
         this.size = {
-            width: (size * 0.5),
-            height: (size * 1)
+            width: this.generatedSize / 1.3333333333,
+            height: this.generatedSize
         }
         // State and capabilities
         this.age = 0;
         this.maxAge = app.tools.random(400, 600);
-        this.eatingRate = app.tools.random(size, size * 3) * 0.008;
-        this.carryRate = app.tools.random(size, size * 2) * 0.008;
+        this.eatingRate = app.tools.random(this.generatedSize, this.generatedSize * 3) * 0.008;
+        this.carryRate = app.tools.random(this.generatedSize, this.generatedSize * 2) * 0.008;
         this.metabolismSpeed = 0.005;
         this.energy = 100;
         this.pickedFood = 0;
-        this.maxFoodPickCapacity = size * 2;
+        this.maxFoodPickCapacity = this.generatedSize * 2;
         this.requestFlags = {};
         this.nose = {x, y};
-        this.player = Boolean(this.app.player?.controls);
         // physics
         this.speed = 0;
         this.angle = angle;
-        // referencable objects
-        this.acceleration = 0.3;
-        this.friction = 0.040;
-        this.maxSpeed = 0.6;
-        this.turnSpeed = 0.05;
+        this.acceleration = 0.1;
+        this.friction = 0.02;
+        this.maxSpeed = 0.3;
+        this.turnSpeed = 0.06;
+        this.boost = 2;
         this._acceleration = this.acceleration;
         this._friction = this.friction;
         this._maxSpeed = this.maxSpeed;
         this._turnSpeed = this.turnSpeed;
         this.target = {x: 0, y: 0};
+        // referencable objects
         this.selfMoveState = new State(this.app, this, 'think', [
             'think',
             'search',
@@ -57,6 +57,11 @@ export default class Ant {
         ], (fn) => fn())
         // Shape
         this.polygons = [];
+        this.img = new Image((this.generatedSize * 0.5), (this.generatedSize * 1));
+        // this.img.src = './assets/images/single-ant.png';
+        this.animation = 0;
+        this.frameCounter = 0;
+        this.img.src = './assets/images/ant-grid.png';
         // Control
         this.controls = {
             forward: 0,
@@ -73,8 +78,8 @@ export default class Ant {
             antennas: new Sensor(
                 this,
                 2,
-                50,
-                Math.PI * 0.35,
+                15,
+                Math.PI * 0.2,
                 this.color
             )
         }
@@ -101,7 +106,10 @@ export default class Ant {
      */
     #neuralProcess() {
         // FALLBACK TO CATCHER
-        const controls = this.player ? this.app.controls.getControls(this) : this.controls;
+        const control = this.app.player.ant === this;
+
+        const controls = control ? this.app.controls.getControls(this) : this.controls;
+        // const controls = this.controls;
 
         // SET SELF MOVE ?
         this.controls.selfMove = !(this.app.player.ant === this);
@@ -118,8 +126,10 @@ export default class Ant {
         controls.eat && this.#eatFood();
         controls.drop && this.#dropFood();
 
+        // MOTION
+        this.#move(controls, this.controls.selfMove);
+
         // LIVE
-        this.#move(controls);
         this.#metabolism(controls);
         this.#age();
     }
@@ -127,8 +137,7 @@ export default class Ant {
     #smell() {
         this.sensors.antennas.update([
             ...(this.app.factory.binnacle['Traces'][0]?.collection ?? []),
-            ...(this.app.factory.binnacle.Food ?? []),
-            ...this.app.game.level.wallPolygons
+            ...(this.app.factory.binnacle.Food ?? [])
         ]);
 
         // check if the ants mouth is in the food source,
@@ -215,47 +224,41 @@ export default class Ant {
         }
     }
 
-    #move(controls) {
+    #move(controls, selfMove) {
         // update referencable data
         this.acceleration = this._acceleration * this.app.gameSpeed;
         this.turnSpeed = this._turnSpeed * this.app.gameSpeed
         this.maxSpeed = this._maxSpeed * this.app.gameSpeed;
         this.friction = this._friction / this.app.gameSpeed;
 
-        // THIS SCRIPT ALLOWS THE SELF MOVING ANTS TO GO IN ONE SPECIFIC DIRECTION.
-        if (this.controls.selfMove) {
-            // d=√((x2 – x1)² + (y2 – y1)²)
-            this.distanceToTarget = Math.sqrt(Math.pow(this.coords.x - this.home.target.x, 2) + Math.pow(this.coords.y - this.home.target.y, 2))
+        // keep the angle between 0 and 360 degrees
+        this.angle = this.app.physics.degrees(this.angle) < 0 ? this.app.physics.radians(360) : this.angle;
+        this.angle = this.app.physics.degrees(this.angle) > 360 ? this.app.physics.radians(0) : this.angle;
 
-            // Calculate direction to target selected.
-            const x = this.coords.x - this.home.target.x;
-            const y = this.coords.y - this.home.target.y;
-            const angle = this.angle - Math.atan2(x, y);
-            const adjust = Boolean((angle < 0 ? angle * -1 : angle) > 3);
-
-            const delta = !adjust ? (this.angle > Math.atan2(x, y) ? this.angle - this.turnSpeed : this.angle + this.turnSpeed) : - this.angle + this.turnSpeed;
-
-            this.angle = this.app.tools.lerp(delta, delta < 0 ? delta + 1 : delta - 1, 0.01);
-            this.speed = this.distanceToTarget / 10;
-
-        } else {
-            // Trigger Movement
+        if (!selfMove) {
             if (controls.reverse) this.app.physics.slowdown(this);
             if (controls.left) this.app.physics.turnLeft(this);
             if (controls.right) this.app.physics.turnRight(this);
             if (controls.forward) this.app.physics.speedup(this);
-            this.maxSpeed = (controls.run) ? (this.maxSpeed * 2) : this.maxSpeed;
+        } else {
+            this.app.tools.random(0,1000,true) < this.app.tools.random(500,1000,true) && this.app.physics.speedup(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(250,1000,true) && this.app.physics.slowdown(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(500,1000,true) && this.app.physics.turnLeft(this)
+            this.app.tools.random(0,1000,true) < this.app.tools.random(250,1000,true) && this.app.physics.turnRight(this)
         }
+
+        this.maxSpeed = (controls.run) ? (this.maxSpeed * this.boost) : this.maxSpeed;
 
         // LISTED COLLISION OBJECTS
         this.app.physics.move(this, [
-            ...this.app.game.level.wallPolygons ?? []
+            ...(this.app.game.level.wallPolygons ?? []),
+            // ...(this.app.factory.binnacle.Food ?? [])
         ]);
     }
 
     #highlight() {
         if (this.app.game.constructor.name === 'Ants2') {
-            this.color = (this.app.player.ant === this) ? 'rgb(0,0,0)' : 'rgba(0,0,0,0.8)';
+            this.color = (this.app.player.ant === this) ? 'rgb(10,50,0)' : 'rgba(0,0,0,0.8)';
         }
         if (this.app.game.constructor.name === 'Ants2Trainer') {
             this.color = (this.app.player.ant === this) ? 'rgb(0,150,234)' : 'rgba(0,0,0,0.3)';
@@ -263,8 +266,9 @@ export default class Ant {
     }
 
     shape() {
-        const rad = Math.hypot(this.size.width, this.size.height) / 2;
-        const alpha = Math.atan2(this.size.width, this.size.height);
+        const rad = Math.hypot(this.size.width / 2, this.size.height) / 2;
+        const alpha = Math.atan2(this.size.width / 2, this.size.height);
+        // TODO add two points to the middle legs
         return [
             {
                 x: this.coords.x - Math.sin(this.angle - alpha) * rad,
@@ -285,15 +289,12 @@ export default class Ant {
             {
                 x: this.coords.x - Math.sin(Math.PI + this.angle + alpha) * rad,
                 y: this.coords.y - Math.cos(Math.PI + this.angle + alpha) * rad
-            }
+            },
+
         ]
     }
 
-    drawAnt(ctx) {
-        this.app.gui.get.drawPolygon(ctx, this);
-    }
-
-    update() {
+    update(appRequest) {
         if (!this.no_update && this.app.game.state.state === PLAY || this.app.game.state.state === GAME_OVER) {
             // Draw me
             this.app.gui.get.createPolygon(this);
@@ -301,15 +302,26 @@ export default class Ant {
             this.#neuralProcess();
             // Let's highlight
             this.#highlight();
+            // Animation zone
+            const graduation = 0.05;
+            const reference = 10 * (graduation + (this.speed > 0 ? -this.speed : this.speed));
+            // step not reached
+            if (!(appRequest - (this.animation) > reference)) return;
+            // step reached
+            (this.speed !== 0 || this.angleCache !== this.angle) && (this.frameCounter = (this.frameCounter > 26) ? 0 : ++this.frameCounter);
+            // update animation counter
+            this.animation = appRequest;
+            this.angleCache = this.angle
         }
     }
 
     draw(ctx) {
         if (!this.no_draw && this.app.game.state.state === PLAY) {
-            this.drawAnt(ctx);
-            Object.values(this.sensors).forEach(sensor => {
-                sensor.draw(ctx);
-            })
+            // this.app.gui.get.drawPolygon(ctx, this);
+            this.app.gui.get.drawImage(ctx, this, 45, 60);
+            // Object.values(this.sensors).forEach(sensor => {
+            //     sensor.draw(ctx);
+            // })
         }
     }
 }

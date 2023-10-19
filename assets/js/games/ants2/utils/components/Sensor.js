@@ -38,6 +38,7 @@ export default class Sensor {
 
     getReading(ray, targets) {
         let touches = [];
+        let findings = [];
         for (let i = 0; i < targets.length; i++) {
             const poly = targets[i].polygons;
             if (!poly || this.entity === targets[i]) {
@@ -52,6 +53,7 @@ export default class Sensor {
                 );
                 if (value) {
                     touches.push(value);
+                    findings.push(targets[i]);
                 }
             }
         }
@@ -60,14 +62,17 @@ export default class Sensor {
         } else {
             const offsets = touches.map(e => e.offset);
             const minOffset = Math.min(...offsets);
-            return touches.find(touch => touch.offset === minOffset);
+            return [touches.find(touch => touch.offset === minOffset), findings];
         }
     }
 
     getReadings(targets) {
         this.readings = [];
+        this.findings = [];
         for (let i = 0; i < this.rays.length; i++) {
-            this.readings.push(this.getReading(this.rays[i], targets));
+            const readings = this.getReading(this.rays[i], targets) ?? [];
+            this.readings.push(readings[0]);
+            (readings[1]) && this.findings.push(...readings[1]);
         }
     }
 

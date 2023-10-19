@@ -3,7 +3,7 @@ import {PLAY, GAME_OVER} from "../../env.js";
 import Traces from "./../../../ants2/utils/entities/Traces.js";
 
 export default class Anthill {
-    constructor({app, game, id = 0, ants = 0, free}) {
+    constructor({app, game, id = 0, ants = 0, level, free}) {
         this.app = app;
         this.game = game;
         this.id = id;
@@ -22,8 +22,9 @@ export default class Anthill {
         this.food = 50;
         this.color = '#381801';
         this.antCoste = 10;
+        this.level = level;
         this.app.player.anthill = this;
-        this.loadEntities(ants, false);
+        this.loadEntities(ants, free);
     }
 
     /**
@@ -47,8 +48,8 @@ export default class Anthill {
             {
                 id: this.antCounterHistory,
                 app: this.app,
-                x: this.coords.x,
-                y: this.coords.y,
+                x: this.app.tools.random(-this.level.size.width/10,this.level.size.width/10,true), //this.coords.x,
+                y: this.app.tools.random(-this.level.size.height/10,this.level.size.height/10,true), // this.coords.y,
                 game: this.game,
                 angle: this.app.tools.random(-3.6, 3.6, false),
                 anthill: this
